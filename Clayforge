@@ -1,0 +1,271 @@
+node_modules/
+.env
+dist/
+.DS_Store
+*.log
+
+# Clayforge — Complete Deployment Guide
+## From zero to live in ~45 minutes
+
+---
+
+## WHAT YOU'LL SET UP
+1. Supabase (PostgreSQL database — free)
+2. Railway (backend API hosting — free tier)
+3. Vercel (frontend hosting — free)
+4. Stripe (USD payments)
+5. Paystack (NGN payments)
+
+---
+
+## STEP 1 — DATABASE (Supabase)
+**Time: ~5 minutes | Cost: Free**
+
+1. Go to https://supabase.com and click "Start your project"
+2. Sign up with GitHub (easiest)
+3. Click "New Project"
+   - Name: `clayforge`
+   - Password: choose a strong password (save it!)
+   - Region: choose closest to Nigeria (e.g. EU West or US East)
+4. Wait ~2 minutes for database to spin up
+5. Go to Settings → Database
+6. Copy the "Connection string" (URI format)
+   - It looks like: `postgresql://postgres:[PASSWORD]@db.xxxx.supabase.co:5432/postgres`
+   - Replace `[YOUR-PASSWORD]` with the password you chose
+7. **Save this string** — you'll need it in Step 2
+
+---
+
+## STEP 2 — BACKEND (Railway)
+**Time: ~10 minutes | Cost: Free ($5 credit monthly)**
+
+1. Go to https://railway.app and sign up with GitHub
+2. Click "New Project" → "Deploy from GitHub repo"
+3. Connect your GitHub account and push the `backend/` folder as a repo
+   - Or: Click "Empty Project" → "Add a Service" → "GitHub Repo"
+4. Once deployed, click your service → "Variables" tab
+5. Add these environment variables one by one:
+
+```
+DATABASE_URL=postgresql://postgres:[PASSWORD]@db.xxxx.supabase.co:5432/postgres
+JWT_SECRET=paste-a-random-64-character-string-here
+FRONTEND_URL=https://your-app.vercel.app    (update after Step 3)
+STRIPE_SECRET_KEY=sk_live_xxx               (from Step 4)
+STRIPE_WEBHOOK_SECRET=whsec_xxx            (from Step 4)
+PAYSTACK_SECRET_KEY=sk_live_xxx            (from Step 5)
+PAYSTACK_PUBLIC_KEY=pk_live_xxx            (from Step 5)
+PORT=3001
+```
+
+6. After setting DATABASE_URL, go to the "Deploy" tab and run:
+   ```
+   npm run db:generate && npm run db:push
+   ```
+   (This creates all the database tables automatically)
+
+7. Copy your Railway URL (e.g. `https://clayforge-backend.up.railway.app`)
+   → You'll need this for the frontend
+
+---
+
+## STEP 3 — FRONTEND (Vercel)
+**Time: ~5 minutes | Cost: Free**
+
+1. Go to https://vercel.com and sign up with GitHub
+2. Push the `frontend/` folder to a GitHub repo
+3. Click "Add New Project" → import your frontend repo
+4. In "Environment Variables" add:
+   ```
+   VITE_API_URL=https://your-backend.up.railway.app
+   VITE_PAYSTACK_PUBLIC_KEY=pk_live_xxx
+   ```
+5. Click "Deploy"
+6. Your app will be live at e.g. `https://clayforge.vercel.app`
+
+7. **Go back to Railway** and update `FRONTEND_URL` to your Vercel URL
+
+---
+
+## STEP 4 — STRIPE (USD Payments)
+**Time: ~10 minutes**
+
+1. Go to https://stripe.com and create an account
+2. Complete business verification (takes 1-2 days for live mode)
+3. For testing first, use test mode keys
+
+**Get your API keys:**
+- Dashboard → Developers → API Keys
+- Copy `Secret key` (sk_live_... or sk_test_...)
+- Add to Railway as `STRIPE_SECRET_KEY`
+
+**Set up webhook:**
+- Dashboard → Developers → Webhooks → "Add endpoint"
+- URL: `https://your-backend.up.railway.app/api/webhooks/stripe`
+- Events to select:
+  - `customer.subscription.created`
+  - `customer.subscription.updated`
+  - `customer.subscription.deleted`
+- Copy the "Signing secret" → add to Railway as `STRIPE_WEBHOOK_SECRET`
+
+**Create Customer Portal (for subscription management):**
+- Dashboard → Settings → Billing → Customer Portal
+- Enable it and save
+
+---
+
+## STEP 5 — PAYSTACK (NGN Payments)
+**Time: ~5 minutes**
+
+1. Go to https://paystack.com and create a business account
+2. Verify your business (CAC registration or BVN for individuals)
+3. Dashboard → Settings → API Keys & Webhooks
+4. Copy:
+   - Secret key → Railway `PAYSTACK_SECRET_KEY`
+   - Public key → Railway `PAYSTACK_PUBLIC_KEY` AND Vercel `VITE_PAYSTACK_PUBLIC_KEY`
+
+**Set webhook URL:**
+- Settings → API Keys & Webhooks → Webhook URL
+- Enter: `https://your-backend.up.railway.app/api/webhooks/paystack`
+  (Note: Paystack webhook handler can be added later — Paystack payments
+   are verified synchronously in the app, so subscriptions activate immediately)
+
+---
+
+## STEP 6 — CONNECT EVERYTHING
+After all steps, update these values:
+
+**In Railway (backend env vars):**
+```
+FRONTEND_URL=https://your-actual-vercel-url.vercel.app
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+PAYSTACK_SECRET_KEY=sk_live_...
+```
+
+**In Vercel (frontend env vars):**
+```
+VITE_API_URL=https://your-actual-railway-url.up.railway.app
+VITE_PAYSTACK_PUBLIC_KEY=pk_live_...
+```
+
+Redeploy both after updating variables.
+
+---
+
+## TESTING CHECKLIST
+Before going live, test these flows:
+
+- [ ] Sign up with a new email
+- [ ] Sign in with that email
+- [ ] Generate a design (Invent tab)
+- [ ] Save it to library
+- [ ] Export as PDF
+- [ ] Go to Pricing → Stoneware → pay with Stripe test card 4242 4242 4242 4242
+- [ ] Verify plan upgrades to STONEWARE in account page
+- [ ] Test Paystack with a test transaction
+
+---
+
+## CUSTOM DOMAIN (Optional)
+1. Buy a domain (e.g. on Namecheap or Whogohost for Nigerian domains)
+2. In Vercel → your project → Settings → Domains → add your domain
+3. Follow DNS instructions (usually add a CNAME record)
+4. Done — HTTPS is automatic
+
+---
+
+## COSTS SUMMARY
+
+| Service   | Free Tier                    | Paid if you scale           |
+|-----------|-----------------------------|-----------------------------|
+| Supabase  | 500MB DB, 2 projects free   | $25/month for more          |
+| Railway   | $5 credit/month (enough)    | ~$10-20/month at scale      |
+| Vercel    | Unlimited for personal use  | $20/month for teams         |
+| Stripe    | No monthly fee              | 2.9% + $0.30 per transaction|
+| Paystack  | No monthly fee              | 1.5% per transaction (cap ₦2,000) |
+
+**Total to launch: ₦0 upfront.**
+You only pay Stripe/Paystack when you earn money.
+
+---
+
+## SUPPORT
+If you get stuck on any step, the most common issues are:
+- **Database connection fails**: Check your Supabase password has no special characters, or URL-encode them
+- **CORS errors**: Make sure FRONTEND_URL in Railway exactly matches your Vercel URL (no trailing slash)
+- **Paystack not loading**: Make sure VITE_PAYSTACK_PUBLIC_KEY is set in Vercel env vars and redeployed
+
+# Clayforge 🏺
+
+**AI-powered ceramic design studio**
+
+Generate, remix, and spec ceramic products using Claude AI and DALL·E image rendering.
+
+## Project Structure
+
+```
+clayforge/
+├── frontend/          ← Vercel (HTML + Vite)
+│   ├── index.html     ← Main app
+│   ├── vite.config.js
+│   └── package.json
+├── backend/           ← Railway (Node.js + Express)
+│   ├── src/
+│   │   ├── index.js           ← Main server
+│   │   ├── middleware/auth.js  ← JWT auth
+│   │   └── routes/
+│   │       ├── auth.js         ← Sign up / sign in
+│   │       ├── designs.js      ← Save / list / delete designs
+│   │       ├── payments.js     ← Stripe + Paystack
+│   │       └── webhooks.js     ← Stripe webhook handler
+│   ├── prisma/schema.prisma    ← Database schema
+│   ├── .env.example            ← Environment variables template
+│   └── package.json
+└── DEPLOY.md          ← Full deployment instructions
+```
+
+## Quick Start (Local Development)
+
+### Backend
+```bash
+cd backend
+cp .env.example .env
+# Fill in your .env values
+npm install
+npm run db:generate
+npm run db:push
+npm run dev
+```
+
+### Frontend
+```bash
+cd frontend
+cp .env.example .env
+# Set VITE_API_URL=http://localhost:3001
+npm install
+npm run dev
+```
+
+## Deployment
+See **DEPLOY.md** for the complete step-by-step guide covering:
+- Supabase (database)
+- Railway (backend)
+- Vercel (frontend)
+- Stripe (USD payments)
+- Paystack (NGN payments)
+
+## Features
+- ✦ Invent new ceramic designs from text descriptions
+- ⟳ Remix existing ceramic products
+- ⚙ Generate full technical specs (clay, glaze, firing schedules)
+- 🖼 AI image renders via DALL·E 3
+- ⬇ Branded PDF export
+- 🏺 Design library (save, view, re-export)
+- 👤 User accounts with JWT auth
+- 💳 NGN payments via Paystack
+- 💵 USD payments via Stripe
+
+## Pricing
+- **Clay**: Free (5 designs/month)
+- **Stoneware**: ₦8,500/month or $5.99 USD/month
+- **Porcelain**: ₦22,000/month or $14.99 USD/month

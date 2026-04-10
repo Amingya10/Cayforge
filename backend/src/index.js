@@ -2,11 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-const authRoutes = require('./routes/auth');
-const designRoutes = require('./routes/designs');
-const paymentRoutes = require('./routes/payments');
+const authRoutes = require('./auth');
+const designRoutes = require('./designs');
+const paymentRoutes = require('./payments');
 const webhookRoutes = require('./routes/webhooks');
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 

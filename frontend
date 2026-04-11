@@ -1,7 +1,0 @@
-# Copy your frontend folder into the Cayforge repo
-cp -r /path/to/your/frontend /path/to/Cayforge/frontend
-
-cd /path/to/Cayforge
-git add frontend/
-git commit -m "Add frontend"
-git push origin main

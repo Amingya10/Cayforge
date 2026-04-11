@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clayforge — Ceramic Design Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<style>
+:root{--clay:#c4714a;--clay-dark:#8b4a2f;--clay-light:#e8a882;--earth:#2a1f15;--sand:#f5ede3;--ash:#9e8e7e;--glaze:#4a7c8b;--glaze-light:#7fb3c2;--kiln:#e85d2a;--cream:#faf6f0;--green:#4a8b5a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--earth);color:var(--sand);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(196,113,74,.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(74,124,139,.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+nav{position:sticky;top:0;z-index:100;background:rgba(42,31,21,.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(196,113,74,.15);padding:0 20px}
+.nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;height:56px;gap:4px}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:auto;cursor:pointer}
+.nav-logo-mark{width:26px;height:26px;border-radius:50%;background:conic-gradient(from 180deg,var(--clay),var(--clay-dark),var(--clay-light),var(--clay));box-shadow:0 0 10px rgba(196,113,74,.3);flex-shrink:0}
+.nav-logo span{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--sand)}
+.nav-btn{padding:7px 13px;background:none;border:none;color:var(--ash);font-family:'DM Mono',monospace;font-size:.73rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:7px;transition:all .2s;white-space:nowrap}
+.nav-btn:hover{color:var(--sand);background:rgba(196,113,74,.1)}
+.nav-btn.active{color:var(--clay-light);background:rgba(196,113,74,.12)}
+.nav-btn.cta{background:var(--clay);color:var(--cream);margin-left:6px}
+.nav-btn.cta:hover{background:var(--clay-dark)}
+.nav-user{display:flex;align-items:center;gap:8px;margin-left:8px;padding:5px 11px;border:1px solid rgba(196,113,74,.25);border-radius:20px;cursor:pointer;transition:border-color .2s}
+.nav-user:hover{border-color:var(--clay)}
+.nav-user-name{font-size:.73rem;color:var(--ash)}
+.avatar{width:24px;height:24px;border-radius:50%;background:var(--clay);display:flex;align-items:center;justify-content:center;font-size:.68rem;color:var(--cream);font-weight:600;flex-shrink:0}
+.plan-badge-nav{font-size:.6rem;padding:2px 7px;border-radius:10px;letter-spacing:.08em;text-transform:uppercase}
+.plan-badge-nav.FREE{background:rgba(158,142,126,.15);color:var(--ash)}
+.plan-badge-nav.STONEWARE{background:rgba(196,113,74,.2);color:var(--clay-light)}
+.plan-badge-nav.PORCELAIN{background:rgba(201,168,76,.2);color:#c9a84c}
+.page{display:none;position:relative;z-index:2}
+.page.active{display:block}
+.container{max-width:960px;margin:0 auto;padding:36px 20px}
+.page-title{font-family:'Playfair Display',serif;font-size:1.75rem;margin-bottom:6px}
+.page-sub{font-size:.8rem;color:var(--ash);margin-bottom:28px}
+.tabs{display:flex;gap:4px;margin-bottom:28px;background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.15);border-radius:12px;padding:4px}
+.tab{flex:1;padding:9px 10px;background:none;border:none;color:var(--ash);font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border-radius:8px;transition:all .2s}
+.tab.active{background:var(--clay);color:var(--cream)}
+.tab:hover:not(.active){color:var(--sand);background:rgba(196,113,74,.1)}
+.panel{display:none}.panel.active{display:block}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.2);border-radius:14px;padding:22px;margin-bottom:20px}
+.field-label{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--clay-light);margin-bottom:8px;display:block}
+textarea,input[type=text],input[type=email],input[type=password]{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(196,113,74,.25);border-radius:9px;padding:11px 13px;color:var(--sand);font-family:'DM Mono',monospace;font-size:.84rem;line-height:1.6;resize:none;outline:none;transition:border-color .2s}
+textarea:focus,input:focus{border-color:var(--clay)}
+textarea{height:95px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:13px}
+@media(max-width:580px){.field-row{grid-template-columns:1fr}}
+select{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(196,113,74,.25);border-radius:9px;padding:10px 13px;color:var(--sand);font-family:'DM Mono',monospace;font-size:.82rem;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c4714a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+select option{background:#2a1f15}
+.api-row{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:13px;padding-top:13px;border-top:1px solid rgba(196,113,74,.1)}
+.api-note{font-size:.68rem;color:var(--ash);margin-top:5px;line-height:1.5}
+.api-note a{color:var(--clay-light)}
+.btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--clay),var(--clay-dark));border:none;border-radius:11px;color:var(--cream);font-family:'Playfair Display',serif;font-size:.98rem;font-style:italic;cursor:pointer;transition:all .25s;box-shadow:0 4px 18px rgba(196,113,74,.22);margin-top:16px}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(196,113,74,.32)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.output-area{min-height:160px}
+.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;gap:12px;color:var(--ash)}
+.wheel{width:46px;height:46px;border-radius:50%;border:2px solid rgba(196,113,74,.18);border-top-color:var(--clay);animation:spin-s 4s linear infinite;opacity:.35}
+@keyframes spin-s{to{transform:rotate(360deg)}}
+.placeholder p{font-size:.78rem;letter-spacing:.06em}
+.loading-wrap{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:160px;gap:14px}
+.loading-wrap.on{display:flex}
+.spinner{width:40px;height:40px;position:relative}
+.spinner::before{content:'';position:absolute;inset:0;border-radius:50%;border:3px solid rgba(196,113,74,.12)}
+.spinner::after{content:'';position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--kiln);border-right-color:var(--clay);animation:spin .85s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-label{font-size:.73rem;color:var(--ash);letter-spacing:.1em;text-transform:uppercase;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+.result-wrap{display:none;animation:up .38s ease}
+.result-wrap.on{display:block}
+@keyframes up{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.res-card{background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.18);border-radius:13px;padding:20px;margin-bottom:12px}
+.res-card h3{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--clay-light);margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid rgba(196,113,74,.13)}
+.res-body{font-size:.83rem;line-height:1.88;color:var(--sand);white-space:pre-wrap}
+.render-card{background:rgba(255,255,255,.03);border:1px solid rgba(74,124,139,.28);border-radius:13px;padding:20px;margin-bottom:12px}
+.render-card h3{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--glaze-light);margin-bottom:12px}
+.render-img{width:100%;max-width:460px;border-radius:9px;display:block;margin:0 auto}
+.render-load{display:flex;align-items:center;gap:10px;color:var(--ash);font-size:.78rem;padding:14px 0}
+.render-err{color:#f0a080;font-size:.78rem;padding:8px 0}
+.action-bar{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
+.btn-action{padding:7px 14px;background:none;border:1px solid rgba(196,113,74,.28);border-radius:7px;color:var(--ash);font-family:'DM Mono',monospace;font-size:.71rem;letter-spacing:.07em;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px}
+.btn-action:hover{border-color:var(--clay);color:var(--clay-light)}
+.btn-action.save-btn{border-color:rgba(74,139,90,.38);color:var(--green)}
+.btn-action.save-btn:hover{border-color:var(--green)}
+.err-msg{display:none;background:rgba(232,93,42,.1);border:1px solid rgba(232,93,42,.28);border-radius:9px;padding:11px 14px;color:#f0a080;font-size:.8rem;line-height:1.6;margin-top:12px}
+.err-msg.on{display:block}
+/* Library */
+.lib-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.empty-lib{text-align:center;padding:70px 20px;color:var(--ash)}
+.empty-lib .ico{font-size:2.6rem;margin-bottom:14px;opacity:.28}
+.empty-lib p{font-size:.82rem;line-height:1.7}
+.designs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:16px}
+.dc{background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.18);border-radius:13px;padding:18px;cursor:pointer;transition:all .2s;position:relative}
+.dc:hover{border-color:var(--clay);transform:translateY(-2px)}
+.dc-mode{font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ash);margin-bottom:6px}
+.dc-name{font-family:'Playfair Display',serif;font-size:1rem;color:var(--clay-light);margin-bottom:5px}
+.dc-preview{font-size:.76rem;color:var(--ash);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dc-date{font-size:.66rem;color:rgba(158,142,126,.45);margin-top:10px}
+.dc img{width:100%;border-radius:7px;margin-bottom:10px;display:block}
+.dc-del{position:absolute;top:13px;right:13px;background:none;border:none;color:rgba(158,142,126,.35);cursor:pointer;font-size:.95rem;transition:color .2s}
+.dc-del:hover{color:#f0a080}
+/* Auth */
+.auth-wrap{max-width:400px;margin:50px auto;padding:0 20px}
+.auth-card{background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.2);border-radius:18px;padding:32px}
+.auth-card h2{font-family:'Playfair Display',serif;font-size:1.55rem;margin-bottom:5px}
+.auth-card p{font-size:.78rem;color:var(--ash);margin-bottom:24px}
+.auth-field{margin-bottom:14px}
+.btn-auth{width:100%;padding:12px;background:linear-gradient(135deg,var(--clay),var(--clay-dark));border:none;border-radius:9px;color:var(--cream);font-family:'DM Mono',monospace;font-size:.83rem;letter-spacing:.06em;cursor:pointer;margin-top:6px;transition:all .2s}
+.btn-auth:hover{opacity:.9}
+.auth-switch{text-align:center;margin-top:16px;font-size:.76rem;color:var(--ash)}
+.auth-switch button{background:none;border:none;color:var(--clay-light);cursor:pointer;font-family:'DM Mono',monospace;font-size:.76rem}
+.auth-err{font-size:.76rem;color:#f0a080;margin-top:8px;text-align:center;min-height:18px}
+.currency-toggle{display:flex;gap:8px;margin-bottom:14px}
+.cur-btn{flex:1;padding:8px;background:rgba(0,0,0,.2);border:1px solid rgba(196,113,74,.2);border-radius:8px;color:var(--ash);font-family:'DM Mono',monospace;font-size:.75rem;cursor:pointer;transition:all .2s;letter-spacing:.06em}
+.cur-btn.active{background:rgba(196,113,74,.15);border-color:var(--clay);color:var(--clay-light)}
+/* Pricing */
+.pricing-hero{text-align:center;padding:44px 0 36px}
+.pricing-hero h2{font-family:'Playfair Display',serif;font-size:2rem;margin-bottom:8px}
+.pricing-hero p{font-size:.85rem;color:var(--ash);max-width:460px;margin:0 auto}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:18px;max-width:860px;margin:0 auto 52px}
+.plan{background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.18);border-radius:16px;padding:26px;position:relative;transition:all .25s}
+.plan.featured{border-color:var(--clay);background:rgba(196,113,74,.05)}
+.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--clay);color:var(--cream);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;padding:3px 13px;border-radius:20px;white-space:nowrap}
+.plan-name{font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:5px}
+.plan-prices{margin-bottom:4px}
+.price-ngn{font-size:1.7rem;font-weight:700;color:var(--clay-light)}
+.price-ngn span{font-size:.76rem;color:var(--ash);font-weight:400}
+.price-usd{font-size:.8rem;color:var(--ash);margin-bottom:4px}
+.plan-desc{font-size:.76rem;color:var(--ash);margin-bottom:18px;line-height:1.6}
+.plan-features{list-style:none;margin-bottom:20px}
+.plan-features li{font-size:.77rem;padding:6px 0;border-bottom:1px solid rgba(196,113,74,.07);display:flex;align-items:flex-start;gap:7px;color:var(--sand)}
+.plan-features li::before{content:'✦';color:var(--clay);font-size:.65rem;flex-shrink:0;margin-top:2px}
+.plan-features li.dim{color:var(--ash)}
+.plan-features li.dim::before{color:rgba(158,142,126,.25)}
+.btn-plan{width:100%;padding:11px;border:1px solid var(--clay);border-radius:9px;background:none;color:var(--clay-light);font-family:'DM Mono',monospace;font-size:.77rem;letter-spacing:.07em;cursor:pointer;transition:all .2s}
+.plan.featured .btn-plan{background:var(--clay);color:var(--cream);border-color:var(--clay)}
+.btn-plan:hover{background:var(--clay);color:var(--cream)}
+.faq{max-width:640px;margin:0 auto 50px}
+.faq h3{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:18px;text-align:center}
+.faq-item{border-bottom:1px solid rgba(196,113,74,.1);padding:14px 0}
+.faq-q{font-size:.82rem;color:var(--clay-light);margin-bottom:7px}
+.faq-a{font-size:.78rem;color:var(--ash);line-height:1.7}
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;align-items:center;justify-content:center;padding:18px}
+.modal-bg.open{display:flex}
+.modal{background:#2a1f15;border:1px solid rgba(196,113,74,.28);border-radius:16px;padding:26px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;animation:up .3s ease}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--clay-light);margin-bottom:16px}
+.modal-x{float:right;background:none;border:none;color:var(--ash);font-size:1.15rem;cursor:pointer;margin-top:-3px}
+.modal-x:hover{color:var(--sand)}
+/* Account page */
+.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:580px){.account-grid{grid-template-columns:1fr}}
+.account-stat{background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.18);border-radius:12px;padding:18px}
+.account-stat .stat-label{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ash);margin-bottom:6px}
+.account-stat .stat-val{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--clay-light)}
+.btn-manage{padding:10px 20px;background:none;border:1px solid rgba(196,113,74,.3);border-radius:8px;color:var(--ash);font-family:'DM Mono',monospace;font-size:.76rem;letter-spacing:.07em;cursor:pointer;transition:all .2s;margin-top:14px}
+.btn-manage:hover{border-color:var(--clay);color:var(--clay-light)}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;z-index:300;background:var(--clay-dark);color:var(--cream);padding:11px 18px;border-radius:9px;font-size:.78rem;letter-spacing:.04em;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+/* Success page */
+.success-wrap{text-align:center;padding:80px 20px}
+.success-wrap h2{font-family:'Playfair Display',serif;font-size:2rem;margin-bottom:10px}
+.success-wrap p{color:var(--ash);font-size:.85rem;margin-bottom:24px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="showPage('studio')">
+      <div class="nav-logo-mark"></div>
+      <span>Clayforge</span>
+    </div>
+    <button class="nav-btn active" id="nb-studio" onclick="showPage('studio')">Studio</button>
+    <button class="nav-btn" id="nb-library" onclick="showPage('library')">Library</button>
+    <button class="nav-btn" id="nb-pricing" onclick="showPage('pricing')">Pricing</button>
+    <div id="nav-auth-area">
+      <button class="nav-btn cta" onclick="showPage('auth')">Sign In</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ STUDIO ═══ -->
+<div class="page active" id="page-studio">
+<div class="container">
+  <div class="page-title">Design Studio</div>
+  <div class="page-sub">Invent, remix, and spec ceramic products using AI</div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('invent')">✦ Invent New</button>
+    <button class="tab" onclick="switchTab('remix')">⟳ Remix Existing</button>
+    <button class="tab" onclick="switchTab('specs')">⚙ Tech Specs</button>
+  </div>
+
+  <!-- INVENT -->
+  <div class="panel active" id="panel-invent">
+    <div class="card">
+      <label class="field-label">Describe your ceramic piece</label>
+      <textarea id="invent-prompt" placeholder="e.g. A tall vase inspired by Hausa architecture, with geometric relief patterns and a deep indigo glaze that fades to warm terracotta at the base..."></textarea>
+      <div class="field-row">
+        <div><label class="field-label">Form / Type</label>
+          <select id="invent-form">
+            <option value="">Any form</option>
+            <option>Vase</option><option>Bowl</option><option>Plate / Platter</option>
+            <option>Mug / Cup</option><option>Teapot</option><option>Sculpture</option>
+            <option>Tile / Panel</option><option>Jar with lid</option><option>Lamp base</option><option>Planter / Pot</option>
+          </select></div>
+        <div><label class="field-label">Style / Inspiration</label>
+          <select id="invent-style">
+            <option value="">Any style</option>
+            <option>Traditional African</option><option>Hausa / Sahel</option>
+            <option>Contemporary minimal</option><option>Japanese wabi-sabi</option>
+            <option>Brutalist / raw</option><option>Art Deco / geometric</option>
+            <option>Organic / biomorphic</option><option>Folk / rustic</option><option>Futuristic</option>
+          </select></div>
+      </div>
+      <div class="api-row">
+        <div><label class="field-label">Anthropic API Key</label>
+          <input type="password" id="anthropic-key" placeholder="sk-ant-..." oninput="saveKeys()">
+          <div class="api-note">For design text. <a href="https://console.anthropic.com" target="_blank">Get key ↗</a></div></div>
+        <div><label class="field-label">OpenAI Key (images)</label>
+          <input type="password" id="openai-key" placeholder="sk-..." oninput="saveKeys()">
+          <div class="api-note">For visual renders. <a href="https://platform.openai.com/api-keys" target="_blank">Get key ↗</a></div></div>
+      </div>
+      <button class="btn-primary" onclick="generate('invent')">Fire the kiln — Generate Design</button>
+    </div>
+    <div class="output-area" id="output-invent">
+      <div class="placeholder"><div class="wheel"></div><p>Your design will appear here</p></div>
+      <div class="loading-wrap" id="loading-invent"><div class="spinner"></div><div class="loading-label">Shaping your concept…</div></div>
+      <div class="result-wrap" id="result-invent"></div>
+      <div class="err-msg" id="error-invent"></div>
+    </div>
+  </div>
+
+  <!-- REMIX -->
+  <div class="panel" id="panel-remix">
+    <div class="card">
+      <label class="field-label">Describe an existing ceramic product</label>
+      <textarea id="remix-prompt" placeholder="e.g. A plain round brown earthenware cooking pot, 30cm wide, with two handles and a flat lid..."></textarea>
+      <div style="margin-top:13px">
+        <label class="field-label">How should it be transformed?</label>
+        <textarea id="remix-transform" placeholder="e.g. Elegant for modern dining — geometric patterns, matte olive glaze, slimmer profile..." style="height:78px"></textarea>
+      </div>
+      <button class="btn-primary" onclick="generate('remix')">Transform this piece →</button>
+    </div>
+    <div class="output-area" id="output-remix">
+      <div class="placeholder"><div class="wheel"></div><p>Transformation will appear here</p></div>
+      <div class="loading-wrap" id="loading-remix"><div class="spinner"></div><div class="loading-label">Reimagining the form…</div></div>
+      <div class="result-wrap" id="result-remix"></div>
+      <div class="err-msg" id="error-remix"></div>
+    </div>
+  </div>
+
+  <!-- SPECS -->
+  <div class="panel" id="panel-specs">
+    <div class="card">
+      <label class="field-label">Describe the ceramic piece</label>
+      <textarea id="specs-prompt" placeholder="e.g. A stoneware bowl with tenmoku glaze, wheel-thrown, 18cm diameter, high-fire reduction..."></textarea>
+      <div class="field-row">
+        <div><label class="field-label">Firing method</label>
+          <select id="specs-firing">
+            <option value="">Not sure</option>
+            <option>Electric kiln — oxidation</option><option>Gas kiln — reduction</option>
+            <option>Wood firing / anagama</option><option>Raku</option><option>Pit firing / low-fire</option>
+          </select></div>
+        <div><label class="field-label">Intended use</label>
+          <select id="specs-use">
+            <option value="">General</option>
+            <option>Functional / food-safe</option><option>Decorative / display</option>
+            <option>Outdoor / garden</option><option>Cooking vessel</option><option>Sculpture / art</option>
+          </select></div>
+      </div>
+      <button class="btn-primary" onclick="generate('specs')">Generate Technical Specs</button>
+    </div>
+    <div class="output-area" id="output-specs">
+      <div class="placeholder"><div class="wheel"></div><p>Technical specifications will appear here</p></div>
+      <div class="loading-wrap" id="loading-specs"><div class="spinner"></div><div class="loading-label">Calculating specifications…</div></div>
+      <div class="result-wrap" id="result-specs"></div>
+      <div class="err-msg" id="error-specs"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ LIBRARY ═══ -->
+<div class="page" id="page-library">
+<div class="container">
+  <div class="lib-header">
+    <div><div class="page-title">My Designs</div><div class="page-sub">All your saved ceramic concepts</div></div>
+    <button class="btn-action" onclick="showPage('studio')">+ New Design</button>
+  </div>
+  <div id="library-content"></div>
+</div>
+</div>
+
+<!-- ═══ AUTH ═══ -->
+<div class="page" id="page-auth">
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2 id="auth-title">Welcome back</h2>
+    <p id="auth-sub">Sign in to save and access your designs</p>
+    <div class="auth-field" id="auth-name-field" style="display:none">
+      <label class="field-label">Your Name</label>
+      <input type="text" id="auth-name" placeholder="e.g. Amingya">
+    </div>
+    <div class="auth-field" id="auth-currency-field" style="display:none">
+      <label class="field-label">Your currency (for billing)</label>
+      <div class="currency-toggle">
+        <button class="cur-btn active" id="cur-ngn" onclick="setCurrency('NGN')">🇳🇬 Nigerian Naira (₦)</button>
+        <button class="cur-btn" id="cur-usd" onclick="setCurrency('USD')">🌍 US Dollar ($)</button>
+      </div>
+    </div>
+    <div class="auth-field">
+      <label class="field-label">Email</label>
+      <input type="email" id="auth-email" placeholder="you@example.com">
+    </div>
+    <div class="auth-field">
+      <label class="field-label">Password</label>
+      <input type="password" id="auth-password" placeholder="••••••••">
+    </div>
+    <button class="btn-auth" id="auth-btn" onclick="doAuth()">Sign In</button>
+    <div id="auth-err" class="auth-err"></div>
+    <div class="auth-switch">
+      <span id="auth-switch-text">Don't have an account?</span>
+      <button onclick="toggleAuthMode()">Create account</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PRICING ═══ -->
+<div class="page" id="page-pricing">
+<div class="container">
+  <div class="pricing-hero">
+    <h2>Simple, honest pricing</h2>
+    <p>Choose the plan that fits your ceramic practice. All plans include the full design studio.</p>
+  </div>
+  <div class="plans">
+    <div class="plan">
+      <div class="plan-name">Clay</div>
+      <div class="plan-prices"><div class="price-ngn">Free <span>/ forever</span></div><div class="price-usd">Always free</div></div>
+      <div class="plan-desc">For hobbyists and students exploring ceramic design.</div>
+      <ul class="plan-features">
+        <li>5 designs per month</li><li>Invent + Remix + Tech Specs</li><li>PDF export</li>
+        <li class="dim">No image renders</li><li class="dim">No design library</li><li class="dim">No priority support</li>
+      </ul>
+      <button class="btn-plan" onclick="selectPlan('FREE')">Get started free</button>
+    </div>
+    <div class="plan featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Stoneware</div>
+      <div class="plan-prices"><div class="price-ngn">₦8,500 <span>/ month</span></div><div class="price-usd">or $5.99 USD / month</div></div>
+      <div class="plan-desc">For working ceramicists and small studios.</div>
+      <ul class="plan-features">
+        <li>Unlimited designs</li><li>Invent + Remix + Tech Specs</li><li>AI image renders (DALL·E)</li>
+        <li>PDF export with branding</li><li>Design library (save unlimited)</li><li>Priority email support</li>
+      </ul>
+      <button class="btn-plan" onclick="selectPlan('STONEWARE')">Start 7-day free trial</button>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Porcelain</div>
+      <div class="plan-prices"><div class="price-ngn">₦22,000 <span>/ month</span></div><div class="price-usd">or $14.99 USD / month</div></div>
+      <div class="plan-desc">For studios, schools, and commercial producers.</div>
+      <ul class="plan-features">
+        <li>Everything in Stoneware</li><li>Up to 10 team members</li><li>Shared design library</li>
+        <li>Custom brand on PDF exports</li><li>API access</li><li>Dedicated support</li>
+      </ul>
+      <button class="btn-plan" onclick="selectPlan('PORCELAIN')">Contact us</button>
+    </div>
+  </div>
+  <div class="faq">
+    <h3>Common questions</h3>
+    <div class="faq-item"><div class="faq-q">Do I need my own API keys?</div><div class="faq-a">On paid plans, API access is bundled — no need to provide your own keys. On the free plan, you enter your own Anthropic and OpenAI keys (free to get, pay-per-use).</div></div>
+    <div class="faq-item"><div class="faq-q">Can I cancel anytime?</div><div class="faq-a">Yes. Cancel from your account page at any time. Access continues until end of billing period and your designs are always exportable.</div></div>
+    <div class="faq-item"><div class="faq-q">How do I pay?</div><div class="faq-a">Nigerian users pay via Paystack — card, bank transfer, or USSD all supported. International users pay via Stripe — all major cards accepted.</div></div>
+    <div class="faq-item"><div class="faq-q">Who owns the designs I generate?</div><div class="faq-a">You do. All designs belong entirely to you. We never use your work for training or share it with anyone.</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ ACCOUNT ═══ -->
+<div class="page" id="page-account">
+<div class="container">
+  <div class="page-title">My Account</div>
+  <div class="page-sub" id="account-email"></div>
+  <div class="account-grid" style="margin-top:24px">
+    <div class="account-stat"><div class="stat-label">Current Plan</div><div class="stat-val" id="account-plan">—</div></div>
+    <div class="account-stat"><div class="stat-label">Designs Saved</div><div class="stat-val" id="account-designs">—</div></div>
+  </div>
+  <button class="btn-manage" id="btn-billing" style="display:none" onclick="manageBilling()">Manage Billing ↗</button>
+  <button class="btn-manage" style="margin-left:10px" onclick="signOut()">Sign Out</button>
+</div>
+</div>
+
+<!-- ═══ PAYMENT SUCCESS ═══ -->
+<div class="page" id="page-success">
+<div class="container">
+  <div class="success-wrap">
+    <div style="font-size:3rem;margin-bottom:16px">🏺</div>
+    <h2>You're all set!</h2>
+    <p>Your subscription is now active. Welcome to Clayforge.</p>
+    <button class="btn-primary" style="max-width:240px;margin:0 auto" onclick="showPage('studio')">Go to Studio →</button>
+  </div>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+  <div class="modal"><button class="modal-x" onclick="closeModal()">✕</button><div id="modal-body"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──
+const API = (typeof import !== 'undefined' && typeof import.meta !== 'undefined')
+  ? (import.meta.env?.VITE_API_URL || 'http://localhost:3001')
+  : (window.__API_URL__ || 'http://localhost:3001');
+const PAYSTACK_PK = window.__PAYSTACK_PK__ || '';
+
+// ── STATE ──
+let user = null, token = null, authMode = 'signin', authCurrency = 'NGN';
+let lastResults = {};
+
+// ── INIT ──
+window.onload = () => {
+  loadKeys();
+  const t = localStorage.getItem('cf_token');
+  const u = localStorage.getItem('cf_user');
+  if (t && u) { token = t; user = JSON.parse(u); updateNav(); }
+  // Check for payment success
+  if (location.search.includes('session_id') || location.search.includes('payment=success')) {
+    verifyPaystackIfNeeded();
+    showPage('success');
+  }
+};
+
+function loadKeys() {
+  const ak = localStorage.getItem('cf_ak'), ok = localStorage.getItem('cf_ok');
+  if (ak) { const el = document.getElementById('anthropic-key'); if(el) el.value = ak; }
+  if (ok) { const el = document.getElementById('openai-key'); if(el) el.value = ok; }
+}
+function saveKeys() {
+  const ak = document.getElementById('anthropic-key')?.value.trim();
+  const ok = document.getElementById('openai-key')?.value.trim();
+  if (ak) localStorage.setItem('cf_ak', ak);
+  if (ok) localStorage.setItem('cf_ok', ok);
+}
+function getKey(k) { return document.getElementById(k)?.value.trim() || localStorage.getItem(k === 'anthropic-key' ? 'cf_ak' : 'cf_ok') || ''; }
+
+// ── NAV ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name)?.classList.add('active');
+  ['studio','library','pricing'].forEach(n => document.getElementById('nb-'+n)?.classList.toggle('active', n===name));
+  if (name === 'library') loadLibrary();
+  if (name === 'account') loadAccount();
+  window.scrollTo(0,0);
+}
+function updateNav() {
+  const area = document.getElementById('nav-auth-area');
+  if (user) {
+    const ini = user.name ? user.name.slice(0,2).toUpperCase() : '??';
+    area.innerHTML = `<div class="nav-user" onclick="showPage('account')">
+      <div class="avatar">${ini}</div>
+      <span class="nav-user-name">${user.name||user.email}</span>
+      <span class="plan-badge-nav ${user.plan||'FREE'}">${user.plan||'FREE'}</span>
+    </div>`;
+  } else {
+    area.innerHTML = `<button class="nav-btn cta" onclick="showPage('auth')">Sign In</button>`;
+  }
+}
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['invent','remix','specs'][i]===name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+name)?.classList.add('active');
+}
+
+// ── API HELPER ──
+async function api(path, opts={}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: { 'Content-Type':'application/json', ...(token ? {'Authorization':'Bearer '+token} : {}), ...(opts.headers||{}) }
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  return data;
+}
+
+// ── GENERATE ──
+function buildPrompt(mode) {
+  if (mode==='invent') {
+    const d=document.getElementById('invent-prompt').value.trim(), f=document.getElementById('invent-form').value, s=document.getElementById('invent-style').value;
+    if(!d) return null;
+    return `You are an expert ceramic designer. Generate a rich, detailed design concept.\n\nDescription: ${d}\n${f?'Form: '+f:''}\n${s?'Style: '+s:''}\n\nRespond with these EXACT sections:\n\n**DESIGN NAME**\n[compelling poetic name]\n\n**DESIGN CONCEPT**\n[2-3 sentences on vision and uniqueness]\n\n**FORM & DIMENSIONS**\n[shape, height, width, proportions, wall thickness]\n\n**SURFACE & TEXTURE**\n[patterns, textures, relief, decoration]\n\n**GLAZE & FINISH**\n[glaze colours, surface quality, effects]\n\n**PRODUCTION NOTES**\n[forming method, techniques, difficulty, time per piece]\n\n**MARKET POSITIONING**\n[target buyer, price range, context]`;
+  }
+  if (mode==='remix') {
+    const e=document.getElementById('remix-prompt').value.trim(), t=document.getElementById('remix-transform').value.trim();
+    if(!e) return null;
+    return `Expert ceramic designer remixing a piece.\n\nExisting: ${e}\n${t?'Transformation: '+t:'Improve and modernise creatively.'}\n\n**ORIGINAL ANALYSIS**\n[what works, what to improve]\n\n**REMIXED DESIGN NAME**\n[new name]\n\n**TRANSFORMATION CONCEPT**\n[what changed and why]\n\n**FORM CHANGES**\n[shape, proportion changes]\n\n**SURFACE & GLAZE CHANGES**\n[new surface and glaze]\n\n**WHAT'S RETAINED**\n[kept elements and why]\n\n**THE RESULT**\n[vivid 3-4 sentence description for a buyer]`;
+  }
+  if (mode==='specs') {
+    const d=document.getElementById('specs-prompt').value.trim(), f=document.getElementById('specs-firing').value, u=document.getElementById('specs-use').value;
+    if(!d) return null;
+    return `Master ceramicist. Complete technical specifications.\n\nPiece: ${d}\n${f?'Firing: '+f:''}\n${u?'Use: '+u:''}\n\n**CLAY BODY**\n[type, grog %, plasticity]\n\n**FORMING METHOD**\n[best technique, specific notes]\n\n**DRYING PROTOCOL**\n[speed, precautions, timing]\n\n**BISQUE FIRING**\n[°C, cone, ramp, hold times]\n\n**GLAZE SPECIFICATIONS**\n[type, method, thickness mm]\n\n**GLAZE FIRING**\n[°C, cone, ramp, atmosphere]\n\n**SHRINKAGE & TOLERANCES**\n[linear shrinkage %]\n\n**FOOD SAFETY**\n[status and cautions]\n\n**QUALITY CHECKS**\n[inspect stages, common defects]`;
+  }
+}
+
+function setLoading(mode, on) {
+  const out = document.getElementById('output-'+mode);
+  if (!out) return;
+  const ph = out.querySelector('.placeholder');
+  if (ph) ph.style.display = on ? 'none' : 'flex';
+  document.getElementById('loading-'+mode)?.classList.toggle('on', on);
+  document.getElementById('result-'+mode)?.classList.remove('on');
+  document.getElementById('error-'+mode)?.classList.remove('on');
+}
+function showErr(mode, msg) {
+  document.getElementById('loading-'+mode)?.classList.remove('on');
+  const e = document.getElementById('error-'+mode);
+  if (e) { e.textContent = msg; e.classList.add('on'); }
+}
+function showRes(mode, html) {
+  document.getElementById('loading-'+mode)?.classList.remove('on');
+  const r = document.getElementById('result-'+mode);
+  if (r) { r.innerHTML = html; r.classList.add('on'); }
+}
+
+async function generate(mode) {
+  const prompt = buildPrompt(mode);
+  if (!prompt) { showErr(mode, 'Please fill in the description field.'); return; }
+  const ak = getKey('anthropic-key');
+  if (!ak) { showErr(mode, 'Please enter your Anthropic API key above.'); return; }
+  setLoading(mode, true);
+  document.querySelectorAll('.btn-primary').forEach(b => b.disabled=true);
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json','x-api-key':ak,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    if (!resp.ok) { const e=await resp.json().catch(()=>({})); throw new Error(e.error?.message||`API error ${resp.status}`); }
+    const data = await resp.json();
+    const text = data.content.map(b=>b.text||'').join('\n');
+    const sections = parseSections(text);
+    lastResults[mode] = { sections, imageUrl: null };
+    const ok = getKey('openai-key');
+    let html = renderSections(sections) + (ok && mode!=='specs' ? `<div class="render-card" id="rc-${mode}"><h3>✦ Visual Render</h3><div class="render-load" id="rl-${mode}"><div class="spinner" style="width:26px;height:26px"></div> Generating image…</div><div id="ri-${mode}"></div></div>` : '') + actionBar(mode);
+    showRes(mode, html);
+    if (ok && mode!=='specs') genImage(mode, sections, ok);
+  } catch(e) { showErr(mode, '⚠ '+e.message); }
+  finally { document.querySelectorAll('.btn-primary').forEach(b=>b.disabled=false); setLoading(mode,false); }
+}
+
+async function genImage(mode, sections, ok) {
+  try {
+    const n = sections.find(s=>s.h.includes('NAME')), c = sections.find(s=>s.h.includes('CONCEPT')||s.h.includes('RESULT')),
+          f = sections.find(s=>s.h.includes('FORM')), g = sections.find(s=>s.h.includes('GLAZE'));
+    const imgP = `A professional product photograph of a ceramic piece: ${n?.b||''} ${c?.b||''} ${f?.b||''} ${g?.b||''}. Studio lighting, neutral background, high detail ceramic photography.`.slice(0,900);
+    const r = await fetch('https://api.openai.com/v1/images/generations', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+ok},
+      body:JSON.stringify({model:'dall-e-3',prompt:imgP,n:1,size:'1024x1024',quality:'standard'})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error?.message||'Image error');
+    const url = d.data?.[0]?.url;
+    if (url) {
+      lastResults[mode].imageUrl = url;
+      document.getElementById('rl-'+mode).style.display='none';
+      document.getElementById('ri-'+mode).innerHTML=`<img class="render-img" src="${url}" alt="Render">`;
+    }
+  } catch(e) {
+    const rl = document.getElementById('rl-'+mode);
+    if (rl) rl.outerHTML=`<div class="render-err">Image generation failed: ${e.message}</div>`;
+  }
+}
+
+function parseSections(text) {
+  return text.split(/\n(?=\*\*[A-Z][A-Z\s&\/]+\*\*)/).filter(Boolean).map(p => {
+    const m = p.match(/^\*\*([^*]+)\*\*/);
+    return m ? {h:m[1], b:p.replace(/^\*\*[^*]+\*\*\n?/,'').trim()} : {h:'',b:p.trim()};
+  });
+}
+function renderSections(sections) {
+  return sections.map(s=>`<div class="res-card">${s.h?`<h3>${s.h}</h3>`:''}<div class="res-body">${esc(s.b)}</div></div>`).join('');
+}
+function actionBar(mode) {
+  return `<div class="action-bar">
+    <button class="btn-action" onclick="exportPDF('${mode}')">⬇ PDF</button>
+    <button class="btn-action save-btn" onclick="saveDesign('${mode}')">✦ Save</button>
+    <button class="btn-action" onclick="copyText('${mode}')">⎘ Copy</button>
+  </div>`;
+}
+function esc(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+// ── PDF EXPORT ──
+async function exportPDF(mode) {
+  const r = lastResults[mode]; if (!r) return;
+  const script = document.createElement('script');
+  script.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  document.head.appendChild(script);
+  script.onload = async () => {
+    const {jsPDF} = window.jspdf;
+    const doc = new jsPDF({unit:'mm',format:'a4'});
+    const lm=20, pw=210, tw=170;
+    let y=20;
+    doc.setFillColor(42,31,21); doc.rect(0,0,210,297,'F');
+    doc.setTextColor(245,237,227); doc.setFontSize(20); doc.setFont('times','bolditalic');
+    doc.text('Clayforge', lm, y); y+=7;
+    doc.setFontSize(8); doc.setFont('courier','normal'); doc.setTextColor(158,142,126);
+    doc.text('CERAMIC DESIGN STUDIO  —  '+new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase(), lm, y); y+=7;
+    doc.setDrawColor(196,113,74); doc.setLineWidth(.35); doc.line(lm,y,pw-lm,y); y+=9;
+    if (r.imageUrl && mode!=='specs') {
+      try {
+        const b64 = await urlToB64(r.imageUrl);
+        const iw=75,ih=75,ix=(pw-iw)/2;
+        doc.addImage(b64,'JPEG',ix,y,iw,ih); y+=ih+9;
+      } catch(e){}
+    }
+    r.sections.forEach(s => {
+      if(y>260){doc.addPage();doc.setFillColor(42,31,21);doc.rect(0,0,210,297,'F');y=20;}
+      if(s.h){doc.setFontSize(10);doc.setFont('times','bold');doc.setTextColor(232,168,130);doc.text(s.h,lm,y);y+=5;doc.setDrawColor(196,113,74);doc.setLineWidth(.18);doc.line(lm,y,lm+tw*.38,y);y+=4;}
+      doc.setFontSize(8.5);doc.setFont('courier','normal');doc.setTextColor(245,237,227);
+      doc.splitTextToSize(s.b,tw).forEach(l=>{if(y>272){doc.addPage();doc.setFillColor(42,31,21);doc.rect(0,0,210,297,'F');y=20;}doc.text(l,lm,y);y+=4.5;});
+      y+=3;
+    });
+    doc.setFontSize(7);doc.setTextColor(100,85,75);doc.text('Generated by Clayforge',lm,290);
+    doc.save('clayforge-design.pdf');
+    toast('PDF exported!');
+  };
+}
+function urlToB64(url){return new Promise((res,rej)=>{const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;c.getContext('2d').drawImage(img,0,0);res(c.toDataURL('image/jpeg',.85));};img.onerror=rej;img.src=url;});}
+
+// ── SAVE DESIGN ──
+async function saveDesign(mode) {
+  const r = lastResults[mode]; if (!r) return;
+  if (!token) { toast('Sign in to save designs'); showPage('auth'); return; }
+  const nameS = r.sections.find(s=>s.h.includes('NAME'));
+  const name = nameS?.b?.split('\n')[0] || 'Untitled Design';
+  const preview = r.sections.find(s=>s.h.includes('CONCEPT')||s.h.includes('RESULT'))?.b || '';
+  try {
+    await api('/api/designs', {method:'POST', body:JSON.stringify({mode, name, preview, sections:r.sections, imageUrl:r.imageUrl})});
+    toast('Design saved!');
+  } catch(e) { toast('⚠ '+e.message); }
+}
+function copyText(mode) {
+  const r = lastResults[mode]; if (!r) return;
+  navigator.clipboard.writeText(r.sections.map(s=>(s.h?'== '+s.h+' ==\n':'')+s.b).join('\n\n')).then(()=>toast('Copied!'));
+}
+
+// ── LIBRARY ──
+async function loadLibrary() {
+  const el = document.getElementById('library-content'); if (!el) return;
+  if (!token) { el.innerHTML=`<div class="empty-lib"><div class="ico">🔒</div><p>Sign in to view your saved designs.</p></div>`; return; }
+  el.innerHTML=`<div style="text-align:center;padding:40px;color:var(--ash)">Loading…</div>`;
+  try {
+    const { designs } = await api('/api/designs');
+    if (!designs.length) { el.innerHTML=`<div class="empty-lib"><div class="ico">🏺</div><p>No saved designs yet.<br>Generate something and click Save.</p></div>`; return; }
+    el.innerHTML=`<div class="designs-grid">${designs.map(d=>`
+      <div class="dc" onclick="openDesign('${d.id}')">
+        ${d.imageUrl?`<img src="${d.imageUrl}" alt="">` : ''}
+        <div class="dc-mode">${d.mode}</div>
+        <div class="dc-name">${esc(d.name)}</div>
+        <div class="dc-preview">${esc(d.preview)}</div>
+        <div class="dc-date">${new Date(d.createdAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</div>
+        <button class="dc-del" onclick="delDesign(event,'${d.id}')">✕</button>
+      </div>`).join('')}</div>`;
+  } catch(e) { el.innerHTML=`<div class="empty-lib"><p>${e.message}</p></div>`; }
+}
+async function openDesign(id) {
+  try {
+    const {designs} = await api('/api/designs');
+    const d = designs.find(x=>x.id===id); if(!d) return;
+    let html=`<h3>${esc(d.name)}</h3>`;
+    if(d.imageUrl) html+=`<img class="render-img" src="${d.imageUrl}" style="margin-bottom:16px">`;
+    html+=d.sections.map(s=>`<div class="res-card">${s.h?`<h3>${s.h}</h3>`:''}<div class="res-body">${esc(s.b)}</div></div>`).join('');
+    html+=`<div class="action-bar"><button class="btn-action" onclick="exportSaved('${id}')">⬇ Export PDF</button></div>`;
+    document.getElementById('modal-body').innerHTML=html;
+    document.getElementById('modal-bg').classList.add('open');
+  } catch(e){ toast('⚠ '+e.message); }
+}
+async function exportSaved(id) {
+  const {designs} = await api('/api/designs');
+  const d = designs.find(x=>x.id===id); if(!d) return;
+  lastResults['_s']=d; await exportPDF('_s');
+}
+async function delDesign(e,id) {
+  e.stopPropagation();
+  try { await api('/api/designs/'+id,{method:'DELETE'}); toast('Removed.'); loadLibrary(); }
+  catch(e){ toast('⚠ '+e.message); }
+}
+
+// ── AUTH ──
+function toggleAuthMode() {
+  authMode = authMode==='signin'?'signup':'signin';
+  const s = authMode==='signup';
+  document.getElementById('auth-title').textContent = s?'Create account':'Welcome back';
+  document.getElementById('auth-sub').textContent = s?'Join Clayforge to save and manage your designs':'Sign in to save and access your designs';
+  document.getElementById('auth-btn').textContent = s?'Create account':'Sign in';
+  document.getElementById('auth-switch-text').textContent = s?'Already have an account?':"Don't have an account?";
+  document.querySelector('.auth-switch button').textContent = s?'Sign in':'Create account';
+  document.getElementById('auth-name-field').style.display = s?'block':'none';
+  document.getElementById('auth-currency-field').style.display = s?'block':'none';
+  document.getElementById('auth-err').textContent='';
+}
+function setCurrency(c) {
+  authCurrency=c;
+  document.getElementById('cur-ngn').classList.toggle('active',c==='NGN');
+  document.getElementById('cur-usd').classList.toggle('active',c==='USD');
+}
+async function doAuth() {
+  const email=document.getElementById('auth-email').value.trim();
+  const pass=document.getElementById('auth-password').value;
+  const name=document.getElementById('auth-name').value.trim();
+  document.getElementById('auth-err').textContent='';
+  if(!email||!pass){document.getElementById('auth-err').textContent='Please fill in all fields.';return;}
+  try {
+    const path = authMode==='signup'?'/api/auth/signup':'/api/auth/signin';
+    const body = authMode==='signup'?{email,password:pass,name,currency:authCurrency}:{email,password:pass};
+    const data = await api(path,{method:'POST',body:JSON.stringify(body)});
+    token=data.token; user=data.user;
+    localStorage.setItem('cf_token',token); localStorage.setItem('cf_user',JSON.stringify(user));
+    updateNav(); toast('Welcome, '+user.name+'!'); showPage('studio');
+  } catch(e){ document.getElementById('auth-err').textContent=e.message; }
+}
+function signOut() {
+  token=null; user=null;
+  localStorage.removeItem('cf_token'); localStorage.removeItem('cf_user');
+  updateNav(); toast('Signed out.'); showPage('studio');
+}
+
+// ── ACCOUNT ──
+async function loadAccount() {
+  if(!user){showPage('auth');return;}
+  document.getElementById('account-email').textContent=user.email;
+  document.getElementById('account-plan').textContent=user.plan||'FREE';
+  try {
+    const {designs}=await api('/api/designs');
+    document.getElementById('account-designs').textContent=designs.length;
+    const {plan}=await api('/api/payments/status');
+    if(plan!=='FREE') document.getElementById('btn-billing').style.display='inline-block';
+  } catch(e){}
+}
+async function manageBilling() {
+  try {
+    if(user?.currency==='NGN') { toast('Contact support to manage your Paystack subscription.'); return; }
+    const {url}=await api('/api/payments/stripe/portal',{method:'POST'});
+    window.open(url,'_blank');
+  } catch(e){ toast('⚠ '+e.message); }
+}
+
+// ── PRICING / PAYMENTS ──
+async function selectPlan(plan) {
+  if(plan==='FREE'){if(!token){showPage('auth');}else{showPage('studio');}return;}
+  if(plan==='PORCELAIN'){toast('Contact us at hello@clayforge.app');return;}
+  if(!token){showPage('auth');toast('Sign in first.');return;}
+  if(user.currency==='USD') {
+    try {
+      const {url}=await api('/api/payments/stripe/checkout',{method:'POST',body:JSON.stringify({plan})});
+      window.location.href=url;
+    } catch(e){ toast('⚠ '+e.message); }
+  } else {
+    try {
+      const {url,reference}=await api('/api/payments/paystack/initialize',{method:'POST',body:JSON.stringify({plan})});
+      if(PAYSTACK_PK) {
+        const handler = PaystackPop.setup({
+          key: PAYSTACK_PK, email: user.email,
+          amount: plan==='STONEWARE'?850000:2200000, currency:'NGN', ref:reference,
+          callback: async (resp) => {
+            try { await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:resp.reference})}); user.plan=plan; localStorage.setItem('cf_user',JSON.stringify(user)); updateNav(); showPage('success'); }
+            catch(e){ toast('⚠ Verification failed: '+e.message); }
+          },
+          onClose:()=>{}
+        });
+        handler.openIframe();
+      } else { window.location.href=url; }
+    } catch(e){ toast('⚠ '+e.message); }
+  }
+}
+async function verifyPaystackIfNeeded() {
+  const ref=new URLSearchParams(location.search).get('reference');
+  if(ref&&token){ try{await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:ref})});}catch(e){} }
+}
+
+// ── MODAL ──
+function closeModal(e){if(!e||e.target===document.getElementById('modal-bg')){document.getElementById('modal-bg').classList.remove('open');}}
+
+// ── TOAST ──
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+</script>
+</body>
+</html>

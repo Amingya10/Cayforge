@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clayforge Tools — Ceramic Studio Toolkit</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--clay:#c4714a;--clay-dark:#8b4a2f;--clay-light:#e8a882;--earth:#2a1f15;--sand:#f5ede3;--ash:#9e8e7e;--glaze:#4a7c8b;--glaze-light:#7fb3c2;--kiln:#e85d2a;--cream:#faf6f0;--green:#4a8b5a;--gold:#c9a84c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--earth);color:var(--sand);font-family:'DM Mono',monospace;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(196,113,74,.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(74,124,139,.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(42,31,21,.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(196,113,74,.15);padding:0 20px}
+.nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;height:56px;gap:4px;flex-wrap:wrap}
+.nav-logo{display:flex;align-items:center;gap:9px;margin-right:auto;cursor:pointer;text-decoration:none}
+.nav-logo-mark{width:26px;height:26px;border-radius:50%;background:conic-gradient(from 180deg,var(--clay),var(--clay-dark),var(--clay-light),var(--clay));box-shadow:0 0 10px rgba(196,113,74,.3)}
+.nav-logo span{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--sand)}
+.nav-btn{padding:6px 11px;background:none;border:none;color:var(--ash);font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:7px;transition:all .2s;white-space:nowrap}
+.nav-btn:hover{color:var(--sand);background:rgba(196,113,74,.1)}
+.nav-btn.active{color:var(--clay-light);background:rgba(196,113,74,.12)}
+
+/* LAYOUT */
+.container{max-width:960px;margin:0 auto;padding:36px 20px}
+.page-title{font-family:'Playfair Display',serif;font-size:1.75rem;margin-bottom:6px}
+.page-sub{font-size:.8rem;color:var(--ash);margin-bottom:28px}
+
+/* TOOL TABS */
+.tool-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:32px}
+.tool-tab{padding:12px 8px;background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.15);border-radius:10px;color:var(--ash);font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;text-align:center;line-height:1.4}
+.tool-tab:hover{border-color:var(--clay);color:var(--sand)}
+.tool-tab.active{background:rgba(196,113,74,.12);border-color:var(--clay);color:var(--clay-light)}
+.tool-tab .tool-icon{font-size:1.4rem;display:block;margin-bottom:6px}
+
+/* PANELS */
+.tool-panel{display:none}.tool-panel.active{display:block}
+
+/* CARDS */
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.2);border-radius:14px;padding:22px;margin-bottom:20px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--clay-light);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(196,113,74,.12)}
+.field-label{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--clay-light);margin-bottom:7px;display:block}
+.field-group{margin-bottom:14px}
+input[type=number],input[type=text],input[type=date],select,textarea{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(196,113,74,.25);border-radius:9px;padding:10px 13px;color:var(--sand);font-family:'DM Mono',monospace;font-size:.82rem;outline:none;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--clay)}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c4714a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-color:rgba(0,0,0,.3)}
+select option{background:#2a1f15}
+textarea{height:80px;resize:vertical}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px}
+@media(max-width:580px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* BUTTONS */
+.btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,var(--clay),var(--clay-dark));border:none;border-radius:10px;color:var(--cream);font-family:'Playfair Display',serif;font-size:.95rem;font-style:italic;cursor:pointer;transition:all .25s;margin-top:14px}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(196,113,74,.3)}
+.btn-small{padding:7px 14px;background:none;border:1px solid rgba(196,113,74,.3);border-radius:7px;color:var(--ash);font-family:'DM Mono',monospace;font-size:.7rem;cursor:pointer;transition:all .2s}
+.btn-small:hover{border-color:var(--clay);color:var(--clay-light)}
+.btn-danger{padding:7px 14px;background:none;border:1px solid rgba(232,93,42,.3);border-radius:7px;color:#f0a080;font-family:'DM Mono',monospace;font-size:.7rem;cursor:pointer;transition:all .2s}
+.btn-danger:hover{border-color:#f0a080}
+.btn-green{padding:7px 14px;background:none;border:1px solid rgba(74,139,90,.3);border-radius:7px;color:var(--green);font-family:'DM Mono',monospace;font-size:.7rem;cursor:pointer;transition:all .2s}
+.btn-green:hover{border-color:var(--green)}
+
+/* RESULTS */
+.result-box{background:rgba(0,0,0,.2);border:1px solid rgba(196,113,74,.15);border-radius:10px;padding:18px;margin-top:16px}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(196,113,74,.08);font-size:.82rem}
+.result-row:last-child{border-bottom:none}
+.result-label{color:var(--ash)}
+.result-val{color:var(--clay-light);font-weight:500}
+.result-val.highlight{color:var(--gold);font-size:1.1rem;font-family:'Playfair Display',serif}
+.result-val.good{color:var(--green)}
+.result-val.warn{color:#e8a84c}
+.result-val.bad{color:#f0a080}
+
+/* RECIPE ROWS */
+.recipe-row{display:grid;grid-template-columns:1fr 80px 80px auto;gap:8px;align-items:center;margin-bottom:8px}
+.recipe-row input{margin:0}
+.total-bar{background:rgba(196,113,74,.08);border:1px solid rgba(196,113,74,.15);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;margin-top:8px;font-size:.8rem}
+.total-bar .total-num{color:var(--clay-light);font-weight:600}
+.total-num.ok{color:var(--green)}
+.total-num.over{color:#f0a080}
+
+/* KILN LOG */
+.firing-card{background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.18);border-radius:11px;padding:16px;margin-bottom:10px;position:relative}
+.firing-card .fc-name{font-family:'Playfair Display',serif;font-size:.98rem;color:var(--clay-light);margin-bottom:4px}
+.firing-card .fc-meta{font-size:.72rem;color:var(--ash);margin-bottom:8px}
+.firing-card .fc-status{display:inline-block;font-size:.62rem;padding:2px 8px;border-radius:10px;letter-spacing:.08em;text-transform:uppercase}
+.fc-status.planned{background:rgba(74,124,139,.2);color:var(--glaze-light)}
+.fc-status.firing{background:rgba(232,93,42,.2);color:#f0a080}
+.fc-status.complete{background:rgba(74,139,90,.2);color:var(--green)}
+.fc-del{position:absolute;top:12px;right:12px;background:none;border:none;color:rgba(158,142,126,.3);cursor:pointer;font-size:.9rem;transition:color .2s}
+.fc-del:hover{color:#f0a080}
+.ramp-table{width:100%;border-collapse:collapse;font-size:.76rem;margin-top:10px}
+.ramp-table th{text-align:left;padding:6px 8px;color:var(--ash);border-bottom:1px solid rgba(196,113,74,.12);font-weight:400;letter-spacing:.06em;text-transform:uppercase;font-size:.65rem}
+.ramp-table td{padding:6px 8px;border-bottom:1px solid rgba(196,113,74,.06)}
+
+/* ORDER TABLE */
+.order-card{background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.18);border-radius:11px;padding:16px;margin-bottom:10px;position:relative}
+.order-card .oc-name{font-family:'Playfair Display',serif;font-size:.98rem;color:var(--clay-light)}
+.order-card .oc-meta{font-size:.72rem;color:var(--ash);margin:4px 0 8px}
+.order-status{display:inline-block;font-size:.62rem;padding:2px 8px;border-radius:10px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.order-status.inquiry{background:rgba(158,142,126,.15);color:var(--ash)}
+.order-status.confirmed{background:rgba(74,124,139,.2);color:var(--glaze-light)}
+.order-status.in-progress{background:rgba(232,93,42,.2);color:#f0a080}
+.order-status.complete{background:rgba(74,139,90,.2);color:var(--green)}
+.order-status.delivered{background:rgba(201,168,76,.2);color:var(--gold)}
+.oc-del{position:absolute;top:12px;right:12px;background:none;border:none;color:rgba(158,142,126,.3);cursor:pointer;font-size:.9rem;transition:color .2s}
+.oc-del:hover{color:#f0a080}
+.order-items{font-size:.75rem;color:var(--sand);margin-top:6px;line-height:1.6}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:50px 20px;color:var(--ash)}
+.empty .ico{font-size:2.4rem;margin-bottom:12px;opacity:.3}
+.empty p{font-size:.8rem;line-height:1.7}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:300;background:var(--clay-dark);color:var(--cream);padding:11px 18px;border-radius:9px;font-size:.78rem;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* PROGRESS BAR */
+.progress-wrap{margin-top:8px}
+.progress-label{display:flex;justify-content:space-between;font-size:.7rem;color:var(--ash);margin-bottom:4px}
+.progress-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--clay),var(--clay-light));border-radius:3px;transition:width .4s ease}
+
+/* SECTION DIVIDER */
+.divider{border:none;border-top:1px solid rgba(196,113,74,.1);margin:20px 0}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">
+      <div class="nav-logo-mark"></div>
+      <span>Clayforge</span>
+    </a>
+    <button class="nav-btn" onclick="location.href='/'">Studio</button>
+    <button class="nav-btn active">Tools</button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-title">Ceramic Toolkit</div>
+  <div class="page-sub">Professional tools for every stage of your ceramic practice</div>
+
+  <div class="tool-tabs">
+    <button class="tool-tab active" onclick="showTool('glaze')"><span class="tool-icon">🧪</span>Glaze Calculator</button>
+    <button class="tool-tab" onclick="showTool('kiln')"><span class="tool-icon">🔥</span>Kiln Scheduler</button>
+    <button class="tool-tab" onclick="showTool('clay')"><span class="tool-icon">🏺</span>Clay Body Builder</button>
+    <button class="tool-tab" onclick="showTool('cost')"><span class="tool-icon">💰</span>Cost Calculator</button>
+    <button class="tool-tab" onclick="showTool('orders')"><span class="tool-icon">📋</span>Order Manager</button>
+  </div>
+
+  <!-- ═══ GLAZE CALCULATOR ═══ -->
+  <div class="tool-panel active" id="tool-glaze">
+    <div class="card">
+      <div class="card-title">Glaze Recipe Calculator</div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Firing Temperature</label>
+          <select id="glaze-temp">
+            <option value="low">Low fire — cone 06-1 (999°C)</option>
+            <option value="mid" selected>Mid fire — cone 2-6 (1185°C)</option>
+            <option value="high">High fire — cone 8-10 (1285°C)</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Firing Atmosphere</label>
+          <select id="glaze-atm">
+            <option value="oxidation">Oxidation (electric)</option>
+            <option value="reduction">Reduction (gas/wood)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Glaze Name</label>
+        <input type="text" id="glaze-name" placeholder="e.g. Sahel Blue Celadon">
+      </div>
+
+      <hr class="divider">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span class="field-label" style="margin:0">Recipe Ingredients</span>
+        <button class="btn-small" onclick="addGlazeRow()">+ Add</button>
+      </div>
+      <div id="glaze-rows">
+        <div class="recipe-row">
+          <input type="text" placeholder="Silica" value="Silica">
+          <input type="number" placeholder="%" value="30" min="0" max="100" oninput="updateGlazeTotal()">
+          <input type="number" placeholder="g" value="300" min="0" oninput="updateGlazeGrams()">
+          <button class="btn-danger" onclick="removeRow(this)">✕</button>
+        </div>
+        <div class="recipe-row">
+          <input type="text" placeholder="Feldspar" value="Potash Feldspar">
+          <input type="number" placeholder="%" value="25" min="0" max="100" oninput="updateGlazeTotal()">
+          <input type="number" placeholder="g" oninput="updateGlazeGrams()">
+          <button class="btn-danger" onclick="removeRow(this)">✕</button>
+        </div>
+        <div class="recipe-row">
+          <input type="text" placeholder="Whiting" value="Whiting">
+          <input type="number" placeholder="%" value="20" min="0" max="100" oninput="updateGlazeTotal()">
+          <input type="number" placeholder="g" oninput="updateGlazeGrams()">
+          <button class="btn-danger" onclick="removeRow(this)">✕</button>
+        </div>
+        <div class="recipe-row">
+          <input type="text" placeholder="Kaolin" value="Kaolin">
+          <input type="number" placeholder="%" value="15" min="0" max="100" oninput="updateGlazeTotal()">
+          <input type="number" placeholder="g" oninput="updateGlazeGrams()">
+          <button class="btn-danger" onclick="removeRow(this)">✕</button>
+        </div>
+        <div class="recipe-row">
+          <input type="text" placeholder="Zinc Oxide" value="Zinc Oxide">
+          <input type="number" placeholder="%" value="10" min="0" max="100" oninput="updateGlazeTotal()">
+          <input type="number" placeholder="g" oninput="updateGlazeGrams()">
+          <button class="btn-danger" onclick="removeRow(this)">✕</button>
+        </div>
+      </div>
+      <div class="total-bar">
+        <span>Total</span>
+        <span id="glaze-total" class="total-num ok">100%</span>
+      </div>
+
+      <hr class="divider">
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Batch Size (grams)</label>
+          <input type="number" id="glaze-batch" value="1000" min="100" oninput="calcGlaze()">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Water Ratio</label>
+          <select id="glaze-water">
+            <option value="0.5">Thin — 50% water</option>
+            <option value="0.6" selected>Standard — 60% water</option>
+            <option value="0.75">Thick — 75% water</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="calcGlaze()">Calculate Batch →</button>
+    </div>
+
+    <div id="glaze-result" style="display:none">
+      <div class="card">
+        <div class="card-title">Batch Results</div>
+        <div id="glaze-result-rows"></div>
+        <hr class="divider">
+        <div class="result-row"><span class="result-label">Water needed</span><span class="result-val" id="gr-water"></span></div>
+        <div class="result-row"><span class="result-label">Total weight (wet)</span><span class="result-val" id="gr-wet"></span></div>
+        <div class="result-row"><span class="result-label">Firing temp range</span><span class="result-val" id="gr-temp"></span></div>
+        <div class="result-row"><span class="result-label">Atmosphere</span><span class="result-val" id="gr-atm"></span></div>
+        <div class="result-row"><span class="result-label">Shrinkage estimate</span><span class="result-val" id="gr-shrink"></span></div>
+        <div class="result-row"><span class="result-label">Surface quality</span><span class="result-val" id="gr-surface"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ KILN SCHEDULER ═══ -->
+  <div class="tool-panel" id="tool-kiln">
+    <div class="card">
+      <div class="card-title">Schedule a Firing</div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Firing Name</label>
+          <input type="text" id="kiln-name" placeholder="e.g. Bisque #12">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Firing Type</label>
+          <select id="kiln-type">
+            <option>Bisque</option>
+            <option>Glaze</option>
+            <option>Raku</option>
+            <option>Test tiles</option>
+            <option>Pit firing</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Scheduled Date</label>
+          <input type="date" id="kiln-date">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Target Temperature (°C)</label>
+          <input type="number" id="kiln-temp" placeholder="e.g. 1220" value="1220">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Cone</label>
+          <select id="kiln-cone">
+            <option>06</option><option>04</option><option>02</option>
+            <option>1</option><option>2</option><option>4</option>
+            <option>6</option><option>8</option><option>9</option><option>10</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Atmosphere</label>
+          <select id="kiln-atm">
+            <option>Oxidation</option><option>Reduction</option><option>Neutral</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="divider">
+      <div style="margin-bottom:10px">
+        <span class="field-label">Firing Ramp Schedule</span>
+      </div>
+      <table class="ramp-table">
+        <thead><tr><th>Stage</th><th>Rate (°C/hr)</th><th>Target (°C)</th><th>Hold (min)</th><th></th></tr></thead>
+        <tbody id="ramp-rows">
+          <tr>
+            <td><input type="text" value="Preheat" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:100%;padding:0"></td>
+            <td><input type="number" value="60" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:60px;padding:0"></td>
+            <td><input type="number" value="120" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:60px;padding:0"></td>
+            <td><input type="number" value="30" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:50px;padding:0"></td>
+            <td><button onclick="removeRow(this)" style="background:none;border:none;color:rgba(158,142,126,.3);cursor:pointer;font-size:.8rem">✕</button></td>
+          </tr>
+          <tr>
+            <td><input type="text" value="Body firing" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:100%;padding:0"></td>
+            <td><input type="number" value="100" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:60px;padding:0"></td>
+            <td><input type="number" value="600" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:60px;padding:0"></td>
+            <td><input type="number" value="0" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:50px;padding:0"></td>
+            <td><button onclick="removeRow(this)" style="background:none;border:none;color:rgba(158,142,126,.3);cursor:pointer;font-size:.8rem">✕</button></td>
+          </tr>
+          <tr>
+            <td><input type="text" value="Final climb" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:100%;padding:0"></td>
+            <td><input type="number" value="80" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:60px;padding:0"></td>
+            <td><input type="number" value="1220" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:60px;padding:0"></td>
+            <td><input type="number" value="15" style="background:none;border:none;color:var(--sand);font-family:'DM Mono',monospace;font-size:.76rem;width:50px;padding:0"></td>
+            <td><button onclick="removeRow(this)" style="background:none;border:none;color:rgba(158,142,126,.3);cursor:pointer;font-size:.8rem">✕</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="btn-small" style="margin-top:10px" onclick="addRampRow()">+ Add stage</button>
+
+      <div class="field-group" style="margin-top:16px">
+        <label class="field-label">Notes</label>
+        <textarea id="kiln-notes" placeholder="Contents, observations, special instructions..."></textarea>
+      </div>
+      <button class="btn-primary" onclick="saveFiring()">Save Firing →</button>
+    </div>
+
+    <div id="firing-list"></div>
+  </div>
+
+  <!-- ═══ CLAY BODY BUILDER ═══ -->
+  <div class="tool-panel" id="tool-clay">
+    <div class="card">
+      <div class="card-title">Clay Body Recipe Builder</div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Recipe Name</label>
+          <input type="text" id="clay-name" placeholder="e.g. Kano Red Stoneware">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Firing Range</label>
+          <select id="clay-fire">
+            <option>Low fire (cone 06-1)</option>
+            <option selected>Mid fire (cone 2-6)</option>
+            <option>High fire (cone 8-10)</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Intended Use</label>
+          <select id="clay-use">
+            <option>Wheel throwing</option>
+            <option>Hand building</option>
+            <option>Slip casting</option>
+            <option>Sculpture</option>
+            <option>Tile making</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Batch Size (kg)</label>
+          <input type="number" id="clay-batch" value="10" min="1">
+        </div>
+      </div>
+
+      <hr class="divider">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span class="field-label" style="margin:0">Ingredients</span>
+        <button class="btn-small" onclick="addClayRow()">+ Add</button>
+      </div>
+      <div id="clay-rows">
+        <div class="recipe-row">
+          <input type="text" placeholder="Primary clay" value="Stoneware clay">
+          <input type="number" placeholder="%" value="50" min="0" max="100" oninput="updateClayTotal()">
+          <input type="number" placeholder="kg" oninput="updateClayGrams()">
+          <button class="btn-danger" onclick="removeRow(this)">✕</button>
+        </div>
+        <div class="recipe-row">
+          <input type="text" placeholder="Secondary clay" value="Ball clay">
+          <input type="number" placeholder="%" value="20" min="0" max="100" oninput="updateClayTotal()">
+          <input type="number" placeholder="kg" oninput="updateClayGrams()">
+          <button class="btn-danger" onclick="removeRow(this)">✕</button>
+        </div>
+        <div class="recipe-row">
+          <input type="text" placeholder="Grog / Sand" value="Fine grog (30 mesh)">
+          <input type="number" placeholder="%" value="15" min="0" max="100" oninput="updateClayTotal()">
+          <input type="number" placeholder="kg" oninput="updateClayGrams()">
+          <button class="btn-danger" onclick="removeRow(this)">✕</button>
+        </div>
+        <div class="recipe-row">
+          <input type="text" placeholder="Feldspar" value="Potash feldspar">
+          <input type="number" placeholder="%" value="10" min="0" max="100" oninput="updateClayTotal()">
+          <input type="number" placeholder="kg" oninput="updateClayGrams()">
+          <button class="btn-danger" onclick="removeRow(this)">✕</button>
+        </div>
+        <div class="recipe-row">
+          <input type="text" placeholder="Silica" value="Silica sand">
+          <input type="number" placeholder="%" value="5" min="0" max="100" oninput="updateClayTotal()">
+          <input type="number" placeholder="kg" oninput="updateClayGrams()">
+          <button class="btn-danger" onclick="removeRow(this)">✕</button>
+        </div>
+      </div>
+      <div class="total-bar">
+        <span>Total</span>
+        <span id="clay-total" class="total-num ok">100%</span>
+      </div>
+      <button class="btn-primary" onclick="calcClay()">Calculate & Save Recipe →</button>
+    </div>
+
+    <div id="clay-result" style="display:none">
+      <div class="card">
+        <div class="card-title">Recipe Analysis</div>
+        <div id="clay-result-rows"></div>
+        <hr class="divider">
+        <div class="result-row"><span class="result-label">Estimated shrinkage</span><span class="result-val" id="cr-shrink"></span></div>
+        <div class="result-row"><span class="result-label">Plasticity rating</span><span class="result-val" id="cr-plastic"></span></div>
+        <div class="result-row"><span class="result-label">Texture</span><span class="result-val" id="cr-texture"></span></div>
+        <div class="result-row"><span class="result-label">Recommended for</span><span class="result-val" id="cr-rec"></span></div>
+        <div class="result-row"><span class="result-label">Firing colour</span><span class="result-val" id="cr-color"></span></div>
+      </div>
+    </div>
+
+    <div id="clay-saved-list"></div>
+  </div>
+
+  <!-- ═══ COST CALCULATOR ═══ -->
+  <div class="tool-panel" id="tool-cost">
+    <div class="card">
+      <div class="card-title">Piece Cost & Pricing Calculator</div>
+      <div class="field-group">
+        <label class="field-label">Piece Name</label>
+        <input type="text" id="cost-name" placeholder="e.g. Hausa Dagi Vase">
+      </div>
+
+      <hr class="divider">
+      <div class="card-title" style="font-size:.9rem;margin-bottom:12px">Materials</div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Clay used (kg)</label>
+          <input type="number" id="cost-clay-kg" value="1.5" step="0.1" min="0">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Clay cost per kg (₦)</label>
+          <input type="number" id="cost-clay-price" value="2500" min="0">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Glaze used (g)</label>
+          <input type="number" id="cost-glaze-g" value="200" min="0">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Glaze cost per 100g (₦)</label>
+          <input type="number" id="cost-glaze-price" value="500" min="0">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Other materials (₦)</label>
+        <input type="number" id="cost-other" value="0" min="0" placeholder="slips, oxides, packaging...">
+      </div>
+
+      <hr class="divider">
+      <div class="card-title" style="font-size:.9rem;margin-bottom:12px">Labour & Overhead</div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Hours spent</label>
+          <input type="number" id="cost-hours" value="3" step="0.5" min="0">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Your hourly rate (₦)</label>
+          <input type="number" id="cost-rate" value="3000" min="0">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Kiln firing cost (₦)</label>
+          <input type="number" id="cost-kiln" value="1500" min="0">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Overhead % (studio rent etc)</label>
+          <input type="number" id="cost-overhead" value="15" min="0" max="100">
+        </div>
+      </div>
+
+      <hr class="divider">
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Profit margin %</label>
+          <input type="number" id="cost-margin" value="40" min="0" max="200">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Currency</label>
+          <select id="cost-currency">
+            <option value="NGN">Nigerian Naira (₦)</option>
+            <option value="USD">US Dollar ($)</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="calcCost()">Calculate Pricing →</button>
+    </div>
+
+    <div id="cost-result" style="display:none">
+      <div class="card">
+        <div class="card-title">Pricing Breakdown</div>
+        <div class="result-row"><span class="result-label">Materials cost</span><span class="result-val" id="pr-mat"></span></div>
+        <div class="result-row"><span class="result-label">Labour cost</span><span class="result-val" id="pr-labour"></span></div>
+        <div class="result-row"><span class="result-label">Kiln cost</span><span class="result-val" id="pr-kiln"></span></div>
+        <div class="result-row"><span class="result-label">Overhead</span><span class="result-val" id="pr-overhead"></span></div>
+        <div class="result-row"><span class="result-label">Total cost</span><span class="result-val" id="pr-total"></span></div>
+        <hr class="divider">
+        <div class="result-row"><span class="result-label">Suggested retail price</span><span class="result-val highlight" id="pr-retail"></span></div>
+        <div class="result-row"><span class="result-label">Wholesale price (50%)</span><span class="result-val" id="pr-wholesale"></span></div>
+        <div class="result-row"><span class="result-label">Your profit per piece</span><span class="result-val good" id="pr-profit"></span></div>
+        <hr class="divider">
+        <div class="result-row"><span class="result-label">Break-even at</span><span class="result-val" id="pr-breakeven"></span></div>
+        <div style="margin-top:16px">
+          <div class="progress-wrap">
+            <div class="progress-label"><span>Cost</span><span>Profit margin</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="pr-bar" style="width:40%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ORDER MANAGER ═══ -->
+  <div class="tool-panel" id="tool-orders">
+    <div class="card">
+      <div class="card-title">New Order</div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Customer Name</label>
+          <input type="text" id="order-customer" placeholder="e.g. Fatima Aliyu">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Contact</label>
+          <input type="text" id="order-contact" placeholder="Phone or email">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Order Items</label>
+        <textarea id="order-items" placeholder="e.g. 2× Hausa Dagi Vase (large), 4× Terracotta mugs with indigo glaze..."></textarea>
+      </div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Total Price (₦)</label>
+          <input type="number" id="order-price" placeholder="e.g. 85000" min="0">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Deposit Paid (₦)</label>
+          <input type="number" id="order-deposit" placeholder="e.g. 42500" min="0">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">Due Date</label>
+          <input type="date" id="order-due">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Status</label>
+          <select id="order-status">
+            <option value="inquiry">Inquiry</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="in-progress">In Progress</option>
+            <option value="complete">Complete</option>
+            <option value="delivered">Delivered</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Notes</label>
+        <textarea id="order-notes" placeholder="Special requirements, delivery details..."></textarea>
+      </div>
+      <button class="btn-primary" onclick="saveOrder()">Save Order →</button>
+    </div>
+
+    <div id="order-summary" style="display:none" class="card">
+      <div class="card-title">Order Summary</div>
+      <div class="grid-2">
+        <div class="result-row"><span class="result-label">Total orders</span><span class="result-val" id="os-count"></span></div>
+        <div class="result-row"><span class="result-label">Total value</span><span class="result-val highlight" id="os-value"></span></div>
+        <div class="result-row"><span class="result-label">Deposits received</span><span class="result-val good" id="os-deposits"></span></div>
+        <div class="result-row"><span class="result-label">Balance outstanding</span><span class="result-val warn" id="os-balance"></span></div>
+      </div>
+    </div>
+
+    <div id="order-list"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── TOOL NAVIGATION ──
+function showTool(name) {
+  document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tool-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tool-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ── STORAGE HELPERS ──
+function load(key) { try { return JSON.parse(localStorage.getItem('cf_' + key)) || []; } catch(e) { return []; } }
+function save(key, val) { localStorage.setItem('cf_' + key, JSON.stringify(val)); }
+
+// ── TOAST ──
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function removeRow(btn) { btn.closest('.recipe-row, tr').remove(); updateGlazeTotal(); updateClayTotal(); }
+
+// ── FORMAT CURRENCY ──
+function fmt(n, cur) {
+  cur = cur || 'NGN';
+  if (cur === 'USD') return '$' + (n / 1600).toFixed(2);
+  return '₦' + Math.round(n).toLocaleString();
+}
+
+// ═══════════════════════════════
+// GLAZE CALCULATOR
+// ═══════════════════════════════
+function addGlazeRow() {
+  var row = document.createElement('div');
+  row.className = 'recipe-row';
+  row.innerHTML = '<input type="text" placeholder="Ingredient">' +
+    '<input type="number" placeholder="%" min="0" max="100" oninput="updateGlazeTotal()">' +
+    '<input type="number" placeholder="g" oninput="updateGlazeGrams()">' +
+    '<button class="btn-danger" onclick="removeRow(this)">✕</button>';
+  document.getElementById('glaze-rows').appendChild(row);
+}
+
+function updateGlazeTotal() {
+  var rows = document.querySelectorAll('#glaze-rows .recipe-row');
+  var total = 0;
+  rows.forEach(r => { total += parseFloat(r.querySelectorAll('input')[1].value) || 0; });
+  var el = document.getElementById('glaze-total');
+  el.textContent = total.toFixed(1) + '%';
+  el.className = 'total-num ' + (Math.abs(total - 100) < 0.5 ? 'ok' : total > 100 ? 'over' : '');
+}
+
+function updateGlazeGrams() { calcGlaze(); }
+
+function calcGlaze() {
+  var batch = parseFloat(document.getElementById('glaze-batch').value) || 1000;
+  var water = parseFloat(document.getElementById('glaze-water').value) || 0.6;
+  var temp = document.getElementById('glaze-temp').value;
+  var atm = document.getElementById('glaze-atm').value;
+  var rows = document.querySelectorAll('#glaze-rows .recipe-row');
+  var total = 0;
+  rows.forEach(r => { total += parseFloat(r.querySelectorAll('input')[1].value) || 0; });
+  if (total === 0) return;
+
+  var resultRows = '';
+  rows.forEach(r => {
+    var name = r.querySelectorAll('input')[0].value || 'Ingredient';
+    var pct = parseFloat(r.querySelectorAll('input')[1].value) || 0;
+    var grams = (pct / total * batch).toFixed(1);
+    resultRows += '<div class="result-row"><span class="result-label">' + name + ' (' + pct + '%)</span><span class="result-val">' + grams + 'g</span></div>';
+  });
+
+  var waterMl = (batch * water).toFixed(0);
+  var wet = (batch + parseFloat(waterMl)).toFixed(0);
+  var tempMap = {low:'999°C / cone 06', mid:'1185°C / cone 6', high:'1285°C / cone 10'};
+  var shrinkMap = {low:'8–10%', mid:'10–12%', high:'12–14%'};
+  var surfaceMap = {low:'glossy, bright', mid:'semi-matte to glossy', high:'matte to satin'};
+
+  document.getElementById('glaze-result-rows').innerHTML = resultRows;
+  document.getElementById('gr-water').textContent = waterMl + 'ml';
+  document.getElementById('gr-wet').textContent = wet + 'g';
+  document.getElementById('gr-temp').textContent = tempMap[temp];
+  document.getElementById('gr-atm').textContent = atm.charAt(0).toUpperCase() + atm.slice(1);
+  document.getElementById('gr-shrink').textContent = shrinkMap[temp];
+  document.getElementById('gr-surface').textContent = surfaceMap[temp];
+  document.getElementById('glaze-result').style.display = 'block';
+}
+
+// ═══════════════════════════════
+// KILN SCHEDULER
+// ═══════════════════════════════
+function addRampRow() {
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td><input type="text" placeholder="Stage" style="background:none;border:none;color:var(--sand);font-family:\'DM Mono\',monospace;font-size:.76rem;width:100%;padding:0"></td>' +
+    '<td><input type="number" value="80" style="background:none;border:none;color:var(--sand);font-family:\'DM Mono\',monospace;font-size:.76rem;width:60px;padding:0"></td>' +
+    '<td><input type="number" value="1000" style="background:none;border:none;color:var(--sand);font-family:\'DM Mono\',monospace;font-size:.76rem;width:60px;padding:0"></td>' +
+    '<td><input type="number" value="0" style="background:none;border:none;color:var(--sand);font-family:\'DM Mono\',monospace;font-size:.76rem;width:50px;padding:0"></td>' +
+    '<td><button onclick="removeRow(this)" style="background:none;border:none;color:rgba(158,142,126,.3);cursor:pointer;font-size:.8rem">✕</button></td>';
+  document.getElementById('ramp-rows').appendChild(tr);
+}
+
+function saveFiring() {
+  var name = document.getElementById('kiln-name').value.trim();
+  if (!name) { toast('Please enter a firing name'); return; }
+  var ramps = [];
+  document.querySelectorAll('#ramp-rows tr').forEach(r => {
+    var inputs = r.querySelectorAll('input');
+    ramps.push({stage: inputs[0].value, rate: inputs[1].value, target: inputs[2].value, hold: inputs[3].value});
+  });
+  var firing = {
+    id: Date.now(), name: name,
+    type: document.getElementById('kiln-type').value,
+    date: document.getElementById('kiln-date').value,
+    temp: document.getElementById('kiln-temp').value,
+    cone: document.getElementById('kiln-cone').value,
+    atm: document.getElementById('kiln-atm').value,
+    notes: document.getElementById('kiln-notes').value,
+    status: 'planned', ramps: ramps
+  };
+  var firings = load('firings');
+  firings.unshift(firing);
+  save('firings', firings);
+  renderFirings();
+  document.getElementById('kiln-name').value = '';
+  toast('Firing scheduled! 🔥');
+}
+
+function renderFirings() {
+  var firings = load('firings');
+  var el = document.getElementById('firing-list');
+  if (!firings.length) { el.innerHTML = '<div class="empty"><div class="ico">🔥</div><p>No firings scheduled yet.</p></div>'; return; }
+  el.innerHTML = firings.map(f => `
+    <div class="firing-card">
+      <div class="fc-name">${f.name} — ${f.type}</div>
+      <div class="fc-meta">${f.date || 'No date'} · ${f.temp}°C · Cone ${f.cone} · ${f.atm}</div>
+      <span class="fc-status ${f.status}" onclick="cycleFiringStatus(${f.id})">${f.status}</span>
+      ${f.notes ? '<div style="font-size:.74rem;color:var(--ash);margin-top:8px">' + f.notes + '</div>' : ''}
+      <button class="fc-del" onclick="deleteFiring(${f.id})">✕</button>
+    </div>`).join('');
+}
+
+function cycleFiringStatus(id) {
+  var firings = load('firings');
+  var order = ['planned','firing','complete'];
+  var f = firings.find(x => x.id === id);
+  if (f) { f.status = order[(order.indexOf(f.status) + 1) % order.length]; save('firings', firings); renderFirings(); }
+}
+
+function deleteFiring(id) {
+  var firings = load('firings').filter(f => f.id !== id);
+  save('firings', firings); renderFirings(); toast('Removed.');
+}
+
+// ═══════════════════════════════
+// CLAY BODY BUILDER
+// ═══════════════════════════════
+function addClayRow() {
+  var row = document.createElement('div');
+  row.className = 'recipe-row';
+  row.innerHTML = '<input type="text" placeholder="Ingredient">' +
+    '<input type="number" placeholder="%" min="0" max="100" oninput="updateClayTotal()">' +
+    '<input type="number" placeholder="kg" oninput="updateClayGrams()">' +
+    '<button class="btn-danger" onclick="removeRow(this)">✕</button>';
+  document.getElementById('clay-rows').appendChild(row);
+}
+
+function updateClayTotal() {
+  var rows = document.querySelectorAll('#clay-rows .recipe-row');
+  var total = 0;
+  rows.forEach(r => { total += parseFloat(r.querySelectorAll('input')[1].value) || 0; });
+  var el = document.getElementById('clay-total');
+  el.textContent = total.toFixed(1) + '%';
+  el.className = 'total-num ' + (Math.abs(total - 100) < 0.5 ? 'ok' : total > 100 ? 'over' : '');
+}
+
+function updateClayGrams() { calcClay(); }
+
+function calcClay() {
+  var batch = parseFloat(document.getElementById('clay-batch').value) || 10;
+  var fire = document.getElementById('clay-fire').value;
+  var use = document.getElementById('clay-use').value;
+  var rows = document.querySelectorAll('#clay-rows .recipe-row');
+  var total = 0, grogPct = 0;
+  rows.forEach(r => {
+    var pct = parseFloat(r.querySelectorAll('input')[1].value) || 0;
+    total += pct;
+    var name = (r.querySelectorAll('input')[0].value || '').toLowerCase();
+    if (name.includes('grog') || name.includes('sand')) grogPct += pct;
+  });
+  if (total === 0) return;
+
+  var resultRows = '';
+  rows.forEach(r => {
+    var name = r.querySelectorAll('input')[0].value || 'Ingredient';
+    var pct = parseFloat(r.querySelectorAll('input')[1].value) || 0;
+    var kg = (pct / total * batch).toFixed(2);
+    resultRows += '<div class="result-row"><span class="result-label">' + name + ' (' + pct + '%)</span><span class="result-val">' + kg + 'kg</span></div>';
+  });
+
+  var shrink = fire.includes('High') ? '12–15%' : fire.includes('Mid') ? '10–13%' : '8–10%';
+  var plastic = grogPct > 30 ? 'Low (heavily grogged)' : grogPct > 15 ? 'Medium' : 'High';
+  var texture = grogPct > 30 ? 'Coarse, sculptural' : grogPct > 10 ? 'Medium grog' : 'Smooth';
+  var color = fire.includes('High') ? 'Grey to buff' : 'Warm buff to red';
+
+  document.getElementById('clay-result-rows').innerHTML = resultRows;
+  document.getElementById('cr-shrink').textContent = shrink;
+  document.getElementById('cr-plastic').textContent = plastic;
+  document.getElementById('cr-texture').textContent = texture;
+  document.getElementById('cr-rec').textContent = use;
+  document.getElementById('cr-color').textContent = color;
+  document.getElementById('clay-result').style.display = 'block';
+
+  // Save recipe
+  var name = document.getElementById('clay-name').value.trim();
+  if (name) {
+    var recipes = load('clayrecipes');
+    var existing = recipes.findIndex(r => r.name === name);
+    var recipe = { id: Date.now(), name, fire: document.getElementById('clay-fire').value, use, batch, shrink, plastic, texture };
+    if (existing >= 0) recipes[existing] = recipe; else recipes.unshift(recipe);
+    save('clayrecipes', recipes);
+    renderClayRecipes();
+    toast('Recipe saved! 🏺');
+  }
+}
+
+function renderClayRecipes() {
+  var recipes = load('clayrecipes');
+  var el = document.getElementById('clay-saved-list');
+  if (!recipes.length) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div class="card"><div class="card-title">Saved Recipes</div>' +
+    recipes.map(r => `<div class="result-row">
+      <span class="result-label">${r.name}<br><span style="font-size:.68rem;color:var(--ash)">${r.fire} · ${r.use} · shrinkage ${r.shrink}</span></span>
+      <button class="btn-danger" onclick="deleteClayRecipe(${r.id})">✕</button>
+    </div>`).join('') + '</div>';
+}
+
+function deleteClayRecipe(id) {
+  save('clayrecipes', load('clayrecipes').filter(r => r.id !== id));
+  renderClayRecipes(); toast('Removed.');
+}
+
+// ═══════════════════════════════
+// COST CALCULATOR
+// ═══════════════════════════════
+function calcCost() {
+  var cur = document.getElementById('cost-currency').value;
+  var clayKg = parseFloat(document.getElementById('cost-clay-kg').value) || 0;
+  var clayPrice = parseFloat(document.getElementById('cost-clay-price').value) || 0;
+  var glazeG = parseFloat(document.getElementById('cost-glaze-g').value) || 0;
+  var glazePrice = parseFloat(document.getElementById('cost-glaze-price').value) || 0;
+  var other = parseFloat(document.getElementById('cost-other').value) || 0;
+  var hours = parseFloat(document.getElementById('cost-hours').value) || 0;
+  var rate = parseFloat(document.getElementById('cost-rate').value) || 0;
+  var kiln = parseFloat(document.getElementById('cost-kiln').value) || 0;
+  var overhead = parseFloat(document.getElementById('cost-overhead').value) || 0;
+  var margin = parseFloat(document.getElementById('cost-margin').value) || 40;
+
+  var matCost = (clayKg * clayPrice) + (glazeG / 100 * glazePrice) + other;
+  var labourCost = hours * rate;
+  var overheadCost = (matCost + labourCost + kiln) * overhead / 100;
+  var totalCost = matCost + labourCost + kiln + overheadCost;
+  var retail = totalCost * (1 + margin / 100);
+  var wholesale = retail * 0.5;
+  var profit = retail - totalCost;
+  var costPct = Math.round(totalCost / retail * 100);
+
+  document.getElementById('pr-mat').textContent = fmt(matCost, cur);
+  document.getElementById('pr-labour').textContent = fmt(labourCost, cur);
+  document.getElementById('pr-kiln').textContent = fmt(kiln, cur);
+  document.getElementById('pr-overhead').textContent = fmt(overheadCost, cur);
+  document.getElementById('pr-total').textContent = fmt(totalCost, cur);
+  document.getElementById('pr-retail').textContent = fmt(retail, cur);
+  document.getElementById('pr-wholesale').textContent = fmt(wholesale, cur);
+  document.getElementById('pr-profit').textContent = fmt(profit, cur);
+  document.getElementById('pr-breakeven').textContent = fmt(totalCost, cur) + ' per piece';
+  document.getElementById('pr-bar').style.width = costPct + '%';
+  document.getElementById('cost-result').style.display = 'block';
+  toast('Cost calculated!');
+}
+
+// ═══════════════════════════════
+// ORDER MANAGER
+// ═══════════════════════════════
+function saveOrder() {
+  var customer = document.getElementById('order-customer').value.trim();
+  if (!customer) { toast('Please enter customer name'); return; }
+  var order = {
+    id: Date.now(),
+    customer,
+    contact: document.getElementById('order-contact').value,
+    items: document.getElementById('order-items').value,
+    price: parseFloat(document.getElementById('order-price').value) || 0,
+    deposit: parseFloat(document.getElementById('order-deposit').value) || 0,
+    due: document.getElementById('order-due').value,
+    status: document.getElementById('order-status').value,
+    notes: document.getElementById('order-notes').value,
+    createdAt: new Date().toISOString()
+  };
+  var orders = load('orders');
+  orders.unshift(order);
+  save('orders', orders);
+  renderOrders();
+  document.getElementById('order-customer').value = '';
+  document.getElementById('order-items').value = '';
+  document.getElementById('order-notes').value = '';
+  toast('Order saved! 📋');
+}
+
+function renderOrders() {
+  var orders = load('orders');
+  var el = document.getElementById('order-list');
+  var summary = document.getElementById('order-summary');
+
+  if (!orders.length) {
+    el.innerHTML = '<div class="empty"><div class="ico">📋</div><p>No orders yet. Add your first customer order above.</p></div>';
+    summary.style.display = 'none';
+    return;
+  }
+
+  var totalValue = orders.reduce((s, o) => s + o.price, 0);
+  var totalDeposits = orders.reduce((s, o) => s + o.deposit, 0);
+  var balance = totalValue - totalDeposits;
+
+  document.getElementById('os-count').textContent = orders.length;
+  document.getElementById('os-value').textContent = '₦' + totalValue.toLocaleString();
+  document.getElementById('os-deposits').textContent = '₦' + totalDeposits.toLocaleString();
+  document.getElementById('os-balance').textContent = '₦' + balance.toLocaleString();
+  summary.style.display = 'block';
+
+  el.innerHTML = orders.map(o => `
+    <div class="order-card">
+      <div class="oc-name">${o.customer}</div>
+      <div class="oc-meta">${o.contact || ''} · Due: ${o.due || 'No date'}</div>
+      <span class="order-status ${o.status}" onclick="cycleOrderStatus(${o.id})">${o.status.replace('-',' ')}</span>
+      <div class="order-items">${o.items || ''}</div>
+      ${o.price ? '<div style="margin-top:8px;font-size:.75rem"><span style="color:var(--ash)">Price: </span><span style="color:var(--clay-light)">₦${o.price.toLocaleString()}</span> · <span style="color:var(--ash)">Deposit: </span><span style="color:var(--green)">₦${o.deposit.toLocaleString()}</span> · <span style="color:var(--ash)">Balance: </span><span style="color:#e8a84c">₦${(o.price - o.deposit).toLocaleString()}</span></div>' : ''}
+      ${o.notes ? '<div style="font-size:.72rem;color:var(--ash);margin-top:6px">' + o.notes + '</div>' : ''}
+      <button class="oc-del" onclick="deleteOrder(${o.id})">✕</button>
+    </div>`).join('');
+}
+
+function cycleOrderStatus(id) {
+  var orders = load('orders');
+  var statuses = ['inquiry','confirmed','in-progress','complete','delivered'];
+  var o = orders.find(x => x.id === id);
+  if (o) { o.status = statuses[(statuses.indexOf(o.status) + 1) % statuses.length]; save('orders', orders); renderOrders(); }
+}
+
+function deleteOrder(id) {
+  save('orders', load('orders').filter(o => o.id !== id));
+  renderOrders(); toast('Removed.');
+}
+
+// ── INIT ──
+window.onload = function() {
+  updateGlazeTotal();
+  updateClayTotal();
+  renderFirings();
+  renderClayRecipes();
+  renderOrders();
+  document.getElementById('kiln-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('order-due').value = new Date(Date.now() + 14*24*60*60*1000).toISOString().split('T')[0];
+};
+</script>
+</body>
+</html>

@@ -6,6 +6,7 @@
 <title>Clayforge — Ceramic Design Studio</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://js.paystack.co/v1/inline.js"></script>
+<script type="module" src="/main.js"></script>
 <style>
 :root{--clay:#c4714a;--clay-dark:#8b4a2f;--clay-light:#e8a882;--earth:#2a1f15;--sand:#f5ede3;--ash:#9e8e7e;--glaze:#4a7c8b;--glaze-light:#7fb3c2;--kiln:#e85d2a;--cream:#faf6f0;--green:#4a8b5a}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -85,7 +86,6 @@ select option{background:#2a1f15}
 .btn-action.save-btn:hover{border-color:var(--green)}
 .err-msg{display:none;background:rgba(232,93,42,.1);border:1px solid rgba(232,93,42,.28);border-radius:9px;padding:11px 14px;color:#f0a080;font-size:.8rem;line-height:1.6;margin-top:12px}
 .err-msg.on{display:block}
-/* Library */
 .lib-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
 .empty-lib{text-align:center;padding:70px 20px;color:var(--ash)}
 .empty-lib .ico{font-size:2.6rem;margin-bottom:14px;opacity:.28}
@@ -100,7 +100,6 @@ select option{background:#2a1f15}
 .dc img{width:100%;border-radius:7px;margin-bottom:10px;display:block}
 .dc-del{position:absolute;top:13px;right:13px;background:none;border:none;color:rgba(158,142,126,.35);cursor:pointer;font-size:.95rem;transition:color .2s}
 .dc-del:hover{color:#f0a080}
-/* Auth */
 .auth-wrap{max-width:400px;margin:50px auto;padding:0 20px}
 .auth-card{background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.2);border-radius:18px;padding:32px}
 .auth-card h2{font-family:'Playfair Display',serif;font-size:1.55rem;margin-bottom:5px}
@@ -114,7 +113,6 @@ select option{background:#2a1f15}
 .currency-toggle{display:flex;gap:8px;margin-bottom:14px}
 .cur-btn{flex:1;padding:8px;background:rgba(0,0,0,.2);border:1px solid rgba(196,113,74,.2);border-radius:8px;color:var(--ash);font-family:'DM Mono',monospace;font-size:.75rem;cursor:pointer;transition:all .2s;letter-spacing:.06em}
 .cur-btn.active{background:rgba(196,113,74,.15);border-color:var(--clay);color:var(--clay-light)}
-/* Pricing */
 .pricing-hero{text-align:center;padding:44px 0 36px}
 .pricing-hero h2{font-family:'Playfair Display',serif;font-size:2rem;margin-bottom:8px}
 .pricing-hero p{font-size:.85rem;color:var(--ash);max-width:460px;margin:0 auto}
@@ -141,14 +139,12 @@ select option{background:#2a1f15}
 .faq-item{border-bottom:1px solid rgba(196,113,74,.1);padding:14px 0}
 .faq-q{font-size:.82rem;color:var(--clay-light);margin-bottom:7px}
 .faq-a{font-size:.78rem;color:var(--ash);line-height:1.7}
-/* Modal */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;align-items:center;justify-content:center;padding:18px}
 .modal-bg.open{display:flex}
 .modal{background:#2a1f15;border:1px solid rgba(196,113,74,.28);border-radius:16px;padding:26px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;animation:up .3s ease}
 .modal h3{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--clay-light);margin-bottom:16px}
 .modal-x{float:right;background:none;border:none;color:var(--ash);font-size:1.15rem;cursor:pointer;margin-top:-3px}
 .modal-x:hover{color:var(--sand)}
-/* Account page */
 .account-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 @media(max-width:580px){.account-grid{grid-template-columns:1fr}}
 .account-stat{background:rgba(255,255,255,.03);border:1px solid rgba(196,113,74,.18);border-radius:12px;padding:18px}
@@ -156,10 +152,8 @@ select option{background:#2a1f15}
 .account-stat .stat-val{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--clay-light)}
 .btn-manage{padding:10px 20px;background:none;border:1px solid rgba(196,113,74,.3);border-radius:8px;color:var(--ash);font-family:'DM Mono',monospace;font-size:.76rem;letter-spacing:.07em;cursor:pointer;transition:all .2s;margin-top:14px}
 .btn-manage:hover{border-color:var(--clay);color:var(--clay-light)}
-/* Toast */
 .toast{position:fixed;bottom:24px;right:24px;z-index:300;background:var(--clay-dark);color:var(--cream);padding:11px 18px;border-radius:9px;font-size:.78rem;letter-spacing:.04em;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
-/* Success page */
 .success-wrap{text-align:center;padding:80px 20px}
 .success-wrap h2{font-family:'Playfair Display',serif;font-size:2rem;margin-bottom:10px}
 .success-wrap p{color:var(--ash);font-size:.85rem;margin-bottom:24px}
@@ -182,7 +176,6 @@ select option{background:#2a1f15}
   </div>
 </nav>
 
-<!-- ═══ STUDIO ═══ -->
 <div class="page active" id="page-studio">
 <div class="container">
   <div class="page-title">Design Studio</div>
@@ -192,12 +185,10 @@ select option{background:#2a1f15}
     <button class="tab" onclick="switchTab('remix')">⟳ Remix Existing</button>
     <button class="tab" onclick="switchTab('specs')">⚙ Tech Specs</button>
   </div>
-
-  <!-- INVENT -->
   <div class="panel active" id="panel-invent">
     <div class="card">
       <label class="field-label">Describe your ceramic piece</label>
-      <textarea id="invent-prompt" placeholder="e.g. A tall vase inspired by Hausa architecture, with geometric relief patterns and a deep indigo glaze that fades to warm terracotta at the base..."></textarea>
+      <textarea id="invent-prompt" placeholder="e.g. A tall vase inspired by Hausa architecture, with geometric relief patterns and a deep indigo glaze..."></textarea>
       <div class="field-row">
         <div><label class="field-label">Form / Type</label>
           <select id="invent-form">
@@ -232,15 +223,13 @@ select option{background:#2a1f15}
       <div class="err-msg" id="error-invent"></div>
     </div>
   </div>
-
-  <!-- REMIX -->
   <div class="panel" id="panel-remix">
     <div class="card">
       <label class="field-label">Describe an existing ceramic product</label>
-      <textarea id="remix-prompt" placeholder="e.g. A plain round brown earthenware cooking pot, 30cm wide, with two handles and a flat lid..."></textarea>
+      <textarea id="remix-prompt" placeholder="e.g. A plain round brown earthenware cooking pot, 30cm wide, with two handles..."></textarea>
       <div style="margin-top:13px">
         <label class="field-label">How should it be transformed?</label>
-        <textarea id="remix-transform" placeholder="e.g. Elegant for modern dining — geometric patterns, matte olive glaze, slimmer profile..." style="height:78px"></textarea>
+        <textarea id="remix-transform" placeholder="e.g. Elegant for modern dining — geometric patterns, matte olive glaze..." style="height:78px"></textarea>
       </div>
       <button class="btn-primary" onclick="generate('remix')">Transform this piece →</button>
     </div>
@@ -251,12 +240,10 @@ select option{background:#2a1f15}
       <div class="err-msg" id="error-remix"></div>
     </div>
   </div>
-
-  <!-- SPECS -->
   <div class="panel" id="panel-specs">
     <div class="card">
       <label class="field-label">Describe the ceramic piece</label>
-      <textarea id="specs-prompt" placeholder="e.g. A stoneware bowl with tenmoku glaze, wheel-thrown, 18cm diameter, high-fire reduction..."></textarea>
+      <textarea id="specs-prompt" placeholder="e.g. A stoneware bowl with tenmoku glaze, wheel-thrown, 18cm diameter..."></textarea>
       <div class="field-row">
         <div><label class="field-label">Firing method</label>
           <select id="specs-firing">
@@ -283,7 +270,6 @@ select option{background:#2a1f15}
 </div>
 </div>
 
-<!-- ═══ LIBRARY ═══ -->
 <div class="page" id="page-library">
 <div class="container">
   <div class="lib-header">
@@ -294,7 +280,6 @@ select option{background:#2a1f15}
 </div>
 </div>
 
-<!-- ═══ AUTH ═══ -->
 <div class="page" id="page-auth">
 <div class="auth-wrap">
   <div class="auth-card">
@@ -329,12 +314,11 @@ select option{background:#2a1f15}
 </div>
 </div>
 
-<!-- ═══ PRICING ═══ -->
 <div class="page" id="page-pricing">
 <div class="container">
   <div class="pricing-hero">
     <h2>Simple, honest pricing</h2>
-    <p>Choose the plan that fits your ceramic practice. All plans include the full design studio.</p>
+    <p>Choose the plan that fits your ceramic practice.</p>
   </div>
   <div class="plans">
     <div class="plan">
@@ -343,7 +327,7 @@ select option{background:#2a1f15}
       <div class="plan-desc">For hobbyists and students exploring ceramic design.</div>
       <ul class="plan-features">
         <li>5 designs per month</li><li>Invent + Remix + Tech Specs</li><li>PDF export</li>
-        <li class="dim">No image renders</li><li class="dim">No design library</li><li class="dim">No priority support</li>
+        <li class="dim">No image renders</li><li class="dim">No design library</li>
       </ul>
       <button class="btn-plan" onclick="selectPlan('FREE')">Get started free</button>
     </div>
@@ -353,8 +337,8 @@ select option{background:#2a1f15}
       <div class="plan-prices"><div class="price-ngn">₦8,500 <span>/ month</span></div><div class="price-usd">or $5.99 USD / month</div></div>
       <div class="plan-desc">For working ceramicists and small studios.</div>
       <ul class="plan-features">
-        <li>Unlimited designs</li><li>Invent + Remix + Tech Specs</li><li>AI image renders (DALL·E)</li>
-        <li>PDF export with branding</li><li>Design library (save unlimited)</li><li>Priority email support</li>
+        <li>Unlimited designs</li><li>AI image renders</li><li>PDF export with branding</li>
+        <li>Design library</li><li>Priority support</li>
       </ul>
       <button class="btn-plan" onclick="selectPlan('STONEWARE')">Start 7-day free trial</button>
     </div>
@@ -364,22 +348,21 @@ select option{background:#2a1f15}
       <div class="plan-desc">For studios, schools, and commercial producers.</div>
       <ul class="plan-features">
         <li>Everything in Stoneware</li><li>Up to 10 team members</li><li>Shared design library</li>
-        <li>Custom brand on PDF exports</li><li>API access</li><li>Dedicated support</li>
+        <li>Custom brand on exports</li><li>API access</li>
       </ul>
       <button class="btn-plan" onclick="selectPlan('PORCELAIN')">Contact us</button>
     </div>
   </div>
   <div class="faq">
     <h3>Common questions</h3>
-    <div class="faq-item"><div class="faq-q">Do I need my own API keys?</div><div class="faq-a">On paid plans, API access is bundled — no need to provide your own keys. On the free plan, you enter your own Anthropic and OpenAI keys (free to get, pay-per-use).</div></div>
-    <div class="faq-item"><div class="faq-q">Can I cancel anytime?</div><div class="faq-a">Yes. Cancel from your account page at any time. Access continues until end of billing period and your designs are always exportable.</div></div>
-    <div class="faq-item"><div class="faq-q">How do I pay?</div><div class="faq-a">Nigerian users pay via Paystack — card, bank transfer, or USSD all supported. International users pay via Stripe — all major cards accepted.</div></div>
-    <div class="faq-item"><div class="faq-q">Who owns the designs I generate?</div><div class="faq-a">You do. All designs belong entirely to you. We never use your work for training or share it with anyone.</div></div>
+    <div class="faq-item"><div class="faq-q">Do I need my own API keys?</div><div class="faq-a">On paid plans, API access is bundled. On the free plan, you enter your own Anthropic and OpenAI keys.</div></div>
+    <div class="faq-item"><div class="faq-q">Can I cancel anytime?</div><div class="faq-a">Yes. Cancel from your account page at any time.</div></div>
+    <div class="faq-item"><div class="faq-q">How do I pay?</div><div class="faq-a">Nigerian users pay via Paystack — card, bank transfer, or USSD. International users pay via Stripe.</div></div>
+    <div class="faq-item"><div class="faq-q">Who owns the designs?</div><div class="faq-a">You do. All designs belong entirely to you.</div></div>
   </div>
 </div>
 </div>
 
-<!-- ═══ ACCOUNT ═══ -->
 <div class="page" id="page-account">
 <div class="container">
   <div class="page-title">My Account</div>
@@ -393,7 +376,6 @@ select option{background:#2a1f15}
 </div>
 </div>
 
-<!-- ═══ PAYMENT SUCCESS ═══ -->
 <div class="page" id="page-success">
 <div class="container">
   <div class="success-wrap">
@@ -405,222 +387,221 @@ select option{background:#2a1f15}
 </div>
 </div>
 
-<!-- Modal -->
 <div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
   <div class="modal"><button class="modal-x" onclick="closeModal()">✕</button><div id="modal-body"></div></div>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ── CONFIG ──
-const API = (typeof import !== 'undefined' && typeof import.meta !== 'undefined')
-  ? (import.meta.env?.VITE_API_URL || 'http://localhost:3001')
-  : (window.__API_URL__ || 'http://localhost:3001');
-const PAYSTACK_PK = window.__PAYSTACK_PK__ || '';
+// Wait for main.js to set window.__API_URL__
+function getAPI() { return window.__API_URL__ || 'http://localhost:3001'; }
+function getPK() { return window.__PAYSTACK_PK__ || ''; }
 
-// ── STATE ──
-let user = null, token = null, authMode = 'signin', authCurrency = 'NGN';
-let lastResults = {};
+var user = null, token = null, authMode = 'signin', authCurrency = 'NGN';
+var lastResults = {};
 
-// ── INIT ──
-window.onload = () => {
+window.addEventListener('load', function() {
   loadKeys();
-  const t = localStorage.getItem('cf_token');
-  const u = localStorage.getItem('cf_user');
+  var t = localStorage.getItem('cf_token');
+  var u = localStorage.getItem('cf_user');
   if (t && u) { token = t; user = JSON.parse(u); updateNav(); }
-  // Check for payment success
-  if (location.search.includes('session_id') || location.search.includes('payment=success')) {
+  if (location.search.includes('payment=success')) {
     verifyPaystackIfNeeded();
     showPage('success');
   }
-};
+});
 
 function loadKeys() {
-  const ak = localStorage.getItem('cf_ak'), ok = localStorage.getItem('cf_ok');
-  if (ak) { const el = document.getElementById('anthropic-key'); if(el) el.value = ak; }
-  if (ok) { const el = document.getElementById('openai-key'); if(el) el.value = ok; }
+  var ak = localStorage.getItem('cf_ak'), ok = localStorage.getItem('cf_ok');
+  if (ak) { var el = document.getElementById('anthropic-key'); if(el) el.value = ak; }
+  if (ok) { var el2 = document.getElementById('openai-key'); if(el2) el2.value = ok; }
 }
 function saveKeys() {
-  const ak = document.getElementById('anthropic-key')?.value.trim();
-  const ok = document.getElementById('openai-key')?.value.trim();
+  var ak = document.getElementById('anthropic-key').value.trim();
+  var ok = document.getElementById('openai-key').value.trim();
   if (ak) localStorage.setItem('cf_ak', ak);
   if (ok) localStorage.setItem('cf_ok', ok);
 }
-function getKey(k) { return document.getElementById(k)?.value.trim() || localStorage.getItem(k === 'anthropic-key' ? 'cf_ak' : 'cf_ok') || ''; }
+function getKey(k) {
+  return document.getElementById(k).value.trim() || localStorage.getItem(k === 'anthropic-key' ? 'cf_ak' : 'cf_ok') || '';
+}
 
-// ── NAV ──
 function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + name)?.classList.add('active');
-  ['studio','library','pricing'].forEach(n => document.getElementById('nb-'+n)?.classList.toggle('active', n===name));
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  var pg = document.getElementById('page-' + name);
+  if (pg) pg.classList.add('active');
+  ['studio','library','pricing'].forEach(function(n){
+    var btn = document.getElementById('nb-'+n);
+    if (btn) btn.classList.toggle('active', n===name);
+  });
   if (name === 'library') loadLibrary();
   if (name === 'account') loadAccount();
   window.scrollTo(0,0);
 }
 function updateNav() {
-  const area = document.getElementById('nav-auth-area');
+  var area = document.getElementById('nav-auth-area');
   if (user) {
-    const ini = user.name ? user.name.slice(0,2).toUpperCase() : '??';
-    area.innerHTML = `<div class="nav-user" onclick="showPage('account')">
-      <div class="avatar">${ini}</div>
-      <span class="nav-user-name">${user.name||user.email}</span>
-      <span class="plan-badge-nav ${user.plan||'FREE'}">${user.plan||'FREE'}</span>
-    </div>`;
+    var ini = user.name ? user.name.slice(0,2).toUpperCase() : '??';
+    area.innerHTML = '<div class="nav-user" onclick="showPage(\'account\')">' +
+      '<div class="avatar">'+ini+'</div>' +
+      '<span class="nav-user-name">'+( user.name||user.email)+'</span>' +
+      '<span class="plan-badge-nav '+(user.plan||'FREE')+'">'+(user.plan||'FREE')+'</span></div>';
   } else {
-    area.innerHTML = `<button class="nav-btn cta" onclick="showPage('auth')">Sign In</button>`;
+    area.innerHTML = '<button class="nav-btn cta" onclick="showPage(\'auth\')">Sign In</button>';
   }
 }
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['invent','remix','specs'][i]===name));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-'+name)?.classList.add('active');
+  document.querySelectorAll('.tab').forEach(function(t,i){
+    t.classList.toggle('active', ['invent','remix','specs'][i]===name);
+  });
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  var panel = document.getElementById('panel-'+name);
+  if (panel) panel.classList.add('active');
 }
 
-// ── API HELPER ──
-async function api(path, opts={}) {
-  const res = await fetch(API + path, {
-    ...opts,
-    headers: { 'Content-Type':'application/json', ...(token ? {'Authorization':'Bearer '+token} : {}), ...(opts.headers||{}) }
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+async function api(path, opts) {
+  opts = opts || {};
+  var headers = {'Content-Type':'application/json'};
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  Object.assign(headers, opts.headers || {});
+  var res = await fetch(getAPI() + path, Object.assign({}, opts, {headers: headers}));
+  var data = await res.json();
+  if (!res.ok) throw new Error(data.error || data.message || 'Error ' + res.status);
   return data;
 }
 
-// ── GENERATE ──
 function buildPrompt(mode) {
   if (mode==='invent') {
-    const d=document.getElementById('invent-prompt').value.trim(), f=document.getElementById('invent-form').value, s=document.getElementById('invent-style').value;
+    var d=document.getElementById('invent-prompt').value.trim();
+    var f=document.getElementById('invent-form').value;
+    var s=document.getElementById('invent-style').value;
     if(!d) return null;
-    return `You are an expert ceramic designer. Generate a rich, detailed design concept.\n\nDescription: ${d}\n${f?'Form: '+f:''}\n${s?'Style: '+s:''}\n\nRespond with these EXACT sections:\n\n**DESIGN NAME**\n[compelling poetic name]\n\n**DESIGN CONCEPT**\n[2-3 sentences on vision and uniqueness]\n\n**FORM & DIMENSIONS**\n[shape, height, width, proportions, wall thickness]\n\n**SURFACE & TEXTURE**\n[patterns, textures, relief, decoration]\n\n**GLAZE & FINISH**\n[glaze colours, surface quality, effects]\n\n**PRODUCTION NOTES**\n[forming method, techniques, difficulty, time per piece]\n\n**MARKET POSITIONING**\n[target buyer, price range, context]`;
+    return 'You are an expert ceramic designer. Generate a rich, detailed design concept.\n\nDescription: '+d+'\n'+(f?'Form: '+f:'')+'\n'+(s?'Style: '+s:'')+'\n\nRespond with these EXACT sections:\n\n**DESIGN NAME**\n[compelling poetic name]\n\n**DESIGN CONCEPT**\n[2-3 sentences on vision]\n\n**FORM & DIMENSIONS**\n[shape, height, width, proportions]\n\n**SURFACE & TEXTURE**\n[patterns, textures, relief]\n\n**GLAZE & FINISH**\n[glaze colours, surface quality]\n\n**PRODUCTION NOTES**\n[forming method, techniques, difficulty]\n\n**MARKET POSITIONING**\n[target buyer, price range]';
   }
   if (mode==='remix') {
-    const e=document.getElementById('remix-prompt').value.trim(), t=document.getElementById('remix-transform').value.trim();
+    var e=document.getElementById('remix-prompt').value.trim();
+    var t=document.getElementById('remix-transform').value.trim();
     if(!e) return null;
-    return `Expert ceramic designer remixing a piece.\n\nExisting: ${e}\n${t?'Transformation: '+t:'Improve and modernise creatively.'}\n\n**ORIGINAL ANALYSIS**\n[what works, what to improve]\n\n**REMIXED DESIGN NAME**\n[new name]\n\n**TRANSFORMATION CONCEPT**\n[what changed and why]\n\n**FORM CHANGES**\n[shape, proportion changes]\n\n**SURFACE & GLAZE CHANGES**\n[new surface and glaze]\n\n**WHAT'S RETAINED**\n[kept elements and why]\n\n**THE RESULT**\n[vivid 3-4 sentence description for a buyer]`;
+    return 'Expert ceramic designer remixing a piece.\n\nExisting: '+e+'\n'+(t?'Transformation: '+t:'Improve creatively.')+'\n\n**ORIGINAL ANALYSIS**\n**REMIXED DESIGN NAME**\n**TRANSFORMATION CONCEPT**\n**FORM CHANGES**\n**SURFACE & GLAZE CHANGES**\n**WHAT\'S RETAINED**\n**THE RESULT**';
   }
   if (mode==='specs') {
-    const d=document.getElementById('specs-prompt').value.trim(), f=document.getElementById('specs-firing').value, u=document.getElementById('specs-use').value;
-    if(!d) return null;
-    return `Master ceramicist. Complete technical specifications.\n\nPiece: ${d}\n${f?'Firing: '+f:''}\n${u?'Use: '+u:''}\n\n**CLAY BODY**\n[type, grog %, plasticity]\n\n**FORMING METHOD**\n[best technique, specific notes]\n\n**DRYING PROTOCOL**\n[speed, precautions, timing]\n\n**BISQUE FIRING**\n[°C, cone, ramp, hold times]\n\n**GLAZE SPECIFICATIONS**\n[type, method, thickness mm]\n\n**GLAZE FIRING**\n[°C, cone, ramp, atmosphere]\n\n**SHRINKAGE & TOLERANCES**\n[linear shrinkage %]\n\n**FOOD SAFETY**\n[status and cautions]\n\n**QUALITY CHECKS**\n[inspect stages, common defects]`;
+    var d2=document.getElementById('specs-prompt').value.trim();
+    var f2=document.getElementById('specs-firing').value;
+    var u=document.getElementById('specs-use').value;
+    if(!d2) return null;
+    return 'Master ceramicist. Complete technical specifications.\n\nPiece: '+d2+'\n'+(f2?'Firing: '+f2:'')+'\n'+(u?'Use: '+u:'')+'\n\n**CLAY BODY**\n**FORMING METHOD**\n**DRYING PROTOCOL**\n**BISQUE FIRING**\n**GLAZE SPECIFICATIONS**\n**GLAZE FIRING**\n**SHRINKAGE & TOLERANCES**\n**FOOD SAFETY**\n**QUALITY CHECKS**';
   }
 }
 
 function setLoading(mode, on) {
-  const out = document.getElementById('output-'+mode);
-  if (!out) return;
-  const ph = out.querySelector('.placeholder');
+  var out = document.getElementById('output-'+mode); if (!out) return;
+  var ph = out.querySelector('.placeholder');
   if (ph) ph.style.display = on ? 'none' : 'flex';
-  document.getElementById('loading-'+mode)?.classList.toggle('on', on);
-  document.getElementById('result-'+mode)?.classList.remove('on');
-  document.getElementById('error-'+mode)?.classList.remove('on');
+  var lw = document.getElementById('loading-'+mode); if(lw) lw.classList.toggle('on', on);
+  var rw = document.getElementById('result-'+mode); if(rw) rw.classList.remove('on');
+  var ew = document.getElementById('error-'+mode); if(ew) ew.classList.remove('on');
 }
 function showErr(mode, msg) {
-  document.getElementById('loading-'+mode)?.classList.remove('on');
-  const e = document.getElementById('error-'+mode);
+  var lw = document.getElementById('loading-'+mode); if(lw) lw.classList.remove('on');
+  var e = document.getElementById('error-'+mode);
   if (e) { e.textContent = msg; e.classList.add('on'); }
 }
 function showRes(mode, html) {
-  document.getElementById('loading-'+mode)?.classList.remove('on');
-  const r = document.getElementById('result-'+mode);
+  var lw = document.getElementById('loading-'+mode); if(lw) lw.classList.remove('on');
+  var r = document.getElementById('result-'+mode);
   if (r) { r.innerHTML = html; r.classList.add('on'); }
 }
 
 async function generate(mode) {
-  const prompt = buildPrompt(mode);
+  var prompt = buildPrompt(mode);
   if (!prompt) { showErr(mode, 'Please fill in the description field.'); return; }
-  const ak = getKey('anthropic-key');
+  var ak = getKey('anthropic-key');
   if (!ak) { showErr(mode, 'Please enter your Anthropic API key above.'); return; }
   setLoading(mode, true);
-  document.querySelectorAll('.btn-primary').forEach(b => b.disabled=true);
+  document.querySelectorAll('.btn-primary').forEach(function(b){ b.disabled=true; });
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST', headers:{'Content-Type':'application/json','x-api-key':ak,'anthropic-version':'2023-06-01'},
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':ak,'anthropic-version':'2023-06-01'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
     });
-    if (!resp.ok) { const e=await resp.json().catch(()=>({})); throw new Error(e.error?.message||`API error ${resp.status}`); }
-    const data = await resp.json();
-    const text = data.content.map(b=>b.text||'').join('\n');
-    const sections = parseSections(text);
-    lastResults[mode] = { sections, imageUrl: null };
-    const ok = getKey('openai-key');
-    let html = renderSections(sections) + (ok && mode!=='specs' ? `<div class="render-card" id="rc-${mode}"><h3>✦ Visual Render</h3><div class="render-load" id="rl-${mode}"><div class="spinner" style="width:26px;height:26px"></div> Generating image…</div><div id="ri-${mode}"></div></div>` : '') + actionBar(mode);
+    if (!resp.ok) { var err=await resp.json().catch(function(){return{};}); throw new Error(err.error&&err.error.message||'API error '+resp.status); }
+    var data = await resp.json();
+    var text = data.content.map(function(b){return b.text||'';}).join('\n');
+    var sections = parseSections(text);
+    lastResults[mode] = { sections: sections, imageUrl: null };
+    var ok = getKey('openai-key');
+    var html = renderSections(sections) + (ok && mode!=='specs' ? '<div class="render-card" id="rc-'+mode+'"><h3>✦ Visual Render</h3><div class="render-load" id="rl-'+mode+'"><div class="spinner" style="width:26px;height:26px"></div> Generating image…</div><div id="ri-'+mode+'"></div></div>' : '') + actionBar(mode);
     showRes(mode, html);
     if (ok && mode!=='specs') genImage(mode, sections, ok);
   } catch(e) { showErr(mode, '⚠ '+e.message); }
-  finally { document.querySelectorAll('.btn-primary').forEach(b=>b.disabled=false); setLoading(mode,false); }
+  finally { document.querySelectorAll('.btn-primary').forEach(function(b){b.disabled=false;}); setLoading(mode,false); }
 }
 
 async function genImage(mode, sections, ok) {
   try {
-    const n = sections.find(s=>s.h.includes('NAME')), c = sections.find(s=>s.h.includes('CONCEPT')||s.h.includes('RESULT')),
-          f = sections.find(s=>s.h.includes('FORM')), g = sections.find(s=>s.h.includes('GLAZE'));
-    const imgP = `A professional product photograph of a ceramic piece: ${n?.b||''} ${c?.b||''} ${f?.b||''} ${g?.b||''}. Studio lighting, neutral background, high detail ceramic photography.`.slice(0,900);
-    const r = await fetch('https://api.openai.com/v1/images/generations', {
+    var n=sections.find(function(s){return s.h.includes('NAME');})||{};
+    var c=sections.find(function(s){return s.h.includes('CONCEPT')||s.h.includes('RESULT');})||{};
+    var f=sections.find(function(s){return s.h.includes('FORM');})||{};
+    var g=sections.find(function(s){return s.h.includes('GLAZE');})||{};
+    var imgP = ('A professional product photograph of a ceramic piece: '+(n.b||'')+' '+(c.b||'')+' '+(f.b||'')+' '+(g.b||'')+'. Studio lighting, neutral background.').slice(0,900);
+    var r = await fetch('https://api.openai.com/v1/images/generations', {
       method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+ok},
       body:JSON.stringify({model:'dall-e-3',prompt:imgP,n:1,size:'1024x1024',quality:'standard'})
     });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error?.message||'Image error');
-    const url = d.data?.[0]?.url;
+    var d = await r.json();
+    if (!r.ok) throw new Error(d.error&&d.error.message||'Image error');
+    var url = d.data&&d.data[0]&&d.data[0].url;
     if (url) {
       lastResults[mode].imageUrl = url;
       document.getElementById('rl-'+mode).style.display='none';
-      document.getElementById('ri-'+mode).innerHTML=`<img class="render-img" src="${url}" alt="Render">`;
+      document.getElementById('ri-'+mode).innerHTML='<img class="render-img" src="'+url+'" alt="Render">';
     }
   } catch(e) {
-    const rl = document.getElementById('rl-'+mode);
-    if (rl) rl.outerHTML=`<div class="render-err">Image generation failed: ${e.message}</div>`;
+    var rl = document.getElementById('rl-'+mode);
+    if (rl) rl.outerHTML='<div class="render-err">Image generation failed: '+e.message+'</div>';
   }
 }
 
 function parseSections(text) {
-  return text.split(/\n(?=\*\*[A-Z][A-Z\s&\/]+\*\*)/).filter(Boolean).map(p => {
-    const m = p.match(/^\*\*([^*]+)\*\*/);
+  return text.split(/\n(?=\*\*[A-Z][A-Z\s&\/]+\*\*)/).filter(Boolean).map(function(p) {
+    var m = p.match(/^\*\*([^*]+)\*\*/);
     return m ? {h:m[1], b:p.replace(/^\*\*[^*]+\*\*\n?/,'').trim()} : {h:'',b:p.trim()};
   });
 }
 function renderSections(sections) {
-  return sections.map(s=>`<div class="res-card">${s.h?`<h3>${s.h}</h3>`:''}<div class="res-body">${esc(s.b)}</div></div>`).join('');
+  return sections.map(function(s){
+    return '<div class="res-card">'+(s.h?'<h3>'+s.h+'</h3>':'')+
+      '<div class="res-body">'+esc(s.b)+'</div></div>';
+  }).join('');
 }
 function actionBar(mode) {
-  return `<div class="action-bar">
-    <button class="btn-action" onclick="exportPDF('${mode}')">⬇ PDF</button>
-    <button class="btn-action save-btn" onclick="saveDesign('${mode}')">✦ Save</button>
-    <button class="btn-action" onclick="copyText('${mode}')">⎘ Copy</button>
-  </div>`;
+  return '<div class="action-bar">' +
+    '<button class="btn-action" onclick="exportPDF(\''+mode+'\')">⬇ PDF</button>' +
+    '<button class="btn-action save-btn" onclick="saveDesign(\''+mode+'\')">✦ Save</button>' +
+    '<button class="btn-action" onclick="copyText(\''+mode+'\')">⎘ Copy</button></div>';
 }
 function esc(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
 
-// ── PDF EXPORT ──
 async function exportPDF(mode) {
-  const r = lastResults[mode]; if (!r) return;
-  const script = document.createElement('script');
+  var r = lastResults[mode]; if (!r) return;
+  var script = document.createElement('script');
   script.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
   document.head.appendChild(script);
-  script.onload = async () => {
-    const {jsPDF} = window.jspdf;
-    const doc = new jsPDF({unit:'mm',format:'a4'});
-    const lm=20, pw=210, tw=170;
-    let y=20;
+  script.onload = async function() {
+    var doc = new window.jspdf.jsPDF({unit:'mm',format:'a4'});
+    var lm=20,pw=210,tw=170,y=20;
     doc.setFillColor(42,31,21); doc.rect(0,0,210,297,'F');
     doc.setTextColor(245,237,227); doc.setFontSize(20); doc.setFont('times','bolditalic');
-    doc.text('Clayforge', lm, y); y+=7;
+    doc.text('Clayforge',lm,y); y+=7;
     doc.setFontSize(8); doc.setFont('courier','normal'); doc.setTextColor(158,142,126);
-    doc.text('CERAMIC DESIGN STUDIO  —  '+new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase(), lm, y); y+=7;
+    doc.text('CERAMIC DESIGN STUDIO',lm,y); y+=7;
     doc.setDrawColor(196,113,74); doc.setLineWidth(.35); doc.line(lm,y,pw-lm,y); y+=9;
-    if (r.imageUrl && mode!=='specs') {
-      try {
-        const b64 = await urlToB64(r.imageUrl);
-        const iw=75,ih=75,ix=(pw-iw)/2;
-        doc.addImage(b64,'JPEG',ix,y,iw,ih); y+=ih+9;
-      } catch(e){}
-    }
-    r.sections.forEach(s => {
+    r.sections.forEach(function(s){
       if(y>260){doc.addPage();doc.setFillColor(42,31,21);doc.rect(0,0,210,297,'F');y=20;}
       if(s.h){doc.setFontSize(10);doc.setFont('times','bold');doc.setTextColor(232,168,130);doc.text(s.h,lm,y);y+=5;doc.setDrawColor(196,113,74);doc.setLineWidth(.18);doc.line(lm,y,lm+tw*.38,y);y+=4;}
       doc.setFontSize(8.5);doc.setFont('courier','normal');doc.setTextColor(245,237,227);
-      doc.splitTextToSize(s.b,tw).forEach(l=>{if(y>272){doc.addPage();doc.setFillColor(42,31,21);doc.rect(0,0,210,297,'F');y=20;}doc.text(l,lm,y);y+=4.5;});
+      doc.splitTextToSize(s.b,tw).forEach(function(l){if(y>272){doc.addPage();doc.setFillColor(42,31,21);doc.rect(0,0,210,297,'F');y=20;}doc.text(l,lm,y);y+=4.5;});
       y+=3;
     });
     doc.setFontSize(7);doc.setTextColor(100,85,75);doc.text('Generated by Clayforge',lm,290);
@@ -628,60 +609,54 @@ async function exportPDF(mode) {
     toast('PDF exported!');
   };
 }
-function urlToB64(url){return new Promise((res,rej)=>{const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;c.getContext('2d').drawImage(img,0,0);res(c.toDataURL('image/jpeg',.85));};img.onerror=rej;img.src=url;});}
 
-// ── SAVE DESIGN ──
 async function saveDesign(mode) {
-  const r = lastResults[mode]; if (!r) return;
+  var r = lastResults[mode]; if (!r) return;
   if (!token) { toast('Sign in to save designs'); showPage('auth'); return; }
-  const nameS = r.sections.find(s=>s.h.includes('NAME'));
-  const name = nameS?.b?.split('\n')[0] || 'Untitled Design';
-  const preview = r.sections.find(s=>s.h.includes('CONCEPT')||s.h.includes('RESULT'))?.b || '';
+  var nameS = r.sections.find(function(s){return s.h.includes('NAME');});
+  var name = (nameS&&nameS.b&&nameS.b.split('\n')[0]) || 'Untitled Design';
+  var prevS = r.sections.find(function(s){return s.h.includes('CONCEPT')||s.h.includes('RESULT');});
+  var preview = (prevS&&prevS.b) || '';
   try {
-    await api('/api/designs', {method:'POST', body:JSON.stringify({mode, name, preview, sections:r.sections, imageUrl:r.imageUrl})});
+    await api('/api/designs', {method:'POST', body:JSON.stringify({mode:mode, name:name, preview:preview, sections:r.sections, imageUrl:r.imageUrl})});
     toast('Design saved!');
   } catch(e) { toast('⚠ '+e.message); }
 }
 function copyText(mode) {
-  const r = lastResults[mode]; if (!r) return;
-  navigator.clipboard.writeText(r.sections.map(s=>(s.h?'== '+s.h+' ==\n':'')+s.b).join('\n\n')).then(()=>toast('Copied!'));
+  var r = lastResults[mode]; if (!r) return;
+  navigator.clipboard.writeText(r.sections.map(function(s){return (s.h?'== '+s.h+' ==\n':'')+s.b;}).join('\n\n')).then(function(){toast('Copied!');});
 }
 
-// ── LIBRARY ──
 async function loadLibrary() {
-  const el = document.getElementById('library-content'); if (!el) return;
-  if (!token) { el.innerHTML=`<div class="empty-lib"><div class="ico">🔒</div><p>Sign in to view your saved designs.</p></div>`; return; }
-  el.innerHTML=`<div style="text-align:center;padding:40px;color:var(--ash)">Loading…</div>`;
+  var el = document.getElementById('library-content'); if (!el) return;
+  if (!token) { el.innerHTML='<div class="empty-lib"><div class="ico">🔒</div><p>Sign in to view your saved designs.</p></div>'; return; }
+  el.innerHTML='<div style="text-align:center;padding:40px;color:var(--ash)">Loading…</div>';
   try {
-    const { designs } = await api('/api/designs');
-    if (!designs.length) { el.innerHTML=`<div class="empty-lib"><div class="ico">🏺</div><p>No saved designs yet.<br>Generate something and click Save.</p></div>`; return; }
-    el.innerHTML=`<div class="designs-grid">${designs.map(d=>`
-      <div class="dc" onclick="openDesign('${d.id}')">
-        ${d.imageUrl?`<img src="${d.imageUrl}" alt="">` : ''}
-        <div class="dc-mode">${d.mode}</div>
-        <div class="dc-name">${esc(d.name)}</div>
-        <div class="dc-preview">${esc(d.preview)}</div>
-        <div class="dc-date">${new Date(d.createdAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</div>
-        <button class="dc-del" onclick="delDesign(event,'${d.id}')">✕</button>
-      </div>`).join('')}</div>`;
-  } catch(e) { el.innerHTML=`<div class="empty-lib"><p>${e.message}</p></div>`; }
+    var res = await api('/api/designs');
+    var designs = res.designs;
+    if (!designs.length) { el.innerHTML='<div class="empty-lib"><div class="ico">🏺</div><p>No saved designs yet.</p></div>'; return; }
+    el.innerHTML='<div class="designs-grid">'+designs.map(function(d){
+      return '<div class="dc" onclick="openDesign(\''+d.id+'\')">'+
+        (d.imageUrl?'<img src="'+d.imageUrl+'" alt="">':'')+
+        '<div class="dc-mode">'+d.mode+'</div>'+
+        '<div class="dc-name">'+esc(d.name)+'</div>'+
+        '<div class="dc-preview">'+esc(d.preview)+'</div>'+
+        '<div class="dc-date">'+new Date(d.createdAt).toLocaleDateString('en-GB')+'</div>'+
+        '<button class="dc-del" onclick="delDesign(event,\''+d.id+'\')">✕</button></div>';
+    }).join('')+'</div>';
+  } catch(e) { el.innerHTML='<div class="empty-lib"><p>'+e.message+'</p></div>'; }
 }
 async function openDesign(id) {
   try {
-    const {designs} = await api('/api/designs');
-    const d = designs.find(x=>x.id===id); if(!d) return;
-    let html=`<h3>${esc(d.name)}</h3>`;
-    if(d.imageUrl) html+=`<img class="render-img" src="${d.imageUrl}" style="margin-bottom:16px">`;
-    html+=d.sections.map(s=>`<div class="res-card">${s.h?`<h3>${s.h}</h3>`:''}<div class="res-body">${esc(s.b)}</div></div>`).join('');
-    html+=`<div class="action-bar"><button class="btn-action" onclick="exportSaved('${id}')">⬇ Export PDF</button></div>`;
+    var res = await api('/api/designs');
+    var d = res.designs.find(function(x){return x.id===id;}); if(!d) return;
+    var html='<h3>'+esc(d.name)+'</h3>';
+    if(d.imageUrl) html+='<img class="render-img" src="'+d.imageUrl+'" style="margin-bottom:16px">';
+    html+=d.sections.map(function(s){return '<div class="res-card">'+(s.h?'<h3>'+s.h+'</h3>':'')+
+      '<div class="res-body">'+esc(s.b)+'</div></div>';}).join('');
     document.getElementById('modal-body').innerHTML=html;
     document.getElementById('modal-bg').classList.add('open');
   } catch(e){ toast('⚠ '+e.message); }
-}
-async function exportSaved(id) {
-  const {designs} = await api('/api/designs');
-  const d = designs.find(x=>x.id===id); if(!d) return;
-  lastResults['_s']=d; await exportPDF('_s');
 }
 async function delDesign(e,id) {
   e.stopPropagation();
@@ -689,12 +664,11 @@ async function delDesign(e,id) {
   catch(e){ toast('⚠ '+e.message); }
 }
 
-// ── AUTH ──
 function toggleAuthMode() {
   authMode = authMode==='signin'?'signup':'signin';
-  const s = authMode==='signup';
+  var s = authMode==='signup';
   document.getElementById('auth-title').textContent = s?'Create account':'Welcome back';
-  document.getElementById('auth-sub').textContent = s?'Join Clayforge to save and manage your designs':'Sign in to save and access your designs';
+  document.getElementById('auth-sub').textContent = s?'Join Clayforge to save designs':'Sign in to access your designs';
   document.getElementById('auth-btn').textContent = s?'Create account':'Sign in';
   document.getElementById('auth-switch-text').textContent = s?'Already have an account?':"Don't have an account?";
   document.querySelector('.auth-switch button').textContent = s?'Sign in':'Create account';
@@ -708,18 +682,19 @@ function setCurrency(c) {
   document.getElementById('cur-usd').classList.toggle('active',c==='USD');
 }
 async function doAuth() {
-  const email=document.getElementById('auth-email').value.trim();
-  const pass=document.getElementById('auth-password').value;
-  const name=document.getElementById('auth-name').value.trim();
+  var email=document.getElementById('auth-email').value.trim();
+  var pass=document.getElementById('auth-password').value;
+  var name=document.getElementById('auth-name').value.trim();
   document.getElementById('auth-err').textContent='';
   if(!email||!pass){document.getElementById('auth-err').textContent='Please fill in all fields.';return;}
   try {
-    const path = authMode==='signup'?'/api/auth/signup':'/api/auth/signin';
-    const body = authMode==='signup'?{email,password:pass,name,currency:authCurrency}:{email,password:pass};
-    const data = await api(path,{method:'POST',body:JSON.stringify(body)});
+    var path = authMode==='signup' ? '/api/auth/register' : '/api/auth/login';
+    var body = authMode==='signup' ? {email:email,password:pass,name:name,currency:authCurrency} : {email:email,password:pass};
+    var data = await api(path, {method:'POST', body:JSON.stringify(body)});
     token=data.token; user=data.user;
-    localStorage.setItem('cf_token',token); localStorage.setItem('cf_user',JSON.stringify(user));
-    updateNav(); toast('Welcome, '+user.name+'!'); showPage('studio');
+    localStorage.setItem('cf_token',token);
+    localStorage.setItem('cf_user',JSON.stringify(user));
+    updateNav(); toast('Welcome, '+(user.name||user.email)+'!'); showPage('studio');
   } catch(e){ document.getElementById('auth-err').textContent=e.message; }
 }
 function signOut() {
@@ -728,64 +703,71 @@ function signOut() {
   updateNav(); toast('Signed out.'); showPage('studio');
 }
 
-// ── ACCOUNT ──
 async function loadAccount() {
   if(!user){showPage('auth');return;}
   document.getElementById('account-email').textContent=user.email;
   document.getElementById('account-plan').textContent=user.plan||'FREE';
   try {
-    const {designs}=await api('/api/designs');
-    document.getElementById('account-designs').textContent=designs.length;
-    const {plan}=await api('/api/payments/status');
-    if(plan!=='FREE') document.getElementById('btn-billing').style.display='inline-block';
+    var res=await api('/api/designs');
+    document.getElementById('account-designs').textContent=res.designs.length;
+    var ps=await api('/api/payments/status');
+    if(ps.plan!=='FREE') document.getElementById('btn-billing').style.display='inline-block';
   } catch(e){}
 }
 async function manageBilling() {
   try {
-    if(user?.currency==='NGN') { toast('Contact support to manage your Paystack subscription.'); return; }
-    const {url}=await api('/api/payments/stripe/portal',{method:'POST'});
-    window.open(url,'_blank');
+    if(user&&user.currency==='NGN'){ toast('Contact support to manage your Paystack subscription.'); return; }
+    var res=await api('/api/payments/stripe/portal',{method:'POST'});
+    window.open(res.url,'_blank');
   } catch(e){ toast('⚠ '+e.message); }
 }
 
-// ── PRICING / PAYMENTS ──
 async function selectPlan(plan) {
   if(plan==='FREE'){if(!token){showPage('auth');}else{showPage('studio');}return;}
   if(plan==='PORCELAIN'){toast('Contact us at hello@clayforge.app');return;}
   if(!token){showPage('auth');toast('Sign in first.');return;}
-  if(user.currency==='USD') {
+  var currency = user&&user.currency;
+  if(currency==='USD') {
     try {
-      const {url}=await api('/api/payments/stripe/checkout',{method:'POST',body:JSON.stringify({plan})});
-      window.location.href=url;
+      var res=await api('/api/payments/stripe/checkout',{method:'POST',body:JSON.stringify({plan:plan})});
+      window.location.href=res.url;
     } catch(e){ toast('⚠ '+e.message); }
   } else {
     try {
-      const {url,reference}=await api('/api/payments/paystack/initialize',{method:'POST',body:JSON.stringify({plan})});
-      if(PAYSTACK_PK) {
-        const handler = PaystackPop.setup({
-          key: PAYSTACK_PK, email: user.email,
-          amount: plan==='STONEWARE'?850000:2200000, currency:'NGN', ref:reference,
-          callback: async (resp) => {
-            try { await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:resp.reference})}); user.plan=plan; localStorage.setItem('cf_user',JSON.stringify(user)); updateNav(); showPage('success'); }
-            catch(e){ toast('⚠ Verification failed: '+e.message); }
+      var res2=await api('/api/payments/paystack/initialize',{method:'POST',body:JSON.stringify({plan:plan})});
+      var pk = getPK();
+      if(pk && typeof PaystackPop !== 'undefined') {
+        var handler = PaystackPop.setup({
+          key: pk, email: user.email,
+          amount: plan==='STONEWARE'?850000:2200000, currency:'NGN', ref:res2.reference,
+          callback: async function(resp) {
+            try {
+              await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:resp.reference})});
+              user.plan=plan; localStorage.setItem('cf_user',JSON.stringify(user)); updateNav(); showPage('success');
+            } catch(e){ toast('⚠ Verification failed: '+e.message); }
           },
-          onClose:()=>{}
+          onClose:function(){}
         });
         handler.openIframe();
-      } else { window.location.href=url; }
+      } else { window.location.href=res2.url; }
     } catch(e){ toast('⚠ '+e.message); }
   }
 }
 async function verifyPaystackIfNeeded() {
-  const ref=new URLSearchParams(location.search).get('reference');
+  var ref=new URLSearchParams(location.search).get('reference');
   if(ref&&token){ try{await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:ref})});}catch(e){} }
 }
 
-// ── MODAL ──
-function closeModal(e){if(!e||e.target===document.getElementById('modal-bg')){document.getElementById('modal-bg').classList.remove('open');}}
-
-// ── TOAST ──
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function closeModal(e){
+  if(!e||e.target===document.getElementById('modal-bg')){
+    document.getElementById('modal-bg').classList.remove('open');
+  }
+}
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2800);
+}
 </script>
 </body>
 </html>

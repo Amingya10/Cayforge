@@ -394,7 +394,7 @@ select option{background:#2a1f15}
 
 <script>
 // Wait for main.js to set window.__API_URL__
-function getAPI() { return window.__API_URL__ || 'http://localhost:3001'; }
+function getAPI() { return 'https://cayforge-production.up.railway.app'; }
 function getPK() { return window.__PAYSTACK_PK__ || ''; }
 
 var user = null, token = null, authMode = 'signin', authCurrency = 'NGN';

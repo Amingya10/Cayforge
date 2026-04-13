@@ -14,3 +14,9 @@ export default defineConfig({
     port: 5173
   }
 })
+input: {
+  main: 'index.html',
+  tools: 'tools.html',
+  demo: 'demo.html',
+  contact: 'contact.html'
+}

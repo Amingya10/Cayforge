@@ -15,3 +15,1409 @@ export default defineConfig({
     port: 5173
   }
 })
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clayforge — The Ceramic Online Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --clay: #c4714a;
+  --clay-dark: #8b4a2f;
+  --clay-light: #e8a882;
+  --clay-pale: #f0c9a8;
+  --earth: #1e1510;
+  --earth-mid: #2a1f15;
+  --earth-light: #3d2e20;
+  --sand: #f5ede3;
+  --sand-dark: #d4c4b0;
+  --ash: #9e8e7e;
+  --ash-light: #b8a898;
+  --cream: #faf6f0;
+  --glaze: #4a7c8b;
+  --glaze-light: #7fb3c2;
+  --kiln: #e85d2a;
+  --green: #4a8b5a;
+  --gold: #c9a84c;
+  --gold-light: #e4c97a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--earth);
+  color: var(--sand);
+  font-family: 'DM Mono', monospace;
+  overflow-x: hidden;
+}
+
+/* ── GRAIN TEXTURE OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.4;
+}
+
+/* ══════════════════════════════
+   NAVIGATION
+══════════════════════════════ */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 500;
+  padding: 0 40px;
+  background: rgba(30, 21, 16, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(196, 113, 74, 0.12);
+}
+
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.logo-mark {
+  width: 38px;
+  height: 38px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.logo-mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.logo-text .lt-main {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--sand);
+  letter-spacing: 0.12em;
+}
+
+.logo-text .lt-sub {
+  font-size: 0.54rem;
+  color: var(--ash);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-link {
+  padding: 7px 14px;
+  background: none;
+  border: none;
+  color: var(--ash);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.nav-link:hover { color: var(--sand); background: rgba(196, 113, 74, 0.08); }
+.nav-link.active { color: var(--clay-light); }
+
+.nav-cta {
+  margin-left: 12px;
+  padding: 8px 18px;
+  background: var(--clay);
+  border: none;
+  border-radius: 6px;
+  color: var(--cream);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-cta:hover { background: var(--clay-dark); }
+
+/* Mobile menu */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--ash);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: rgba(30, 21, 16, 0.98);
+    padding: 20px;
+    border-bottom: 1px solid rgba(196, 113, 74, 0.15);
+    gap: 4px;
+    z-index: 499;
+  }
+  .nav-hamburger { display: block; }
+  .nav-cta { margin-left: 0; width: 100%; text-align: center; }
+}
+
+/* ══════════════════════════════
+   HERO
+══════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  padding: 120px 40px 80px;
+  overflow: hidden;
+}
+
+/* Animated clay wheel background */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.wheel-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(196, 113, 74, 0.06);
+  animation: rotate-slow linear infinite;
+}
+
+.wheel-ring:nth-child(1) { width: 600px; height: 600px; top: -150px; right: -150px; animation-duration: 80s; border-color: rgba(196,113,74,0.08); }
+.wheel-ring:nth-child(2) { width: 420px; height: 420px; top: -60px; right: -60px; animation-duration: 55s; animation-direction: reverse; }
+.wheel-ring:nth-child(3) { width: 260px; height: 260px; top: 30px; right: 30px; animation-duration: 35s; border-color: rgba(196,113,74,0.12); }
+.wheel-ring:nth-child(4) { width: 800px; height: 800px; bottom: -300px; left: -200px; animation-duration: 100s; animation-direction: reverse; border-color: rgba(196,113,74,0.04); }
+
+@keyframes rotate-slow { to { transform: rotate(360deg); } }
+
+.hero-glow {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(196, 113, 74, 0.12) 0%, transparent 70%);
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  animation: fade-up 0.8s ease both;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: var(--clay);
+}
+
+.hero-eyebrow span {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--clay-light);
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 300;
+  line-height: 1.05;
+  margin-bottom: 12px;
+  animation: fade-up 0.8s ease 0.1s both;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--clay-light);
+}
+
+.hero-title .ht-accent {
+  display: block;
+  color: var(--clay);
+  font-weight: 600;
+}
+
+.hero-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--ash-light);
+  max-width: 580px;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  animation: fade-up 0.8s ease 0.2s both;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  animation: fade-up 0.8s ease 0.3s both;
+}
+
+.btn-hero-primary {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, var(--clay), var(--clay-dark));
+  border: none;
+  border-radius: 4px;
+  color: var(--cream);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-style: italic;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 24px rgba(196, 113, 74, 0.3);
+}
+
+.btn-hero-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(196, 113, 74, 0.4);
+}
+
+.btn-hero-secondary {
+  padding: 14px 32px;
+  background: none;
+  border: 1px solid rgba(196, 113, 74, 0.35);
+  border-radius: 4px;
+  color: var(--sand-dark);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-hero-secondary:hover {
+  border-color: var(--clay);
+  color: var(--clay-light);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(196, 113, 74, 0.12);
+  animation: fade-up 0.8s ease 0.4s both;
+  flex-wrap: wrap;
+}
+
+.stat-item .si-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--clay-light);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-item .si-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════
+   MANIFESTO BAND
+══════════════════════════════ */
+.manifesto-band {
+  background: var(--clay);
+  padding: 20px 40px;
+  overflow: hidden;
+  position: relative;
+}
+
+.manifesto-scroll {
+  display: flex;
+  gap: 60px;
+  animation: scroll-left 30s linear infinite;
+  white-space: nowrap;
+}
+
+.manifesto-scroll span {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--cream);
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+.manifesto-scroll .dot {
+  color: rgba(255,255,255,0.4);
+  font-style: normal;
+}
+
+@keyframes scroll-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ══════════════════════════════
+   WHAT IS CLAYFORGE
+══════════════════════════════ */
+.section {
+  padding: 100px 40px;
+  position: relative;
+}
+
+.section-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.section-label::before {
+  content: '';
+  width: 30px;
+  height: 1px;
+  background: var(--clay);
+}
+
+.section-label span {
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--clay);
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 300;
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+
+.section-title em { font-style: italic; color: var(--clay-light); }
+
+/* ABOUT GRID */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+@media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+.about-text p {
+  font-size: 0.9rem;
+  color: var(--ash-light);
+  line-height: 2;
+  margin-bottom: 18px;
+}
+
+.about-text p strong {
+  color: var(--sand);
+  font-weight: 500;
+}
+
+.about-visual {
+  position: relative;
+  aspect-ratio: 1;
+  max-width: 420px;
+}
+
+.pottery-wheel-svg {
+  width: 100%;
+  height: 100%;
+  animation: wheel-spin 20s linear infinite;
+}
+
+@keyframes wheel-spin { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════
+   STUDIO PILLARS
+══════════════════════════════ */
+.pillars-section {
+  background: var(--earth-mid);
+  border-top: 1px solid rgba(196,113,74,0.1);
+  border-bottom: 1px solid rgba(196,113,74,0.1);
+}
+
+.pillars-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2px;
+  background: rgba(196,113,74,0.08);
+  border: 1px solid rgba(196,113,74,0.12);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.pillar {
+  background: var(--earth-mid);
+  padding: 36px 28px;
+  transition: background 0.3s;
+  cursor: pointer;
+}
+
+.pillar:hover { background: rgba(196,113,74,0.06); }
+
+.pillar-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(196,113,74,0.1);
+  border: 1px solid rgba(196,113,74,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 18px;
+}
+
+.pillar-num {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--clay);
+  margin-bottom: 8px;
+}
+
+.pillar-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--sand);
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.pillar-desc {
+  font-size: 0.78rem;
+  color: var(--ash);
+  line-height: 1.8;
+}
+
+.pillar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--clay-light);
+  cursor: pointer;
+  text-decoration: none;
+  transition: gap 0.2s;
+}
+
+.pillar-link:hover { gap: 10px; }
+
+/* ══════════════════════════════
+   WHO IT'S FOR
+══════════════════════════════ */
+.for-section { background: var(--earth); }
+
+.for-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 48px;
+}
+
+.for-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(196,113,74,0.15);
+  border-radius: 12px;
+  padding: 24px 20px;
+  text-align: center;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.for-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--clay), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.for-card:hover { border-color: rgba(196,113,74,0.35); transform: translateY(-3px); }
+.for-card:hover::before { opacity: 1; }
+
+.for-card .fc-emoji { font-size: 2rem; margin-bottom: 12px; display: block; }
+.for-card .fc-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--clay-light);
+  margin-bottom: 8px;
+}
+.for-card .fc-desc { font-size: 0.74rem; color: var(--ash); line-height: 1.7; }
+
+/* ══════════════════════════════
+   STUDIO TOOLS SHOWCASE
+══════════════════════════════ */
+.tools-section { background: var(--earth-mid); }
+
+.tools-showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  background: rgba(196,113,74,0.06);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 48px;
+  border: 1px solid rgba(196,113,74,0.12);
+}
+
+@media (max-width: 640px) { .tools-showcase { grid-template-columns: 1fr; } }
+
+.tool-showcase-item {
+  background: var(--earth-mid);
+  padding: 32px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  transition: background 0.3s;
+  cursor: pointer;
+}
+
+.tool-showcase-item:hover { background: rgba(196,113,74,0.04); }
+
+.tsi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(196,113,74,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.tsi-content .tsi-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--sand);
+  margin-bottom: 6px;
+}
+
+.tsi-content .tsi-desc {
+  font-size: 0.74rem;
+  color: var(--ash);
+  line-height: 1.7;
+}
+
+/* ══════════════════════════════
+   PHILOSOPHY
+══════════════════════════════ */
+.philosophy-section {
+  background: var(--earth);
+  text-align: center;
+}
+
+.philosophy-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.5rem, 3.5vw, 2.8rem);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.5;
+  max-width: 800px;
+  margin: 0 auto 20px;
+  color: var(--sand-dark);
+}
+
+.philosophy-quote em { color: var(--clay-light); font-style: normal; }
+
+.philosophy-attr {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.philosophy-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 60px;
+}
+
+@media (max-width: 640px) { .philosophy-cards { grid-template-columns: 1fr; } }
+
+.phi-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(196,113,74,0.12);
+  border-radius: 12px;
+  padding: 28px 22px;
+  text-align: left;
+}
+
+.phi-card .pc-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 300;
+  color: rgba(196,113,74,0.15);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.phi-card .pc-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: var(--clay-light);
+  margin-bottom: 8px;
+}
+
+.phi-card .pc-text {
+  font-size: 0.76rem;
+  color: var(--ash);
+  line-height: 1.8;
+}
+
+/* ══════════════════════════════
+   PROJECTS TEASER
+══════════════════════════════ */
+.projects-section { background: var(--earth-mid); }
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 48px;
+}
+
+@media (max-width: 768px) { .projects-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .projects-grid { grid-template-columns: 1fr; } }
+
+.project-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(196,113,74,0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.project-card:hover { border-color: rgba(196,113,74,0.4); transform: translateY(-3px); }
+
+.project-card.featured { grid-row: span 2; }
+
+.project-thumb {
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, var(--earth-light), var(--earth-mid));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  border-bottom: 1px solid rgba(196,113,74,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card.featured .project-thumb { aspect-ratio: 4/3; font-size: 5rem; }
+
+.project-thumb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(196,113,74,0.08) 0%, transparent 70%);
+}
+
+.project-info { padding: 16px; }
+
+.project-info .pi-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--clay);
+  margin-bottom: 6px;
+}
+
+.project-info .pi-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--sand);
+  margin-bottom: 4px;
+}
+
+.project-card.featured .pi-title { font-size: 1.3rem; }
+
+.project-info .pi-desc {
+  font-size: 0.72rem;
+  color: var(--ash);
+  line-height: 1.6;
+}
+
+/* ══════════════════════════════
+   CTA SECTION
+══════════════════════════════ */
+.cta-section {
+  background: var(--earth);
+  padding: 100px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(196,113,74,0.08) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.cta-inner { position: relative; z-index: 2; }
+
+.cta-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  font-weight: 300;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.cta-title em { font-style: italic; color: var(--clay-light); }
+
+.cta-subtitle {
+  font-size: 0.85rem;
+  color: var(--ash);
+  max-width: 480px;
+  margin: 0 auto 36px;
+  line-height: 1.8;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ══════════════════════════════
+   FOOTER
+══════════════════════════════ */
+footer {
+  background: var(--earth-mid);
+  border-top: 1px solid rgba(196,113,74,0.1);
+  padding: 48px 40px 28px;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+}
+
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  footer { padding: 40px 20px 24px; }
+}
+
+.footer-brand .fb-tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--ash);
+  line-height: 1.7;
+  margin-top: 12px;
+  max-width: 240px;
+}
+
+.footer-col h4 {
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--clay);
+  margin-bottom: 14px;
+}
+
+.footer-col a {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--ash);
+  text-decoration: none;
+  margin-bottom: 8px;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+
+.footer-col a:hover { color: var(--clay-light); }
+
+.footer-bottom {
+  padding-top: 24px;
+  border-top: 1px solid rgba(196,113,74,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.footer-bottom p {
+  font-size: 0.68rem;
+  color: var(--ash);
+}
+
+.footer-bottom .clay-mark {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--clay-light);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 480px) {
+  .section { padding: 70px 20px; }
+  .hero { padding: 100px 20px 60px; }
+  .cta-section { padding: 70px 20px; }
+  .manifesto-band { padding: 16px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAVIGATION ══ -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">
+      <div class="logo-mark">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Pottery wheel / spiral logo -->
+          <circle cx="20" cy="20" r="18" stroke="rgba(196,113,74,0.3)" stroke-width="1"/>
+          <circle cx="20" cy="20" r="12" stroke="rgba(196,113,74,0.5)" stroke-width="1"/>
+          <circle cx="20" cy="20" r="6" stroke="rgba(196,113,74,0.8)" stroke-width="1.5"/>
+          <circle cx="20" cy="20" r="2" fill="#c4714a"/>
+          <!-- Clay hands silhouette top -->
+          <path d="M8 14 Q14 8 20 10 Q26 8 32 14" stroke="#c4714a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Radial spokes -->
+          <line x1="20" y1="2" x2="20" y2="8" stroke="rgba(196,113,74,0.3)" stroke-width="1"/>
+          <line x1="20" y1="32" x2="20" y2="38" stroke="rgba(196,113,74,0.3)" stroke-width="1"/>
+          <line x1="2" y1="20" x2="8" y2="20" stroke="rgba(196,113,74,0.3)" stroke-width="1"/>
+          <line x1="32" y1="20" x2="38" y2="20" stroke="rgba(196,113,74,0.3)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="lt-main">CLAYFORGE</span>
+        <span class="lt-sub">Ceramic Online Studio</span>
+      </div>
+    </a>
+
+    <div class="nav-links" id="nav-links">
+      <a class="nav-link active" href="#">Home</a>
+      <a class="nav-link" href="#studio">Studio</a>
+      <a class="nav-link" href="#projects">Projects</a>
+      <a class="nav-link" href="demo.html">Guide</a>
+      <a class="nav-link" href="contact.html">Contact</a>
+      <button class="nav-cta" onclick="location.href='index.html'">Enter Studio →</button>
+    </div>
+
+    <button class="nav-hamburger" onclick="toggleMenu()" id="hamburger">☰</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="wheel-ring"></div>
+    <div class="wheel-ring"></div>
+    <div class="wheel-ring"></div>
+    <div class="wheel-ring"></div>
+    <div class="hero-glow"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span>The Ceramic Online Studio</span>
+    </div>
+
+    <h1 class="hero-title">
+      Where Clay Meets<br>
+      <em>Creative Intelligence</em>
+      <span class="ht-accent">Clayforge</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      A living studio for every ceramicist — from the first pinch pot to the professional kiln. Design, learn, calculate and create, all in one place.
+    </p>
+
+    <div class="hero-actions">
+      <button class="btn-hero-primary" onclick="location.href='index.html'">Open the Studio →</button>
+      <button class="btn-hero-secondary" onclick="location.href='demo.html'">Watch How It Works</button>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="si-num">5+</div>
+        <div class="si-label">Studio Tools</div>
+      </div>
+      <div class="stat-item">
+        <div class="si-num">3</div>
+        <div class="si-label">AI Design Modes</div>
+      </div>
+      <div class="stat-item">
+        <div class="si-num">∞</div>
+        <div class="si-label">Design Possibilities</div>
+      </div>
+      <div class="stat-item">
+        <div class="si-num">🇳🇬</div>
+        <div class="si-label">Made in Nigeria</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MANIFESTO BAND ══ -->
+<div class="manifesto-band">
+  <div class="manifesto-scroll">
+    <span>Design with intention</span><span class="dot">✦</span>
+    <span>Fire with confidence</span><span class="dot">✦</span>
+    <span>Price your craft fairly</span><span class="dot">✦</span>
+    <span>Track every firing</span><span class="dot">✦</span>
+    <span>Grow your studio</span><span class="dot">✦</span>
+    <span>Celebrate Nigerian clay</span><span class="dot">✦</span>
+    <span>Design with intention</span><span class="dot">✦</span>
+    <span>Fire with confidence</span><span class="dot">✦</span>
+    <span>Price your craft fairly</span><span class="dot">✦</span>
+    <span>Track every firing</span><span class="dot">✦</span>
+    <span>Grow your studio</span><span class="dot">✦</span>
+    <span>Celebrate Nigerian clay</span><span class="dot">✦</span>
+  </div>
+</div>
+
+<!-- ══ WHAT IS CLAYFORGE ══ -->
+<section class="section" id="about">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-text">
+        <div class="section-label"><span>Our Purpose</span></div>
+        <h2 class="section-title">
+          Not a website builder.<br>
+          <em>A ceramic studio.</em>
+        </h2>
+        <p>Clayforge exists because every ceramicist — whether you're pinching your first bowl in Kano or running a production studio in Lagos — deserves professional tools built around the real rhythms of ceramic practice.</p>
+        <p><strong>We are not a tech company.</strong> We are a studio built by someone who understands clay, fire, and the beautiful uncertainty of what comes out of the kiln.</p>
+        <p>From AI-powered design generation to glaze calculators, kiln logs and order tracking — Clayforge is a living workspace that grows with your practice, at every level.</p>
+        <button class="btn-hero-secondary" style="margin-top:8px" onclick="location.href='demo.html'">Learn more about the studio</button>
+      </div>
+
+      <div class="about-visual">
+        <svg class="pottery-wheel-svg" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer decorative rings -->
+          <circle cx="200" cy="200" r="190" stroke="rgba(196,113,74,0.06)" stroke-width="1"/>
+          <circle cx="200" cy="200" r="170" stroke="rgba(196,113,74,0.08)" stroke-width="1"/>
+          <circle cx="200" cy="200" r="150" stroke="rgba(196,113,74,0.1)" stroke-width="1.5"/>
+          <circle cx="200" cy="200" r="120" stroke="rgba(196,113,74,0.12)" stroke-width="1"/>
+          <circle cx="200" cy="200" r="90" stroke="rgba(196,113,74,0.15)" stroke-width="1.5"/>
+          <circle cx="200" cy="200" r="60" stroke="rgba(196,113,74,0.2)" stroke-width="1"/>
+          <circle cx="200" cy="200" r="30" stroke="rgba(196,113,74,0.3)" stroke-width="2"/>
+          <circle cx="200" cy="200" r="8" fill="rgba(196,113,74,0.4)"/>
+          <circle cx="200" cy="200" r="4" fill="#c4714a"/>
+
+          <!-- Radial spokes -->
+          <line x1="200" y1="10" x2="200" y2="50" stroke="rgba(196,113,74,0.15)" stroke-width="1"/>
+          <line x1="200" y1="350" x2="200" y2="390" stroke="rgba(196,113,74,0.15)" stroke-width="1"/>
+          <line x1="10" y1="200" x2="50" y2="200" stroke="rgba(196,113,74,0.15)" stroke-width="1"/>
+          <line x1="350" y1="200" x2="390" y2="200" stroke="rgba(196,113,74,0.15)" stroke-width="1"/>
+          <line x1="47" y1="47" x2="75" y2="75" stroke="rgba(196,113,74,0.1)" stroke-width="1"/>
+          <line x1="325" y1="75" x2="353" y2="47" stroke="rgba(196,113,74,0.1)" stroke-width="1"/>
+          <line x1="75" y1="325" x2="47" y2="353" stroke="rgba(196,113,74,0.1)" stroke-width="1"/>
+          <line x1="325" y1="325" x2="353" y2="353" stroke="rgba(196,113,74,0.1)" stroke-width="1"/>
+
+          <!-- Hausa-inspired geometric pattern in center ring -->
+          <path d="M200 140 L220 170 L200 160 L180 170 Z" fill="rgba(196,113,74,0.15)" stroke="rgba(196,113,74,0.3)" stroke-width="1"/>
+          <path d="M200 260 L220 230 L200 240 L180 230 Z" fill="rgba(196,113,74,0.15)" stroke="rgba(196,113,74,0.3)" stroke-width="1"/>
+          <path d="M140 200 L170 220 L160 200 L170 180 Z" fill="rgba(196,113,74,0.15)" stroke="rgba(196,113,74,0.3)" stroke-width="1"/>
+          <path d="M260 200 L230 220 L240 200 L230 180 Z" fill="rgba(196,113,74,0.15)" stroke="rgba(196,113,74,0.3)" stroke-width="1"/>
+
+          <!-- Clay texture dots -->
+          <circle cx="200" cy="110" r="3" fill="rgba(196,113,74,0.2)"/>
+          <circle cx="290" cy="200" r="3" fill="rgba(196,113,74,0.2)"/>
+          <circle cx="200" cy="290" r="3" fill="rgba(196,113,74,0.2)"/>
+          <circle cx="110" cy="200" r="3" fill="rgba(196,113,74,0.2)"/>
+
+          <!-- Vase silhouette in center -->
+          <path d="M185 175 Q178 190 178 205 Q178 225 185 235 L215 235 Q222 225 222 205 Q222 190 215 175 Q210 170 200 168 Q190 170 185 175Z" fill="rgba(196,113,74,0.08)" stroke="rgba(196,113,74,0.25)" stroke-width="1.5"/>
+          <path d="M193 168 L207 168 Q210 165 200 163 Q190 165 193 168Z" fill="rgba(196,113,74,0.15)" stroke="rgba(196,113,74,0.3)" stroke-width="1"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STUDIO PILLARS ══ -->
+<section class="section pillars-section" id="studio">
+  <div class="section-inner">
+    <div class="pillars-header">
+      <div class="section-label" style="justify-content:center"><span>What We Offer</span></div>
+      <h2 class="section-title" style="text-align:center">Everything your practice needs,<br><em>in one studio</em></h2>
+    </div>
+
+    <div class="pillars-grid">
+      <div class="pillar" onclick="location.href='index.html'">
+        <div class="pillar-icon">✦</div>
+        <div class="pillar-num">01 — AI Design</div>
+        <div class="pillar-title">Invent & Remix Ceramic Designs</div>
+        <div class="pillar-desc">Describe any ceramic piece and receive a full professional design brief — form, dimensions, glaze recipe, production notes and market positioning. Powered by Claude AI.</div>
+        <a class="pillar-link" href="index.html">Open Design Studio →</a>
+      </div>
+
+      <div class="pillar" onclick="location.href='tools.html'">
+        <div class="pillar-icon">🧪</div>
+        <div class="pillar-num">02 — Glaze Lab</div>
+        <div class="pillar-title">Glaze Calculator & Recipe Builder</div>
+        <div class="pillar-desc">Build glaze recipes, calculate batch weights, estimate shrinkage and surface quality for any firing temperature. Your digital glaze notebook.</div>
+        <a class="pillar-link" href="tools.html">Open Glaze Lab →</a>
+      </div>
+
+      <div class="pillar" onclick="location.href='tools.html'">
+        <div class="pillar-icon">🔥</div>
+        <div class="pillar-num">03 — Kiln Log</div>
+        <div class="pillar-title">Firing Scheduler & Kiln Journal</div>
+        <div class="pillar-desc">Plan firings, log full ramp schedules, track cone and atmosphere, and follow every piece from greenware to glaze fire. Never lose a firing record again.</div>
+        <a class="pillar-link" href="tools.html">Open Kiln Log →</a>
+      </div>
+
+      <div class="pillar" onclick="location.href='tools.html'">
+        <div class="pillar-icon">💰</div>
+        <div class="pillar-num">04 — Pricing Tool</div>
+        <div class="pillar-title">Cost & Pricing Calculator</div>
+        <div class="pillar-desc">Know exactly what every piece costs to make — clay, glaze, kiln, labour and overhead — and calculate a fair retail price with your target margin built in.</div>
+        <a class="pillar-link" href="tools.html">Calculate Pricing →</a>
+      </div>
+
+      <div class="pillar" onclick="location.href='tools.html'">
+        <div class="pillar-icon">🏺</div>
+        <div class="pillar-num">05 — Clay Builder</div>
+        <div class="pillar-title">Clay Body Recipe Builder</div>
+        <div class="pillar-desc">Formulate and save custom clay bodies. Calculate batch weights, analyse plasticity and texture, and build a library of recipes for every purpose.</div>
+        <a class="pillar-link" href="tools.html">Build a Recipe →</a>
+      </div>
+
+      <div class="pillar" onclick="location.href='tools.html'">
+        <div class="pillar-icon">📋</div>
+        <div class="pillar-num">06 — Studio Orders</div>
+        <div class="pillar-title">Customer Order Manager</div>
+        <div class="pillar-desc">Track every custom order from inquiry to delivery. Log customer details, pieces, pricing, deposits and balance — your complete studio order book.</div>
+        <a class="pillar-link" href="tools.html">Manage Orders →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ WHO IT'S FOR ══ -->
+<section class="section for-section">
+  <div class="section-inner">
+    <div class="section-label"><span>For Every Ceramicist</span></div>
+    <h2 class="section-title">No matter where you are<br><em>in your journey</em></h2>
+
+    <div class="for-grid">
+      <div class="for-card">
+        <span class="fc-emoji">🌱</span>
+        <div class="fc-title">The Beginner</div>
+        <div class="fc-desc">Just starting with clay? Use AI design generation to understand what makes a great ceramic piece before you even touch clay.</div>
+      </div>
+      <div class="for-card">
+        <span class="fc-emoji">🎨</span>
+        <div class="fc-title">The Hobbyist</div>
+        <div class="fc-desc">Weekend potter looking for inspiration? Generate design ideas, calculate glaze batches and track your home kiln firings.</div>
+      </div>
+      <div class="for-card">
+        <span class="fc-emoji">⚡</span>
+        <div class="fc-title">The Professional</div>
+        <div class="fc-desc">Running a production studio? Use pricing tools, order management and glaze calculators to run your business professionally.</div>
+      </div>
+      <div class="for-card">
+        <span class="fc-emoji">🏫</span>
+        <div class="fc-title">The Teacher</div>
+        <div class="fc-desc">Teaching ceramics? Generate technical specifications for student projects and use the toolkit to demonstrate professional practices.</div>
+      </div>
+      <div class="for-card">
+        <span class="fc-emoji">🏪</span>
+        <div class="fc-title">The Studio Owner</div>
+        <div class="fc-desc">Manage custom orders, price commissions accurately, and keep your kiln schedule organised — all in one place.</div>
+      </div>
+      <div class="for-card">
+        <span class="fc-emoji">🌍</span>
+        <div class="fc-title">The Nigerian Ceramicist</div>
+        <div class="fc-desc">Built in Kano, priced in Naira, celebrating African clay traditions. Clayforge understands your context and your craft.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PHILOSOPHY ══ -->
+<section class="section philosophy-section">
+  <div class="section-inner">
+    <blockquote class="philosophy-quote">
+      "Clay does not care about your skill level. It responds to your <em>attention</em>, your patience, and your willingness to begin."
+    </blockquote>
+    <p class="philosophy-attr">— The Clayforge Studio Manifesto</p>
+
+    <div class="philosophy-cards">
+      <div class="phi-card">
+        <div class="pc-num">01</div>
+        <div class="pc-title">Craft First</div>
+        <div class="pc-text">Technology serves the craft. Every tool we build starts with one question: does this help a ceramicist make better work?</div>
+      </div>
+      <div class="phi-card">
+        <div class="pc-num">02</div>
+        <div class="pc-title">Every Level</div>
+        <div class="pc-text">From first pinch pot to professional production, Clayforge grows with your practice. No gatekeeping, no expertise required to start.</div>
+      </div>
+      <div class="phi-card">
+        <div class="pc-num">03</div>
+        <div class="pc-title">African Clay</div>
+        <div class="pc-text">We celebrate Nigerian and African ceramic traditions — from Hausa earthenware to contemporary studio practice — as central to global ceramic culture.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROJECTS ══ -->
+<section class="section projects-section" id="projects">
+  <div class="section-inner">
+    <div class="section-label"><span>From the Studio</span></div>
+    <h2 class="section-title">Designs born in<br><em>Clayforge</em></h2>
+
+    <div class="projects-grid">
+      <div class="project-card featured">
+        <div class="project-thumb">🏺</div>
+        <div class="project-info">
+          <div class="pi-tag">AI Design — Invent New</div>
+          <div class="pi-title">Sahel Ascent Vase</div>
+          <div class="pi-desc">A tall porcelain vase channeling the vertical geometry of Hausa mud-brick architecture, with deeply incised dagi motifs and a layered celadon-to-amber glaze treatment.</div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-thumb">🥣</div>
+        <div class="project-info">
+          <div class="pi-tag">AI Design — Remix</div>
+          <div class="pi-title">Clay Moon Bowl</div>
+          <div class="pi-desc">Earthenware transformed into a minimal dining vessel.</div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-thumb">🫖</div>
+        <div class="project-info">
+          <div class="pi-tag">Tech Specs</div>
+          <div class="pi-title">Indigo Teapot</div>
+          <div class="pi-desc">Full production spec for a wheel-thrown stoneware teapot.</div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-thumb">🌿</div>
+        <div class="project-info">
+          <div class="pi-tag">Glaze Lab</div>
+          <div class="pi-title">Savanna Green Glaze</div>
+          <div class="pi-desc">A mid-fire celadon recipe inspired by Nigerian vegetation.</div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-thumb">🔥</div>
+        <div class="project-info">
+          <div class="pi-tag">Kiln Log</div>
+          <div class="pi-title">Anagama Firing #3</div>
+          <div class="pi-desc">48-hour wood firing schedule, logged and tracked.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="section-label" style="justify-content:center; margin-bottom:20px"><span>Begin Today</span></div>
+    <h2 class="cta-title">Your studio is<br><em>ready when you are</em></h2>
+    <p class="cta-subtitle">Free to start. No credit card needed. Just bring your ideas and your love of clay.</p>
+    <div class="cta-buttons">
+      <button class="btn-hero-primary" onclick="location.href='index.html'">Enter the Studio →</button>
+      <button class="btn-hero-secondary" onclick="location.href='contact.html'">Talk to Us</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="text-decoration:none;display:flex;align-items:center;gap:10px">
+          <div class="logo-mark" style="width:32px;height:32px">
+            <svg viewBox="0 0 40 40" fill="none">
+              <circle cx="20" cy="20" r="18" stroke="rgba(196,113,74,0.3)" stroke-width="1"/>
+              <circle cx="20" cy="20" r="10" stroke="rgba(196,113,74,0.5)" stroke-width="1"/>
+              <circle cx="20" cy="20" r="4" fill="#c4714a"/>
+            </svg>
+          </div>
+          <span style="font-family:'Cinzel',serif;font-size:.95rem;color:var(--sand);letter-spacing:.12em">CLAYFORGE</span>
+        </div>
+        <p class="fb-tagline">The ceramic online studio for every practitioner — from first pinch pot to professional kiln.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Studio</h4>
+        <a onclick="location.href='index.html'">Design Studio</a>
+        <a onclick="location.href='tools.html'">Ceramic Toolkit</a>
+        <a onclick="location.href='index.html'">My Library</a>
+        <a onclick="location.href='index.html'">Pricing Plans</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Learn</h4>
+        <a onclick="location.href='demo.html'">How It Works</a>
+        <a onclick="location.href='demo.html'">Walkthrough</a>
+        <a onclick="location.href='demo.html'">FAQ</a>
+        <a onclick="location.href='demo.html'">Rate & Review</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <a onclick="location.href='contact.html'">Contact Us</a>
+        <a href="#">Instagram</a>
+        <a href="#">WhatsApp</a>
+        <a href="#">Facebook</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Clayforge — The Ceramic Online Studio. Made in Kano, Nigeria 🇳🇬</p>
+      <span class="clay-mark">Where clay meets creative intelligence</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleMenu() {
+  var links = document.getElementById('nav-links');
+  var ham = document.getElementById('hamburger');
+  links.classList.toggle('open');
+  ham.textContent = links.classList.contains('open') ? '✕' : '☰';
+}
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    var target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({behavior:'smooth'}); }
+  });
+});
+
+// Animate elements on scroll
+var observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.pillar, .for-card, .project-card, .phi-card, .tool-showcase-item').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>

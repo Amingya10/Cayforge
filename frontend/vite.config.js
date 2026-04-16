@@ -4,7 +4,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: 'index.html',
+        main: 'Homepage.html',
         studio: 'studio.html',
         tools: 'tools.html',
         demo: 'demo.html',

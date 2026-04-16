@@ -5,10 +5,10 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'index.html',
+        studio: 'studio.html',
         tools: 'tools.html',
         demo: 'demo.html',
-        contact: 'contact.html',
-        home: 'home.html'
+        contact: 'contact.html'
       }
     }
   },

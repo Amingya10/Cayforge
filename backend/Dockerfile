@@ -21,4 +21,4 @@ RUN npx prisma generate
 EXPOSE 3000
 
 # Push schema and start the server
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node src/index.js"]
+CMD ["sh", "-c", "echo '=== /app contents ===' && ls -la /app && echo '=== /app/src ===' && ls -la /app/src && echo '=== /app/src/middleware ===' && ls -la /app/src/middleware 2>&1 && echo '=== designs.js head ===' && head -10 /app/src/designs.js && echo '=== END DIAGNOSTICS ===' && npx prisma db push --accept-data-loss && node src/index.js"]

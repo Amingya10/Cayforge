@@ -22,3 +22,4 @@ EXPOSE 3000
 
 # Push schema and start the server
 CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node src/index.js"]
+

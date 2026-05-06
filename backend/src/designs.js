@@ -2,8 +2,28 @@ const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const Anthropic = require('@anthropic-ai/sdk');
 const OpenAI = require('openai');
-const auth = require('../middleware/auth');
-
+const jwt = require('jsonwebtoken');
+const auth = function (req, res, next) {
+  try {
+    const header = req.headers.authorization;
+    if (!header) return res.status(401).json({ error: 'Not authenticated' });
+    const parts = header.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      return res.status(401).json({ error: 'Invalid authorization header' });
+    }
+    const decoded = jwt.verify(parts[1], process.env.JWT_SECRET);
+    if (!decoded || !decoded.userId) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+    req.user = { userId: decoded.userId };
+    next();
+  } catch (e) {
+    if (e.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired' });
+    }
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+};
 const router = express.Router();
 const prisma = new PrismaClient();
 

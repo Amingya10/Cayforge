@@ -21,4 +21,4 @@ RUN npx prisma generate
 EXPOSE 3000
 
 # Push schema and start the server
-CMD ["sh", "-c", "echo '=== full tree ===' && find /app -name '*.js' -not -path '*/node_modules/*' | head -50 && echo '=== END ===' && sleep 30 && node src/index.js"]
+CMD ["sh", "-c", "echo '=== exact filename ===' && ls -la /app/src/middleware/ | cat -A && echo '=== file head ===' && head -5 /app/src/middleware/auth.js && echo '=== node resolve test ===' && cd /app/src && node -e \"try { const m = require('./middleware/auth'); console.log('LOADED:', typeof m); } catch (e) { console.log('FAILED:', e.code, e.message); }\" && echo '=== END ==='"]

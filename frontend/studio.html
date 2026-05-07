@@ -506,13 +506,58 @@ function showRes(mode, html) {
 }
 
 async function generate(mode) {
-  var prompt = buildPrompt(mode);
-  if (!prompt) { showErr(mode, 'Please fill in the description field.'); return; }
-  var ak = getKey('anthropic-key');
-  if (!ak) { showErr(mode, 'Please enter your Anthropic API key above.'); return; }
-  setLoading(mode, true);
-  document.querySelectorAll('.btn-primary').forEach(function(b){ b.disabled=true; });
+  var prompt = document.getElementById(mode+'-prompt').value.trim();
+  if (!prompt) { toast('Please describe your ceramic piece.'); return; }
+
+  var form = document.getElementById(mode+'-form') ? document.getElementById(mode+'-form').value : '';
+  var style = document.getElementById(mode+'-style') ? document.getElementById(mode+'-style').value : '';
+  var transform = document.getElementById('remix-transform') ? document.getElementById('remix-transform').value : '';
+
+  var loading = document.getElementById('loading-'+mode);
+  var resultWrap = document.getElementById('result-'+mode);
+  var errEl = document.getElementById('error-'+mode);
+
+  document.querySelector('#output-'+mode+' .placeholder').style.display = 'none';
+  loading.classList.add('on');
+  resultWrap.classList.remove('on');
+  errEl.classList.remove('on');
+
   try {
+    var body = { mode: mode, prompt: prompt, form: form, style: style };
+    if (mode === 'remix') body.transform = transform;
+
+    var res = await fetch(window.__API_URL__ + '/api/designs/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token ? 'Bearer ' + token : ''
+      },
+      body: JSON.stringify(body)
+    });
+
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.message || 'Generation failed');
+
+    var sections = parseSections(data.text);
+    lastResults[mode] = { sections: sections, imageUrl: data.imageUrl || null };
+
+    var html = actionBar(mode) + renderSections(sections);
+
+    if (data.imageUrl) {
+      html += '<div class="render-card"><h3>Visual Render</h3>' +
+        '<div id="ri-'+mode+'"><img class="render-img" src="'+data.imageUrl+'" alt="Render"></div></div>';
+    }
+
+    loading.classList.remove('on');
+    resultWrap.innerHTML = html;
+    resultWrap.classList.add('on');
+
+  } catch(e) {
+    loading.classList.remove('on');
+    errEl.textContent = e.message;
+    errEl.classList.add('on');
+  }
+}
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':ak,'anthropic-version':'2023-06-01'},

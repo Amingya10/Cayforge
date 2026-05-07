@@ -49,9 +49,6 @@ textarea{height:95px}
 @media(max-width:580px){.field-row{grid-template-columns:1fr}}
 select{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(196,113,74,.25);border-radius:9px;padding:10px 13px;color:var(--sand);font-family:'DM Mono',monospace;font-size:.82rem;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c4714a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 select option{background:#2a1f15}
-.api-row{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:13px;padding-top:13px;border-top:1px solid rgba(196,113,74,.1)}
-.api-note{font-size:.68rem;color:var(--ash);margin-top:5px;line-height:1.5}
-.api-note a{color:var(--clay-light)}
 .btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--clay),var(--clay-dark));border:none;border-radius:11px;color:var(--cream);font-family:'Playfair Display',serif;font-size:.98rem;font-style:italic;cursor:pointer;transition:all .25s;box-shadow:0 4px 18px rgba(196,113,74,.22);margin-top:16px}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(196,113,74,.32)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
@@ -77,8 +74,6 @@ select option{background:#2a1f15}
 .render-card{background:rgba(255,255,255,.03);border:1px solid rgba(74,124,139,.28);border-radius:13px;padding:20px;margin-bottom:12px}
 .render-card h3{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--glaze-light);margin-bottom:12px}
 .render-img{width:100%;max-width:460px;border-radius:9px;display:block;margin:0 auto}
-.render-load{display:flex;align-items:center;gap:10px;color:var(--ash);font-size:.78rem;padding:14px 0}
-.render-err{color:#f0a080;font-size:.78rem;padding:8px 0}
 .action-bar{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
 .btn-action{padding:7px 14px;background:none;border:1px solid rgba(196,113,74,.28);border-radius:7px;color:var(--ash);font-family:'DM Mono',monospace;font-size:.71rem;letter-spacing:.07em;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px}
 .btn-action:hover{border-color:var(--clay);color:var(--clay-light)}
@@ -86,6 +81,7 @@ select option{background:#2a1f15}
 .btn-action.save-btn:hover{border-color:var(--green)}
 .err-msg{display:none;background:rgba(232,93,42,.1);border:1px solid rgba(232,93,42,.28);border-radius:9px;padding:11px 14px;color:#f0a080;font-size:.8rem;line-height:1.6;margin-top:12px}
 .err-msg.on{display:block}
+.quota-note{margin-top:10px;font-size:.72rem;color:var(--ash);text-align:right}
 .lib-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
 .empty-lib{text-align:center;padding:70px 20px;color:var(--ash)}
 .empty-lib .ico{font-size:2.6rem;margin-bottom:14px;opacity:.28}
@@ -171,14 +167,14 @@ select option{background:#2a1f15}
     <button class="nav-btn" id="nb-library" onclick="showPage('library')">Library</button>
     <button class="nav-btn" onclick="location.href='/tools.html'">Tools</button>
     <button class="nav-btn" onclick="location.href='/demo.html'">Guide</button>
-   <button class="nav-btn" onclick="location.href='/contact.html'">Contact</button>
-   <button class="nav-btn cta" onclick="showPage('auth')">Sign In</button>
+    <button class="nav-btn" onclick="location.href='/contact.html'">Contact</button>
     <div id="nav-auth-area">
       <button class="nav-btn cta" onclick="showPage('auth')">Sign In</button>
     </div>
   </div>
 </nav>
 
+<!-- STUDIO PAGE -->
 <div class="page active" id="page-studio">
 <div class="container">
   <div class="page-title">Design Studio</div>
@@ -188,6 +184,8 @@ select option{background:#2a1f15}
     <button class="tab" onclick="switchTab('remix')">⟳ Remix Existing</button>
     <button class="tab" onclick="switchTab('specs')">⚙ Tech Specs</button>
   </div>
+
+  <!-- INVENT TAB -->
   <div class="panel active" id="panel-invent">
     <div class="card">
       <label class="field-label">Describe your ceramic piece</label>
@@ -208,7 +206,9 @@ select option{background:#2a1f15}
             <option>Brutalist / raw</option><option>Art Deco / geometric</option>
             <option>Organic / biomorphic</option><option>Folk / rustic</option><option>Futuristic</option>
           </select></div>
-      
+      </div>
+      <button class="btn-primary" onclick="generate('invent')">Fire the kiln — Generate Design</button>
+    </div>
     <div class="output-area" id="output-invent">
       <div class="placeholder"><div class="wheel"></div><p>Your design will appear here</p></div>
       <div class="loading-wrap" id="loading-invent"><div class="spinner"></div><div class="loading-label">Shaping your concept…</div></div>
@@ -216,6 +216,8 @@ select option{background:#2a1f15}
       <div class="err-msg" id="error-invent"></div>
     </div>
   </div>
+
+  <!-- REMIX TAB -->
   <div class="panel" id="panel-remix">
     <div class="card">
       <label class="field-label">Describe an existing ceramic product</label>
@@ -233,6 +235,8 @@ select option{background:#2a1f15}
       <div class="err-msg" id="error-remix"></div>
     </div>
   </div>
+
+  <!-- SPECS TAB -->
   <div class="panel" id="panel-specs">
     <div class="card">
       <label class="field-label">Describe the ceramic piece</label>
@@ -263,6 +267,7 @@ select option{background:#2a1f15}
 </div>
 </div>
 
+<!-- LIBRARY PAGE -->
 <div class="page" id="page-library">
 <div class="container">
   <div class="lib-header">
@@ -273,6 +278,7 @@ select option{background:#2a1f15}
 </div>
 </div>
 
+<!-- AUTH PAGE -->
 <div class="page" id="page-auth">
 <div class="auth-wrap">
   <div class="auth-card">
@@ -307,6 +313,7 @@ select option{background:#2a1f15}
 </div>
 </div>
 
+<!-- PRICING PAGE -->
 <div class="page" id="page-pricing">
 <div class="container">
   <div class="pricing-hero">
@@ -319,8 +326,8 @@ select option{background:#2a1f15}
       <div class="plan-prices"><div class="price-ngn">Free <span>/ forever</span></div><div class="price-usd">Always free</div></div>
       <div class="plan-desc">For hobbyists and students exploring ceramic design.</div>
       <ul class="plan-features">
-        <li>5 designs per month</li><li>Invent + Remix + Tech Specs</li><li>PDF export</li>
-        <li class="dim">No image renders</li><li class="dim">No design library</li>
+        <li>3 designs per month</li><li>Invent + Remix + Tech Specs</li><li>PDF export</li>
+        <li>AI image renders</li><li class="dim">No design library</li>
       </ul>
       <button class="btn-plan" onclick="selectPlan('FREE')">Get started free</button>
     </div>
@@ -330,7 +337,7 @@ select option{background:#2a1f15}
       <div class="plan-prices"><div class="price-ngn">₦8,500 <span>/ month</span></div><div class="price-usd">or $5.99 USD / month</div></div>
       <div class="plan-desc">For working ceramicists and small studios.</div>
       <ul class="plan-features">
-        <li>Unlimited designs</li><li>AI image renders</li><li>PDF export with branding</li>
+        <li>25 designs per month</li><li>AI image renders</li><li>PDF export</li>
         <li>Design library</li><li>Priority support</li>
       </ul>
       <button class="btn-plan" onclick="selectPlan('STONEWARE')">Start 7-day free trial</button>
@@ -340,15 +347,15 @@ select option{background:#2a1f15}
       <div class="plan-prices"><div class="price-ngn">₦22,000 <span>/ month</span></div><div class="price-usd">or $14.99 USD / month</div></div>
       <div class="plan-desc">For studios, schools, and commercial producers.</div>
       <ul class="plan-features">
-        <li>Everything in Stoneware</li><li>Up to 10 team members</li><li>Shared design library</li>
-        <li>Custom brand on exports</li><li>API access</li>
+        <li>100 designs per month</li><li>Everything in Stoneware</li><li>Up to 10 team members</li>
+        <li>Shared design library</li><li>API access</li>
       </ul>
       <button class="btn-plan" onclick="selectPlan('PORCELAIN')">Contact us</button>
     </div>
   </div>
   <div class="faq">
     <h3>Common questions</h3>
-    <div class="faq-item"><div class="faq-q">Do I need my own API keys?</div><div class="faq-a">On paid plans, API access is bundled. On the free plan, you enter your own Anthropic and OpenAI keys.</div></div>
+    <div class="faq-item"><div class="faq-q">Do I need my own API keys?</div><div class="faq-a">No. AI generation is fully handled by Clayforge — no API keys needed from you.</div></div>
     <div class="faq-item"><div class="faq-q">Can I cancel anytime?</div><div class="faq-a">Yes. Cancel from your account page at any time.</div></div>
     <div class="faq-item"><div class="faq-q">How do I pay?</div><div class="faq-a">Nigerian users pay via Paystack — card, bank transfer, or USSD. International users pay via Stripe.</div></div>
     <div class="faq-item"><div class="faq-q">Who owns the designs?</div><div class="faq-a">You do. All designs belong entirely to you.</div></div>
@@ -356,6 +363,7 @@ select option{background:#2a1f15}
 </div>
 </div>
 
+<!-- ACCOUNT PAGE -->
 <div class="page" id="page-account">
 <div class="container">
   <div class="page-title">My Account</div>
@@ -369,6 +377,7 @@ select option{background:#2a1f15}
 </div>
 </div>
 
+<!-- SUCCESS PAGE -->
 <div class="page" id="page-success">
 <div class="container">
   <div class="success-wrap">
@@ -386,15 +395,13 @@ select option{background:#2a1f15}
 <div class="toast" id="toast"></div>
 
 <script>
-// Wait for main.js to set window.__API_URL__
-function getAPI() { return 'https://cayforge-production.up.railway.app'; }
+function getAPI() { return window.__API_URL__ || 'https://cayforge-production.up.railway.app'; }
 function getPK() { return window.__PAYSTACK_PK__ || ''; }
 
 var user = null, token = null, authMode = 'signin', authCurrency = 'NGN';
 var lastResults = {};
 
 window.addEventListener('load', function() {
-  loadKeys();
   var t = localStorage.getItem('cf_token');
   var u = localStorage.getItem('cf_user');
   if (t && u) { token = t; user = JSON.parse(u); updateNav(); }
@@ -403,21 +410,6 @@ window.addEventListener('load', function() {
     showPage('success');
   }
 });
-
-function loadKeys() {
-  var ak = localStorage.getItem('cf_ak'), ok = localStorage.getItem('cf_ok');
-  if (ak) { var el = document.getElementById('anthropic-key'); if(el) el.value = ak; }
-  if (ok) { var el2 = document.getElementById('openai-key'); if(el2) el2.value = ok; }
-}
-function saveKeys() {
-  var ak = document.getElementById('anthropic-key').value.trim();
-  var ok = document.getElementById('openai-key').value.trim();
-  if (ak) localStorage.setItem('cf_ak', ak);
-  if (ok) localStorage.setItem('cf_ok', ok);
-}
-function getKey(k) {
-  return document.getElementById(k).value.trim() || localStorage.getItem(k === 'anthropic-key' ? 'cf_ak' : 'cf_ok') || '';
-}
 
 function showPage(name) {
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
@@ -431,18 +423,20 @@ function showPage(name) {
   if (name === 'account') loadAccount();
   window.scrollTo(0,0);
 }
+
 function updateNav() {
   var area = document.getElementById('nav-auth-area');
   if (user) {
     var ini = user.name ? user.name.slice(0,2).toUpperCase() : '??';
     area.innerHTML = '<div class="nav-user" onclick="showPage(\'account\')">' +
       '<div class="avatar">'+ini+'</div>' +
-      '<span class="nav-user-name">'+( user.name||user.email)+'</span>' +
+      '<span class="nav-user-name">'+(user.name||user.email)+'</span>' +
       '<span class="plan-badge-nav '+(user.plan||'FREE')+'">'+(user.plan||'FREE')+'</span></div>';
   } else {
     area.innerHTML = '<button class="nav-btn cta" onclick="showPage(\'auth\')">Sign In</button>';
   }
 }
+
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(function(t,i){
     t.classList.toggle('active', ['invent','remix','specs'][i]===name);
@@ -463,141 +457,94 @@ async function api(path, opts) {
   return data;
 }
 
-function buildPrompt(mode) {
-  if (mode==='invent') {
-    var d=document.getElementById('invent-prompt').value.trim();
-    var f=document.getElementById('invent-form').value;
-    var s=document.getElementById('invent-style').value;
-    if(!d) return null;
-    return 'You are an expert ceramic designer. Generate a rich, detailed design concept.\n\nDescription: '+d+'\n'+(f?'Form: '+f:'')+'\n'+(s?'Style: '+s:'')+'\n\nRespond with these EXACT sections:\n\n**DESIGN NAME**\n[compelling poetic name]\n\n**DESIGN CONCEPT**\n[2-3 sentences on vision]\n\n**FORM & DIMENSIONS**\n[shape, height, width, proportions]\n\n**SURFACE & TEXTURE**\n[patterns, textures, relief]\n\n**GLAZE & FINISH**\n[glaze colours, surface quality]\n\n**PRODUCTION NOTES**\n[forming method, techniques, difficulty]\n\n**MARKET POSITIONING**\n[target buyer, price range]';
-  }
-  if (mode==='remix') {
-    var e=document.getElementById('remix-prompt').value.trim();
-    var t=document.getElementById('remix-transform').value.trim();
-    if(!e) return null;
-    return 'Expert ceramic designer remixing a piece.\n\nExisting: '+e+'\n'+(t?'Transformation: '+t:'Improve creatively.')+'\n\n**ORIGINAL ANALYSIS**\n**REMIXED DESIGN NAME**\n**TRANSFORMATION CONCEPT**\n**FORM CHANGES**\n**SURFACE & GLAZE CHANGES**\n**WHAT\'S RETAINED**\n**THE RESULT**';
-  }
-  if (mode==='specs') {
-    var d2=document.getElementById('specs-prompt').value.trim();
-    var f2=document.getElementById('specs-firing').value;
-    var u=document.getElementById('specs-use').value;
-    if(!d2) return null;
-    return 'Master ceramicist. Complete technical specifications.\n\nPiece: '+d2+'\n'+(f2?'Firing: '+f2:'')+'\n'+(u?'Use: '+u:'')+'\n\n**CLAY BODY**\n**FORMING METHOD**\n**DRYING PROTOCOL**\n**BISQUE FIRING**\n**GLAZE SPECIFICATIONS**\n**GLAZE FIRING**\n**SHRINKAGE & TOLERANCES**\n**FOOD SAFETY**\n**QUALITY CHECKS**';
-  }
-}
-
-function setLoading(mode, on) {
-  var out = document.getElementById('output-'+mode); if (!out) return;
-  var ph = out.querySelector('.placeholder');
-  if (ph) ph.style.display = on ? 'none' : 'flex';
-  var lw = document.getElementById('loading-'+mode); if(lw) lw.classList.toggle('on', on);
-  var rw = document.getElementById('result-'+mode); if(rw) rw.classList.remove('on');
-  var ew = document.getElementById('error-'+mode); if(ew) ew.classList.remove('on');
-}
-function showErr(mode, msg) {
-  var lw = document.getElementById('loading-'+mode); if(lw) lw.classList.remove('on');
-  var e = document.getElementById('error-'+mode);
-  if (e) { e.textContent = msg; e.classList.add('on'); }
-}
-function showRes(mode, html) {
-  var lw = document.getElementById('loading-'+mode); if(lw) lw.classList.remove('on');
-  var r = document.getElementById('result-'+mode);
-  if (r) { r.innerHTML = html; r.classList.add('on'); }
-}
-
+// ---- MAIN GENERATE FUNCTION ----
 async function generate(mode) {
-  var prompt = document.getElementById(mode+'-prompt').value.trim();
+  var promptEl = document.getElementById(mode + '-prompt');
+  if (!promptEl) return;
+  var prompt = promptEl.value.trim();
   if (!prompt) { toast('Please describe your ceramic piece.'); return; }
+  if (!token) { toast('Sign in to generate designs.'); showPage('auth'); return; }
 
-  var form = document.getElementById(mode+'-form') ? document.getElementById(mode+'-form').value : '';
-  var style = document.getElementById(mode+'-style') ? document.getElementById(mode+'-style').value : '';
-  var transform = document.getElementById('remix-transform') ? document.getElementById('remix-transform').value : '';
+  // Build enriched prompt from dropdowns
+  var form = '', style = '', firing = '', use = '', transform = '';
+  if (mode === 'invent') {
+    form = document.getElementById('invent-form') ? document.getElementById('invent-form').value : '';
+    style = document.getElementById('invent-style') ? document.getElementById('invent-style').value : '';
+    if (form) prompt += '. Form: ' + form;
+    if (style) prompt += '. Style: ' + style;
+  }
+  if (mode === 'remix') {
+    transform = document.getElementById('remix-transform') ? document.getElementById('remix-transform').value.trim() : '';
+    if (transform) prompt += '. Transformation goal: ' + transform;
+  }
+  if (mode === 'specs') {
+    firing = document.getElementById('specs-firing') ? document.getElementById('specs-firing').value : '';
+    use = document.getElementById('specs-use') ? document.getElementById('specs-use').value : '';
+    if (firing) prompt += '. Firing: ' + firing;
+    if (use) prompt += '. Intended use: ' + use;
+  }
 
-  var loading = document.getElementById('loading-'+mode);
-  var resultWrap = document.getElementById('result-'+mode);
-  var errEl = document.getElementById('error-'+mode);
+  // UI state
+  var outputEl = document.getElementById('output-' + mode);
+  var placeholder = outputEl ? outputEl.querySelector('.placeholder') : null;
+  var loading = document.getElementById('loading-' + mode);
+  var resultWrap = document.getElementById('result-' + mode);
+  var errEl = document.getElementById('error-' + mode);
 
-  document.querySelector('#output-'+mode+' .placeholder').style.display = 'none';
-  loading.classList.add('on');
-  resultWrap.classList.remove('on');
-  errEl.classList.remove('on');
+  if (placeholder) placeholder.style.display = 'none';
+  if (loading) loading.classList.add('on');
+  if (resultWrap) resultWrap.classList.remove('on');
+  if (errEl) errEl.classList.remove('on');
 
   try {
-    var body = { mode: mode, prompt: prompt, form: form, style: style };
-    if (mode === 'remix') body.transform = transform;
-
-    var res = await fetch(window.__API_URL__ + '/api/designs/generate', {
+    var res = await fetch(getAPI() + '/api/designs/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': token ? 'Bearer ' + token : ''
+        'Authorization': 'Bearer ' + token
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ prompt: prompt })
     });
 
     var data = await res.json();
-    if (!res.ok) throw new Error(data.error || data.message || 'Generation failed');
+    if (!res.ok) throw new Error(data.message || data.error || 'Generation failed');
 
-    var sections = parseSections(data.text);
-    lastResults[mode] = { sections: sections, imageUrl: data.imageUrl || null };
+    var spec = data.design && data.design.content && data.design.content.spec;
+    var imageUrl = data.design && data.design.content && data.design.content.imageUrl;
+
+    if (!spec) throw new Error('Unexpected response from server');
+
+    // Convert spec fields into display sections
+    var sections = [
+      { h: 'NAME', b: spec.name || '' },
+      { h: 'FORM & DIMENSIONS', b: [spec.form, spec.dimensions].filter(Boolean).join('\n') },
+      { h: 'CLAY BODY', b: spec.clayBody || '' },
+      { h: 'GLAZE & FINISH', b: spec.glaze || '' },
+      { h: 'SURFACE TREATMENT', b: spec.surfaceTreatment || '' },
+      { h: 'FIRING METHOD', b: spec.firingMethod || '' },
+    ].filter(function(s) { return s.b && s.b.trim(); });
+
+    lastResults[mode] = { sections: sections, imageUrl: imageUrl || null };
 
     var html = actionBar(mode) + renderSections(sections);
 
-    if (data.imageUrl) {
-      html += '<div class="render-card"><h3>Visual Render</h3>' +
-        '<div id="ri-'+mode+'"><img class="render-img" src="'+data.imageUrl+'" alt="Render"></div></div>';
+    if (imageUrl) {
+      html += '<div class="render-card"><h3>✦ Visual Render</h3>' +
+        '<img class="render-img" src="' + imageUrl + '" alt="Ceramic render"></div>';
     }
 
-    loading.classList.remove('on');
-    resultWrap.innerHTML = html;
-    resultWrap.classList.add('on');
-
-  } catch(e) {
-    loading.classList.remove('on');
-    errEl.textContent = e.message;
-    errEl.classList.add('on');
-  }
-}
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':ak,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-    });
-    if (!resp.ok) { var err=await resp.json().catch(function(){return{};}); throw new Error(err.error&&err.error.message||'API error '+resp.status); }
-    var data = await resp.json();
-    var text = data.content.map(function(b){return b.text||'';}).join('\n');
-    var sections = parseSections(text);
-    lastResults[mode] = { sections: sections, imageUrl: null };
-    var ok = getKey('openai-key');
-    var html = renderSections(sections) + (ok && mode!=='specs' ? '<div class="render-card" id="rc-'+mode+'"><h3>✦ Visual Render</h3><div class="render-load" id="rl-'+mode+'"><div class="spinner" style="width:26px;height:26px"></div> Generating image…</div><div id="ri-'+mode+'"></div></div>' : '') + actionBar(mode);
-    showRes(mode, html);
-    if (ok && mode!=='specs') genImage(mode, sections, ok);
-  } catch(e) { showErr(mode, '⚠ '+e.message); }
-  finally { document.querySelectorAll('.btn-primary').forEach(function(b){b.disabled=false;}); setLoading(mode,false); }
-}
-
-async function genImage(mode, sections, ok) {
-  try {
-    var n=sections.find(function(s){return s.h.includes('NAME');})||{};
-    var c=sections.find(function(s){return s.h.includes('CONCEPT')||s.h.includes('RESULT');})||{};
-    var f=sections.find(function(s){return s.h.includes('FORM');})||{};
-    var g=sections.find(function(s){return s.h.includes('GLAZE');})||{};
-    var imgP = ('A professional product photograph of a ceramic piece: '+(n.b||'')+' '+(c.b||'')+' '+(f.b||'')+' '+(g.b||'')+'. Studio lighting, neutral background.').slice(0,900);
-    var r = await fetch('https://api.openai.com/v1/images/generations', {
-      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+ok},
-      body:JSON.stringify({model:'dall-e-3',prompt:imgP,n:1,size:'1024x1024',quality:'standard'})
-    });
-    var d = await r.json();
-    if (!r.ok) throw new Error(d.error&&d.error.message||'Image error');
-    var url = d.data&&d.data[0]&&d.data[0].url;
-    if (url) {
-      lastResults[mode].imageUrl = url;
-      document.getElementById('rl-'+mode).style.display='none';
-      document.getElementById('ri-'+mode).innerHTML='<img class="render-img" src="'+url+'" alt="Render">';
+    if (data.quota) {
+      html += '<div class="quota-note">' +
+        data.quota.remaining + ' generation' + (data.quota.remaining !== 1 ? 's' : '') +
+        ' remaining this period</div>';
     }
+
+    if (loading) loading.classList.remove('on');
+    if (resultWrap) { resultWrap.innerHTML = html; resultWrap.classList.add('on'); }
+
   } catch(e) {
-    var rl = document.getElementById('rl-'+mode);
-    if (rl) rl.outerHTML='<div class="render-err">Image generation failed: '+e.message+'</div>';
+    if (loading) loading.classList.remove('on');
+    if (errEl) { errEl.textContent = e.message; errEl.classList.add('on'); }
   }
 }
 
@@ -616,7 +563,6 @@ function renderSections(sections) {
 function actionBar(mode) {
   return '<div class="action-bar">' +
     '<button class="btn-action" onclick="exportPDF(\''+mode+'\')">⬇ PDF</button>' +
-    '<button class="btn-action save-btn" onclick="saveDesign(\''+mode+'\')">✦ Save</button>' +
     '<button class="btn-action" onclick="copyText(\''+mode+'\')">⎘ Copy</button></div>';
 }
 function esc(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
@@ -648,18 +594,6 @@ async function exportPDF(mode) {
   };
 }
 
-async function saveDesign(mode) {
-  var r = lastResults[mode]; if (!r) return;
-  if (!token) { toast('Sign in to save designs'); showPage('auth'); return; }
-  var nameS = r.sections.find(function(s){return s.h.includes('NAME');});
-  var name = (nameS&&nameS.b&&nameS.b.split('\n')[0]) || 'Untitled Design';
-  var prevS = r.sections.find(function(s){return s.h.includes('CONCEPT')||s.h.includes('RESULT');});
-  var preview = (prevS&&prevS.b) || '';
-  try {
-    await api('/api/designs', {method:'POST', body:JSON.stringify({mode:mode, name:name, preview:preview, sections:r.sections, imageUrl:r.imageUrl})});
-    toast('Design saved!');
-  } catch(e) { toast('⚠ '+e.message); }
-}
 function copyText(mode) {
   var r = lastResults[mode]; if (!r) return;
   navigator.clipboard.writeText(r.sections.map(function(s){return (s.h?'== '+s.h+' ==\n':'')+s.b;}).join('\n\n')).then(function(){toast('Copied!');});
@@ -670,33 +604,49 @@ async function loadLibrary() {
   if (!token) { el.innerHTML='<div class="empty-lib"><div class="ico">🔒</div><p>Sign in to view your saved designs.</p></div>'; return; }
   el.innerHTML='<div style="text-align:center;padding:40px;color:var(--ash)">Loading…</div>';
   try {
-    var res = await api('/api/designs');
-    var designs = res.designs;
-    if (!designs.length) { el.innerHTML='<div class="empty-lib"><div class="ico">🏺</div><p>No saved designs yet.</p></div>'; return; }
+    var designs = await api('/api/designs');
+    if (!Array.isArray(designs) || !designs.length) {
+      el.innerHTML='<div class="empty-lib"><div class="ico">🏺</div><p>No saved designs yet. Generate one in the Studio!</p></div>'; return;
+    }
     el.innerHTML='<div class="designs-grid">'+designs.map(function(d){
+      var spec = d.content && d.content.spec;
+      var imgUrl = d.content && d.content.imageUrl;
+      var name = spec ? spec.name : (d.title || 'Untitled');
+      var preview = spec ? (spec.form || '') + (spec.glaze ? ' · ' + spec.glaze : '') : '';
       return '<div class="dc" onclick="openDesign(\''+d.id+'\')">'+
-        (d.imageUrl?'<img src="'+d.imageUrl+'" alt="">':'')+
-        '<div class="dc-mode">'+d.mode+'</div>'+
-        '<div class="dc-name">'+esc(d.name)+'</div>'+
-        '<div class="dc-preview">'+esc(d.preview)+'</div>'+
+        (imgUrl?'<img src="'+imgUrl+'" alt="">':'')+
+        '<div class="dc-name">'+esc(name)+'</div>'+
+        '<div class="dc-preview">'+esc(preview)+'</div>'+
         '<div class="dc-date">'+new Date(d.createdAt).toLocaleDateString('en-GB')+'</div>'+
         '<button class="dc-del" onclick="delDesign(event,\''+d.id+'\')">✕</button></div>';
     }).join('')+'</div>';
-  } catch(e) { el.innerHTML='<div class="empty-lib"><p>'+e.message+'</p></div>'; }
+  } catch(e) { el.innerHTML='<div class="empty-lib"><p>'+esc(e.message)+'</p></div>'; }
 }
+
 async function openDesign(id) {
   try {
-    var res = await api('/api/designs');
-    var d = res.designs.find(function(x){return x.id===id;}); if(!d) return;
-    var html='<h3>'+esc(d.name)+'</h3>';
-    if(d.imageUrl) html+='<img class="render-img" src="'+d.imageUrl+'" style="margin-bottom:16px">';
-    html+=d.sections.map(function(s){return '<div class="res-card">'+(s.h?'<h3>'+s.h+'</h3>':'')+
-      '<div class="res-body">'+esc(s.b)+'</div></div>';}).join('');
-    document.getElementById('modal-body').innerHTML=html;
+    var designs = await api('/api/designs');
+    var d = designs.find(function(x){return x.id===id;}); if(!d) return;
+    var spec = d.content && d.content.spec;
+    var imgUrl = d.content && d.content.imageUrl;
+    var html = '<h3>'+ esc(d.title || (spec && spec.name) || 'Design') +'</h3>';
+    if (imgUrl) html += '<img class="render-img" src="'+imgUrl+'" style="margin-bottom:16px">';
+    if (spec) {
+      var fields = [
+        {h:'FORM & DIMENSIONS', b:[spec.form,spec.dimensions].filter(Boolean).join('\n')},
+        {h:'CLAY BODY', b:spec.clayBody||''},
+        {h:'GLAZE & FINISH', b:spec.glaze||''},
+        {h:'SURFACE TREATMENT', b:spec.surfaceTreatment||''},
+        {h:'FIRING METHOD', b:spec.firingMethod||''},
+      ].filter(function(s){return s.b&&s.b.trim();});
+      html += renderSections(fields);
+    }
+    document.getElementById('modal-body').innerHTML = html;
     document.getElementById('modal-bg').classList.add('open');
   } catch(e){ toast('⚠ '+e.message); }
 }
-async function delDesign(e,id) {
+
+async function delDesign(e, id) {
   e.stopPropagation();
   try { await api('/api/designs/'+id,{method:'DELETE'}); toast('Removed.'); loadLibrary(); }
   catch(e){ toast('⚠ '+e.message); }
@@ -746,8 +696,8 @@ async function loadAccount() {
   document.getElementById('account-email').textContent=user.email;
   document.getElementById('account-plan').textContent=user.plan||'FREE';
   try {
-    var res=await api('/api/designs');
-    document.getElementById('account-designs').textContent=res.designs.length;
+    var designs = await api('/api/designs');
+    document.getElementById('account-designs').textContent = Array.isArray(designs) ? designs.length : 0;
     var ps=await api('/api/payments/status');
     if(ps.plan!=='FREE') document.getElementById('btn-billing').style.display='inline-block';
   } catch(e){}
@@ -791,6 +741,7 @@ async function selectPlan(plan) {
     } catch(e){ toast('⚠ '+e.message); }
   }
 }
+
 async function verifyPaystackIfNeeded() {
   var ref=new URLSearchParams(location.search).get('reference');
   if(ref&&token){ try{await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:ref})});}catch(e){} }

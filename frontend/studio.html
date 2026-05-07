@@ -208,17 +208,7 @@ select option{background:#2a1f15}
             <option>Brutalist / raw</option><option>Art Deco / geometric</option>
             <option>Organic / biomorphic</option><option>Folk / rustic</option><option>Futuristic</option>
           </select></div>
-      </div>
-      <div class="api-row">
-        <div><label class="field-label">Anthropic API Key</label>
-          <input type="password" id="anthropic-key" placeholder="sk-ant-..." oninput="saveKeys()">
-          <div class="api-note">For design text. <a href="https://console.anthropic.com" target="_blank">Get key ↗</a></div></div>
-        <div><label class="field-label">OpenAI Key (images)</label>
-          <input type="password" id="openai-key" placeholder="sk-..." oninput="saveKeys()">
-          <div class="api-note">For visual renders. <a href="https://platform.openai.com/api-keys" target="_blank">Get key ↗</a></div></div>
-      </div>
-      <button class="btn-primary" onclick="generate('invent')">Fire the kiln — Generate Design</button>
-    </div>
+      
     <div class="output-area" id="output-invent">
       <div class="placeholder"><div class="wheel"></div><p>Your design will appear here</p></div>
       <div class="loading-wrap" id="loading-invent"><div class="spinner"></div><div class="loading-label">Shaping your concept…</div></div>

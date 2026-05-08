@@ -24,7 +24,8 @@
     "openai": "^4.65.0",
     "paystack": "^2.0.1",
     "stripe": "^14.18.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+"cloudinary": "^2.5.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

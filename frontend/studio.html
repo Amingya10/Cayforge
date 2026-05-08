@@ -996,7 +996,6 @@ async function selectPlan(plan){
     }catch(e){toast('⚠ '+e.message);}
   }
 }
-
 async function verifyPaystackIfNeeded(){
   var ref=new URLSearchParams(location.search).get('reference');
   if(ref&&token){try{await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:ref})});}catch(e){}}

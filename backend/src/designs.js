@@ -196,10 +196,23 @@ User request: ${prompt}`,
       quality: 'standard',
     });
 
-    const imageUrl = imageResp.data && imageResp.data[0] ? imageResp.data[0].url : null;
-    if (!imageUrl) {
-      return res.status(502).json({ error: 'Image generation failed' });
-    }
+    const tempImageUrl = imageResp.data && imageResp.data[0] ? imageResp.data[0].url : null;
+if (!tempImageUrl) {
+  return res.status(502).json({ error: 'Image generation failed' });
+}
+
+// Upload to Cloudinary for permanent storage
+let imageUrl = tempImageUrl;
+try {
+  const uploadResult = await cloudinary.uploader.upload(tempImageUrl, {
+    folder: 'clayforge',
+    resource_type: 'image',
+  });
+  imageUrl = uploadResult.secure_url;
+} catch (cloudErr) {
+  console.error('Cloudinary upload failed, using temp URL:', cloudErr.message);
+  // Fall back to temp URL if Cloudinary fails — not ideal but won't break generation
+}
 
     // ---- Step 3: Save design + increment quota in single transaction ----
     const designTitle = title && title.trim().length > 0 ? title.trim() : designSpec.name || 'Untitled design';

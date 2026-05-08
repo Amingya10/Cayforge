@@ -418,8 +418,7 @@ select option{background:#2a1f15}
     <div class="faq-item"><div class="faq-q">Do I need my own API keys?</div><div class="faq-a">No. AI generation is fully handled by Clayforge — no API keys needed from you.</div></div>
     <div class="faq-item"><div class="faq-q">Which clay bodies are supported?</div><div class="faq-a">All major clay bodies — Earthenware, Stoneware, Porcelain, Bone China, Terracotta, Raku, Ball Clay, Fireclay, Paperclay, and more. Available on all plans.</div></div>
     <div class="faq-item"><div class="faq-q">Can I cancel anytime?</div><div class="faq-a">Yes. Cancel from your account page at any time. No hidden fees.</div></div>
-    <div class="faq-item"><div class="faq-q">How do I pay?</div><div class="faq-a">Nigerian users pay via Paystack — card, bank transfer, or USSD. International users pay via Stripe.</div></div>
-    <div class="faq-item"><div class="faq-q">Who owns the designs?</div><div class="faq-a">You do. All designs belong entirely to you.</div></div>
+    <div class="faq-item"><div class="faq-q">How do I pay?</div><div class="faq-a">Payments are processed via Paystack — card, bank transfer, or USSD. International cards are accepted; your bank handles currency conversion automatically.</div></div>    <div class="faq-item"><div class="faq-q">Who owns the designs?</div><div class="faq-a">You do. All designs belong entirely to you.</div></div>
   </div>
 </div>
 </div>
@@ -742,13 +741,26 @@ async function selectPlan(plan){
   if(plan==='FREE'){if(!token){showPage('auth');}else{showPage('studio');}return;}
   if(plan==='PORCELAIN'){toast('Contact us at hello@clayforge.app');return;}
   if(!token){showPage('auth');toast('Sign in first.');return;}
-  var currency=user&&user.currency;
-  if(currency==='USD'){
-    try{
-      var res=await api('/api/payments/stripe/checkout',{method:'POST',body:JSON.stringify({plan:plan})});
-      window.location.href=res.url;
-    }catch(e){toast('⚠ '+e.message);}
-  }else{
+  // All payments go through Paystack — international cards accepted, settled in NGN
+  try{
+    var res2=await api('/api/payments/paystack/initialize',{method:'POST',body:JSON.stringify({plan:plan})});
+    var pk=getPK();
+    if(pk&&typeof PaystackPop!=='undefined'){
+      var handler=PaystackPop.setup({
+        key:pk,email:user.email,
+        amount:plan==='STONEWARE'?850000:2200000,currency:'NGN',ref:res2.reference,
+        callback:async function(resp){
+          try{
+            await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:resp.reference})});
+            user.plan=plan;localStorage.setItem('cf_user',JSON.stringify(user));updateNav();showPage('success');
+          }catch(e){toast('⚠ Verification failed: '+e.message);}
+        },
+        onClose:function(){}
+      });
+      handler.openIframe();
+    }else{window.location.href=res2.url;}
+  }catch(e){toast('⚠ '+e.message);}
+}  }else{
     try{
       var res2=await api('/api/payments/paystack/initialize',{method:'POST',body:JSON.stringify({plan:plan})});
       var pk=getPK();

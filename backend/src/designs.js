@@ -3,7 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const Anthropic = require('@anthropic-ai/sdk');
 const OpenAI = require('openai');
 const cloudinary = require('cloudinary').v2;
-CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@dhfxs5wmx
+cloudinary://<your_api_key>:<your_api_secret>@dhfxs5wmx
 const jwt = require('jsonwebtoken');
 const auth = function (req, res, next) {
   try {

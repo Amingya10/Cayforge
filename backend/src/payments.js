@@ -26,16 +26,12 @@ router.get('/status', async (req, res) => {
     const jwt = require('jsonwebtoken');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { plan: true }
-    });
-
-    res.json({ plan: user?.plan || 'FREE' });
-  } catch (e) {
-    res.json({ plan: 'FREE' });
-  }
+    cconst user = await prisma.user.findUnique({
+  where: { id: decoded.userId },
+  select: { plan: true, cancelAt: true }
 });
+
+res.json({ plan: user?.plan || 'FREE', cancelAt: user?.cancelAt || null });
 
 // ── POST /api/payments/paystack/initialize ──
 // Starts a Paystack subscription checkout
@@ -186,5 +182,38 @@ router.post('/paystack/webhook', express.raw({ type: 'application/json' }), asyn
     res.sendStatus(200); // always 200 to Paystack
   }
 });
+// ── POST /api/payments/cancel ──
+// Marks subscription for end-of-period cancellation
+router.post('/cancel', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Not authenticated' });
 
+    const token = authHeader.split(' ')[1];
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (user.plan === 'FREE') return res.status(400).json({ error: 'No active subscription to cancel' });
+    if (user.cancelAt) return res.status(400).json({ error: 'Subscription already cancelled' });
+
+    // Access continues until end of current billing period
+    const cancelDate = user.quotaResetAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { id: decoded.userId },
+      data: { cancelAt: cancelDate }
+    });
+
+    res.json({
+      success: true,
+      message: 'Subscription cancelled. Access continues until end of period.',
+      accessUntil: cancelDate
+    });
+  } catch (e) {
+    console.error('Cancel error:', e);
+    res.status(500).json({ error: 'Failed to cancel subscription' });
+  }
+});
 module.exports = router;

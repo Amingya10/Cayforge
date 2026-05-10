@@ -22,16 +22,18 @@ router.get('/status', async (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.json({ plan: 'FREE' });
 
-    const token = authHeader.split(' ')[1];
-    const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
     const user = await prisma.user.findUnique({
-  where: { id: decoded.userId },
-  select: { plan: true, cancelAt: true }
+      where: { id: decoded.userId },
+      select: { plan: true, cancelAt: true }
+    });
+
+    res.json({ plan: user?.plan || 'FREE', cancelAt: user?.cancelAt || null });
+  } catch (e) {
+    res.json({ plan: 'FREE' });
+  }
 });
 
-res.json({ plan: user?.plan || 'FREE', cancelAt: user?.cancelAt || null });
+// ── POST /api/payments/paystack/initialize ──
 
 // ── POST /api/payments/paystack/initialize ──
 // Starts a Paystack subscription checkout

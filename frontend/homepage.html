@@ -5,7 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Clayforge — The Ceramic Online Studio</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
-<style>
+.site-footer{margin-top:60px;padding:24px 20px;border-top:1px solid rgba(196,113,74,.12);position:relative;z-index:2}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:.72rem;color:var(--ash);letter-spacing:.04em}
+.footer-links{display:flex;gap:18px}
+.footer-links a{color:var(--ash);text-decoration:none;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;transition:color .2s}
+.footer-links a:hover{color:var(--clay-light)}
+@media(max-width:520px){.footer-inner{flex-direction:column;text-align:center}}
+  <style>
 :root {
   --clay: #c4714a;
   --clay-dark: #8b4a2f;
@@ -2319,5 +2326,15 @@ document.querySelectorAll('.pillar, .for-card, .project-card, .phi-card, .tool-s
   observer.observe(el);
 });
 </script>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-copy">© 2026 Clayforge — Made in Kano, Nigeria</div>
+    <div class="footer-links">
+      <a href="/terms.html">Terms</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
 </body>
 </html>

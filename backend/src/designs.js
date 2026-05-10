@@ -40,7 +40,21 @@ const PLAN_LIMITS = {
 };
 
 // ---- Helper: refresh quota window if 30 days have passed ----
-async function refreshQuotaIfNeeded(user) {
+async function refreshQuotaIfNeeded(user) 
+{// Auto-downgrade if cancelled period has ended
+  if (user.cancelAt && new Date() >= new Date(user.cancelAt)) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        plan: 'FREE',
+        cancelAt: null,
+        designsThisPeriod: 0,
+        quotaResetAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      }
+    });
+    user.plan = 'FREE';
+    user.cancelAt = null;
+  }
   const now = new Date();
   if (now >= user.quotaResetAt) {
     const newReset = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);

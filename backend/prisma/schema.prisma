@@ -16,7 +16,8 @@ model User {
   designsThisPeriod   Int       @default(0)
   quotaResetAt        DateTime  @default(now())
   paystackRef         String?
-  createdAt           DateTime  @default(now())
+  cancelAt          DateTime?
+createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   designs             Design[]
 }

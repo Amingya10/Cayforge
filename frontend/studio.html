@@ -432,8 +432,11 @@ select option{background:#2a1f15}
     <div class="account-stat"><div class="stat-label">Current Plan</div><div class="stat-val" id="account-plan">—</div></div>
     <div class="account-stat"><div class="stat-label">Designs Saved</div><div class="stat-val" id="account-designs">—</div></div>
   </div>
-  <button class="btn-manage" id="btn-billing" style="display:none" onclick="manageBilling()">Manage Billing ↗</button>
-  <button class="btn-manage" style="margin-left:10px" onclick="signOut()">Sign Out</button>
+  <div id="cancel-notice" style="display:none;margin-top:18px;padding:12px 14px;background:rgba(232,93,42,.08);border:1px solid rgba(232,93,42,.25);border-radius:9px;font-size:.78rem;color:#f0a080"></div>
+  <div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:10px">
+    <button class="btn-manage" id="btn-cancel-sub" style="display:none" onclick="cancelSubscription()">Cancel Subscription</button>
+    <button class="btn-manage" onclick="signOut()">Sign Out</button>
+  </div>
 </div>
 </div>
 
@@ -736,10 +739,21 @@ async function loadAccount(){
     var designs=await api('/api/designs');
     document.getElementById('account-designs').textContent=Array.isArray(designs)?designs.length:0;
     var ps=await api('/api/payments/status');
-    if(ps.plan!=='FREE') document.getElementById('btn-billing').style.display='inline-block';
+    var cancelBtn=document.getElementById('btn-cancel-sub');
+    var notice=document.getElementById('cancel-notice');
+    if(ps.plan!=='FREE'){
+      if(ps.cancelAt){
+        var d=new Date(ps.cancelAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+        notice.style.display='block';
+        notice.textContent='Your subscription is cancelled. You will keep '+planLabel(ps.plan)+' access until '+d+', after which your account will move to the Starter plan.';
+        cancelBtn.style.display='none';
+      } else {
+        cancelBtn.style.display='inline-block';
+      }
+    }
   }catch(e){}
 }
-async function manageBilling(){
+  async function manageBilling(){
   try{
     if(user&&user.currency==='NGN'){toast('Contact support to manage your Paystack subscription.');return;}
     var res=await api('/api/payments/stripe/portal',{method:'POST'});
@@ -747,7 +761,16 @@ async function manageBilling(){
   }catch(e){toast('⚠ '+e.message);}
 }
 
-async function selectPlan(plan){
+async function cancelSubscription(){
+  if(!confirm('Cancel your subscription?\n\nYou will keep your current plan until the end of this billing period, then move to the free Starter plan. You can resubscribe at any time.')) return;
+  try{
+    var res=await api('/api/payments/cancel',{method:'POST'});
+    var d=new Date(res.accessUntil).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    toast('Subscription cancelled. Access until '+d);
+    loadAccount();
+  }catch(e){toast('⚠ '+e.message);}
+}
+  async function selectPlan(plan){
   if(plan==='FREE'){if(!token){showPage('auth');}else{showPage('studio');}return;}
   if(plan==='PORCELAIN'){toast('Contact us at hello@clayforge.app');return;}
   if(!token){showPage('auth');toast('Sign in first.');return;}

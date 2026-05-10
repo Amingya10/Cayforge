@@ -26,7 +26,7 @@ router.get('/status', async (req, res) => {
     const jwt = require('jsonwebtoken');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    cconst user = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
   where: { id: decoded.userId },
   select: { plan: true, cancelAt: true }
 });

@@ -197,20 +197,20 @@ select option{background:#2a1f15}
           <div class="step-content">
             <div class="step-title">Create your account</div>
             <div class="step-desc">Click Sign In on the main page and create a free account. Choose your currency — Nigerian Naira (₦) or US Dollar ($) — this sets your payment method if you upgrade later.</div>
-            <div class="step-tip"><strong>Tip:</strong> Your free account gives you 5 designs per month. No credit card needed.</div>
+            <div class="step-tip"><strong>Tip:</strong> Your free Starter account gives you 3 designs per month. No credit card needed.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-content">
-            <div class="step-title">Get your Anthropic API key</div>
-            <div class="step-desc">Go to console.anthropic.com, sign up, and add at least $5 credit. Copy your API key (starts with sk-ant-...) and paste it into the Anthropic API Key field in the Studio.</div>
-            <div class="step-tip"><strong>Tip:</strong> Each design generation costs less than $0.01. $5 gives you hundreds of designs. On paid Clayforge plans, this is bundled — no key needed.</div>
+            <div class="step-title">Choose your tool</div>
+            <div class="step-desc">Open the Design Studio and pick the mode that fits what you're doing. <strong>Invent New</strong> generates a fresh ceramic concept from your description. <strong>Remix Existing</strong> transforms a piece you already have. <strong>Tech Specs</strong> produces detailed technical documentation — clay body, glaze, firing schedule.</div>
+            <div class="step-tip"><strong>Tip:</strong> All three tools work on every plan, including free. Start with Invent New if you're not sure.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-content">
             <div class="step-title">Describe your ceramic piece</div>
-            <div class="step-desc">In the Design Studio, type a description of the piece you want to create. Be as specific or as vague as you like. Choose a form type and style inspiration from the dropdowns.</div>
+            <div class="step-desc">In the Design Studio, type a description of the piece you want to create. Be as specific or as vague as you like. Choose a form type, clay body and style inspiration from the dropdowns.</div>
             <div class="step-tip"><strong>Example:</strong> "A tall vase inspired by Hausa architecture, with geometric relief patterns and a deep indigo glaze that fades to warm terracotta at the base"</div>
           </div>
         </div>
@@ -260,17 +260,14 @@ select option{background:#2a1f15}
         <div class="wt-mockup">
           <div class="wm-title">✦ Invent New Design</div>
           <div class="wm-field" style="color:var(--sand);height:70px;font-size:.74rem">A tall stoneware vase with Hausa dagi patterns, deep indigo glaze fading to terracotta at base, wheel thrown...</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:8px 0">
             <div class="wm-field">Vase ▾</div>
+            <div class="wm-field">Stoneware ▾</div>
             <div class="wm-field">Traditional African ▾</div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-            <div class="wm-field" style="font-size:.7rem">sk-ant-••••••••</div>
-            <div class="wm-field" style="font-size:.7rem;color:var(--ash)">OpenAI key (optional)</div>
           </div>
           <div class="wm-btn">Fire the kiln →</div>
         </div>
-        <div class="wt-desc"><strong>Describe your piece</strong> in as much or as little detail as you want. Select a form type and style to guide the AI. Paste your <strong>Anthropic API key</strong> — this is what powers the generation. The OpenAI key is optional and only needed for image renders.</div>
+        <div class="wt-desc"><strong>Describe your piece</strong> in as much or as little detail as you want. Then narrow the result with three optional selectors — <strong>Form / Type</strong>, <strong>Clay Body</strong>, and <strong>Style / Inspiration</strong> — to steer the AI in the direction you want.</div>
       </div>
 
       <div class="wt-screen" id="wt-2">
@@ -331,23 +328,23 @@ select option{background:#2a1f15}
           <div class="wm-title">💎 Choose Your Plan</div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">
             <div style="border:1px solid rgba(196,113,74,.2);border-radius:8px;padding:10px;text-align:center">
-              <div style="font-family:'Playfair Display',serif;color:var(--sand);font-size:.88rem">Clay</div>
+              <div style="font-family:'Playfair Display',serif;color:var(--sand);font-size:.88rem">Starter</div>
               <div style="color:var(--clay-light);font-size:1rem;margin:4px 0">Free</div>
-              <div style="font-size:.62rem;color:var(--ash)">5 designs/mo</div>
+              <div style="font-size:.62rem;color:var(--ash)">3 designs/mo</div>
             </div>
             <div style="border:1px solid var(--clay);background:rgba(196,113,74,.06);border-radius:8px;padding:10px;text-align:center">
-              <div style="font-family:'Playfair Display',serif;color:var(--sand);font-size:.88rem">Stoneware</div>
+              <div style="font-family:'Playfair Display',serif;color:var(--sand);font-size:.88rem">Maker</div>
               <div style="color:var(--clay-light);font-size:1rem;margin:4px 0">₦8,500</div>
-              <div style="font-size:.62rem;color:var(--ash)">Unlimited</div>
+              <div style="font-size:.62rem;color:var(--ash)">25 designs/mo</div>
             </div>
             <div style="border:1px solid rgba(196,113,74,.2);border-radius:8px;padding:10px;text-align:center">
-              <div style="font-family:'Playfair Display',serif;color:var(--sand);font-size:.88rem">Porcelain</div>
+              <div style="font-family:'Playfair Display',serif;color:var(--sand);font-size:.88rem">Professional</div>
               <div style="color:var(--clay-light);font-size:1rem;margin:4px 0">₦22k</div>
-              <div style="font-size:.62rem;color:var(--ash)">Studio team</div>
+              <div style="font-size:.62rem;color:var(--ash)">100 designs/mo</div>
             </div>
           </div>
         </div>
-        <div class="wt-desc">The <strong>Clay plan is free forever</strong> — 5 designs per month with PDF export. <strong>Stoneware (₦8,500/month)</strong> gives unlimited designs, AI image renders and your full design library. <strong>Porcelain (₦22,000/month)</strong> adds team access and a shared library for studios and schools. Pay via Paystack (NGN) or Stripe (USD).</div>
+        <div class="wt-desc">The <strong>Starter plan is free forever</strong> — 3 designs per month with PDF export. <strong>Maker (₦8,500 or $5.99/month)</strong> gives 25 designs, AI image renders and your full design library. <strong>Professional (₦22,000 or $14.99/month)</strong> adds up to 10 team members and a shared library for studios and schools. All payments are handled by Paystack.</div>
       </div>
     </div>
   </div>
@@ -358,7 +355,7 @@ select option{background:#2a1f15}
       <div class="card-title">Frequently Asked Questions</div>
       <div class="faq-item" onclick="toggleFAQ(this)">
         <div class="faq-q">Do I need an API key to use Clayforge? <span class="faq-arrow">▾</span></div>
-        <div class="faq-a">On the free plan, you need your own Anthropic API key (from console.anthropic.com). It costs less than $0.01 per design. On paid plans (Stoneware and Porcelain), API access is bundled — no key needed.</div>
+        <div class="faq-a">No. AI generation is fully handled by Clayforge — no API keys needed from you on any plan. Just sign up and start designing.</div>
       </div>
       <div class="faq-item" onclick="toggleFAQ(this)">
         <div class="faq-q">Is my design data private? <span class="faq-arrow">▾</span></div>
@@ -366,7 +363,7 @@ select option{background:#2a1f15}
       </div>
       <div class="faq-item" onclick="toggleFAQ(this)">
         <div class="faq-q">How do I pay for a subscription? <span class="faq-arrow">▾</span></div>
-        <div class="faq-a">Nigerian users pay via Paystack — supporting card, bank transfer and USSD. International users pay via Stripe — all major cards accepted. You choose your currency when you sign up.</div>
+        <div class="faq-a">All payments are processed via Paystack — card, bank transfer, or USSD. International cards are accepted; your bank handles currency conversion automatically. You choose your billing currency (₦ or $) when you sign up.</div>
       </div>
       <div class="faq-item" onclick="toggleFAQ(this)">
         <div class="faq-q">Can I cancel my subscription anytime? <span class="faq-arrow">▾</span></div>

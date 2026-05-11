@@ -1,12 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-
-// Paystack plan codes — set these in Railway env vars
-// PAYSTACK_SECRET_KEY=sk_live_xxx
-// PAYSTACK_STONEWARE_PLAN=PLN_xxx (monthly ₦8,500)
-// PAYSTACK_PORCELAIN_PLAN=PLN_xxx (monthly ₦22,000)
 
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY;
 
@@ -15,36 +11,46 @@ const PLAN_AMOUNTS = {
   PORCELAIN: 2200000,  // ₦22,000 in kobo
 };
 
+// Shared auth helper — verifies JWT and returns decoded payload, or null
+function getUserFromAuth(req) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return null;
+  const token = authHeader.split(' ')[1];
+  if (!token) return null;
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET);
+  } catch (e) {
+    return null;
+  }
+}
+
 // ── GET /api/payments/status ──
-// Returns current user's plan
+// Returns the authenticated user's plan and cancellation state
 router.get('/status', async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return res.json({ plan: 'FREE' });
+    const decoded = getUserFromAuth(req);
+    if (!decoded) return res.json({ plan: 'FREE', cancelAt: null });
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { plan: true, cancelAt: true }
+      select: { plan: true, cancelAt: true },
     });
 
-    res.json({ plan: user?.plan || 'FREE', cancelAt: user?.cancelAt || null });
+    res.json({
+      plan: user?.plan || 'FREE',
+      cancelAt: user?.cancelAt || null,
+    });
   } catch (e) {
-    res.json({ plan: 'FREE' });
+    console.error('Status error:', e);
+    res.status(500).json({ error: 'Failed to load status' });
   }
 });
 
 // ── POST /api/payments/paystack/initialize ──
-
-// ── POST /api/payments/paystack/initialize ──
-// Starts a Paystack subscription checkout
 router.post('/paystack/initialize', async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).json({ error: 'Not authenticated' });
-
-    const token = authHeader.split(' ')[1];
-    const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = getUserFromAuth(req);
+    if (!decoded) return res.status(401).json({ error: 'Not authenticated' });
 
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
     if (!user) return res.status(404).json({ error: 'User not found' });
@@ -57,12 +63,11 @@ router.post('/paystack/initialize', async (req, res) => {
     const amount = PLAN_AMOUNTS[plan];
     const reference = `CF-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
-    // Initialize Paystack transaction
     const response = await fetch('https://api.paystack.co/transaction/initialize', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${PAYSTACK_SECRET}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         email: user.email,
@@ -73,30 +78,27 @@ router.post('/paystack/initialize', async (req, res) => {
           userId: user.id,
           plan,
           custom_fields: [
-            { display_name: 'Plan', variable_name: 'plan', value: plan }
-          ]
+            { display_name: 'Plan', variable_name: 'plan', value: plan },
+          ],
         },
-        callback_url: `${process.env.FRONTEND_URL || 'https://cayforge.vercel.app'}?payment=success&reference=${reference}`
-      })
+        callback_url: `${process.env.FRONTEND_URL || 'https://cayforge.vercel.app'}?payment=success&reference=${reference}`,
+      }),
     });
 
     const data = await response.json();
-
     if (!data.status) {
       return res.status(400).json({ error: data.message || 'Paystack initialization failed' });
     }
 
-    // Store pending payment reference
     await prisma.user.update({
       where: { id: user.id },
-      data: { paystackRef: reference }
+      data: { paystackRef: reference },
     }).catch(() => {}); // ignore if field doesn't exist yet
 
     res.json({
       url: data.data.authorization_url,
-      reference: data.data.reference
+      reference: data.data.reference,
     });
-
   } catch (e) {
     console.error('Paystack init error:', e);
     res.status(500).json({ error: e.message || 'Payment initialization failed' });
@@ -104,17 +106,14 @@ router.post('/paystack/initialize', async (req, res) => {
 });
 
 // ── POST /api/payments/paystack/verify ──
-// Verifies payment and upgrades user plan
 router.post('/paystack/verify', async (req, res) => {
   try {
     const { reference } = req.body;
     if (!reference) return res.status(400).json({ error: 'Reference required' });
 
-    // Verify with Paystack
     const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-      headers: { 'Authorization': `Bearer ${PAYSTACK_SECRET}` }
+      headers: { 'Authorization': `Bearer ${PAYSTACK_SECRET}` },
     });
-
     const data = await response.json();
 
     if (!data.status || data.data.status !== 'success') {
@@ -122,20 +121,21 @@ router.post('/paystack/verify', async (req, res) => {
     }
 
     const { userId, plan } = data.data.metadata;
-
     if (!userId || !plan) {
       return res.status(400).json({ error: 'Invalid payment metadata' });
     }
 
-    // Upgrade user plan
+    // Upgrade user plan AND clear any pending cancellation
+    // AND reset the quota window so they get a fresh 30 days
+    const now = new Date();
+    const quotaResetAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
     const user = await prisma.user.update({
       where: { id: userId },
-      data: { plan },
-      select: { id: true, email: true, name: true, plan: true }
+      data: { plan, cancelAt: null, quotaResetAt, designsThisPeriod: 0 },
+      select: { id: true, email: true, name: true, plan: true },
     });
 
     res.json({ success: true, user });
-
   } catch (e) {
     console.error('Paystack verify error:', e);
     res.status(500).json({ error: e.message || 'Payment verification failed' });
@@ -143,7 +143,6 @@ router.post('/paystack/verify', async (req, res) => {
 });
 
 // ── POST /api/payments/paystack/webhook ──
-// Handles Paystack webhook events (subscription renewals etc.)
 router.post('/paystack/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   try {
     const crypto = require('crypto');
@@ -163,7 +162,7 @@ router.post('/paystack/webhook', express.raw({ type: 'application/json' }), asyn
       if (userId && plan) {
         await prisma.user.update({
           where: { id: userId },
-          data: { plan }
+          data: { plan, cancelAt: null },
         });
       }
     }
@@ -173,7 +172,7 @@ router.post('/paystack/webhook', express.raw({ type: 'application/json' }), asyn
       if (email) {
         await prisma.user.update({
           where: { email },
-          data: { plan: 'FREE' }
+          data: { plan: 'FREE', cancelAt: null },
         });
       }
     }
@@ -181,41 +180,36 @@ router.post('/paystack/webhook', express.raw({ type: 'application/json' }), asyn
     res.sendStatus(200);
   } catch (e) {
     console.error('Webhook error:', e);
-    res.sendStatus(200); // always 200 to Paystack
+    res.sendStatus(200);
   }
 });
+
 // ── POST /api/payments/cancel ──
-// Marks subscription for end-of-period cancellation
 router.post('/cancel', async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).json({ error: 'Not authenticated' });
-
-    const token = authHeader.split(' ')[1];
-    const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = getUserFromAuth(req);
+    if (!decoded) return res.status(401).json({ error: 'Not authenticated' });
 
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
     if (!user) return res.status(404).json({ error: 'User not found' });
     if (user.plan === 'FREE') return res.status(400).json({ error: 'No active subscription to cancel' });
     if (user.cancelAt) return res.status(400).json({ error: 'Subscription already cancelled' });
 
-    // Access continues until end of current billing period
     const cancelDate = user.quotaResetAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-
     await prisma.user.update({
       where: { id: decoded.userId },
-      data: { cancelAt: cancelDate }
+      data: { cancelAt: cancelDate },
     });
 
     res.json({
       success: true,
       message: 'Subscription cancelled. Access continues until end of period.',
-      accessUntil: cancelDate
+      accessUntil: cancelDate,
     });
   } catch (e) {
     console.error('Cancel error:', e);
     res.status(500).json({ error: 'Failed to cancel subscription' });
   }
 });
+
 module.exports = router;

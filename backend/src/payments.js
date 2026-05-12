@@ -211,5 +211,29 @@ router.post('/cancel', async (req, res) => {
     res.status(500).json({ error: 'Failed to cancel subscription' });
   }
 });
+// ── POST /api/payments/reactivate ──
+// Undoes a pending cancellation
+router.post('/reactivate', async (req, res) => {
+  try {
+    const decoded = getUserFromAuth(req);
+    if (!decoded) return res.status(401).json({ error: 'Not authenticated' });
 
+    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user.cancelAt) return res.status(400).json({ error: 'No pending cancellation to reactivate' });
+
+    await prisma.user.update({
+      where: { id: decoded.userId },
+      data: { cancelAt: null },
+    });
+
+    res.json({
+      success: true,
+      message: 'Subscription reactivated. You will continue to be billed normally.',
+    });
+  } catch (e) {
+    console.error('Reactivate error:', e);
+    res.status(500).json({ error: 'Failed to reactivate subscription' });
+  }
+});
 module.exports = router;

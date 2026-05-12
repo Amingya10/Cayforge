@@ -476,7 +476,7 @@ var user=null, token=null, authMode='signin', authCurrency='NGN', lastResults={}
 
 window.addEventListener('load', function() {
   var t=localStorage.getItem('cf_token'), u=localStorage.getItem('cf_user');
-  if(t&&u){token=t;user=JSON.parse(u);updateNav();}
+  if(t&&u){token=t;user=JSON.parse(u);updateNav();refreshUser();}
   if(location.search.includes('payment=success')){verifyPaystackIfNeeded();showPage('success');}
 });
 
@@ -510,7 +510,25 @@ function switchTab(name) {
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
   var panel=document.getElementById('panel-'+name); if(panel) panel.classList.add('active');
 }
-
+async function refreshUser() {
+  if(!token) return;
+  try{
+    var res=await fetch(getAPI()+'/api/auth/me',{
+      headers:{'Authorization':'Bearer '+token}
+    });
+    if(!res.ok) return; // 401/403 — token invalid, leave cache alone
+    var fresh=await res.json();
+    user=fresh;
+    localStorage.setItem('cf_user',JSON.stringify(fresh));
+    updateNav();
+    // If account page is currently active, refresh its display
+    var accountPage=document.getElementById('page-account');
+    if(accountPage && accountPage.classList.contains('active')) loadAccount();
+  }catch(e){
+    // Network error — keep using cached user, don't break the app
+    console.warn('Could not refresh user:',e.message);
+  }
+}
 async function api(path,opts) {
   opts=opts||{};
   var headers={'Content-Type':'application/json'};
@@ -793,10 +811,11 @@ async function cancelSubscription(){
       var handler=PaystackPop.setup({
         key:pk,email:user.email,
         amount:plan==='STONEWARE'?850000:2200000,currency:'NGN',ref:res2.reference,
-        callback:async function(resp){
+       callback:async function(resp){
           try{
             await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:resp.reference})});
-            user.plan=plan;localStorage.setItem('cf_user',JSON.stringify(user));updateNav();showPage('success');
+            await refreshUser();
+            showPage('success');
           }catch(e){toast('⚠ Verification failed: '+e.message);}
         },
         onClose:function(){}
@@ -808,7 +827,12 @@ async function cancelSubscription(){
 
 async function verifyPaystackIfNeeded(){
   var ref=new URLSearchParams(location.search).get('reference');
-  if(ref&&token){try{await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:ref})});}catch(e){}}
+  if(ref&&token){
+    try{
+      await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:ref})});
+      await refreshUser();
+    }catch(e){}
+  }
 }
 
 function closeModal(e){

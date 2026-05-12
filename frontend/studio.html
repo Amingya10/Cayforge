@@ -433,13 +433,11 @@ select option{background:#2a1f15}
     <div class="account-stat"><div class="stat-label">Designs Saved</div><div class="stat-val" id="account-designs">—</div></div>
   </div>
   <div id="cancel-notice" style="display:none;margin-top:18px;padding:12px 14px;background:rgba(232,93,42,.08);border:1px solid rgba(232,93,42,.25);border-radius:9px;font-size:.78rem;color:#f0a080"></div>
-  <div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:10px">
+ <div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:10px">
     <button class="btn-manage" id="btn-cancel-sub" style="display:none" onclick="cancelSubscription()">Cancel Subscription</button>
+    <button class="btn-manage" id="btn-reactivate-sub" style="display:none;border-color:rgba(74,139,90,.4);color:#7fc28a" onclick="reactivateSubscription()">Reactivate Subscription</button>
     <button class="btn-manage" onclick="signOut()">Sign Out</button>
   </div>
-</div>
-</div>
-
 <div class="page" id="page-success">
 <div class="container">
   <div class="success-wrap">
@@ -735,18 +733,23 @@ async function loadAccount(){
   if(!user){showPage('auth');return;}
   document.getElementById('account-email').textContent=user.email;
   document.getElementById('account-plan').textContent=planLabel(user.plan);
+  var cancelBtn=document.getElementById('btn-cancel-sub');
+  var reactivateBtn=document.getElementById('btn-reactivate-sub');
+  var notice=document.getElementById('cancel-notice');
+  // Reset all states first
+  cancelBtn.style.display='none';
+  reactivateBtn.style.display='none';
+  notice.style.display='none';
   try{
     var designs=await api('/api/designs');
     document.getElementById('account-designs').textContent=Array.isArray(designs)?designs.length:0;
     var ps=await api('/api/payments/status');
-    var cancelBtn=document.getElementById('btn-cancel-sub');
-    var notice=document.getElementById('cancel-notice');
     if(ps.plan!=='FREE'){
       if(ps.cancelAt){
         var d=new Date(ps.cancelAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
         notice.style.display='block';
         notice.textContent='Your subscription is cancelled. You will keep '+planLabel(ps.plan)+' access until '+d+', after which your account will move to the Starter plan.';
-        cancelBtn.style.display='none';
+        reactivateBtn.style.display='inline-block';
       } else {
         cancelBtn.style.display='inline-block';
       }
@@ -767,6 +770,14 @@ async function cancelSubscription(){
     var res=await api('/api/payments/cancel',{method:'POST'});
     var d=new Date(res.accessUntil).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
     toast('Subscription cancelled. Access until '+d);
+    loadAccount();
+  }catch(e){toast('⚠ '+e.message);}
+}
+ async function reactivateSubscription(){
+  if(!confirm('Reactivate your subscription?\n\nYour scheduled cancellation will be undone. You will continue to be billed at the end of the current period.')) return;
+  try{
+    await api('/api/payments/reactivate',{method:'POST'});
+    toast('Subscription reactivated!');
     loadAccount();
   }catch(e){toast('⚠ '+e.message);}
 }

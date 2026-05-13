@@ -202,33 +202,36 @@ User request: ${prompt}`,
       return res.status(502).json({ error: 'Design spec missing image prompt' });
     }
 
-    // ---- Step 2: DALL-E 3 generates the visual ----
+   // ---- Step 2: gpt-image-1 generates the visual ----
+    // (DALL-E 3 was deprecated by OpenAI on May 12, 2026)
     const imageResp = await openai.images.generate({
-      model: 'dall-e-3',
+      model: 'gpt-image-1',
       prompt: designSpec.imagePrompt,
       n: 1,
       size: '1024x1024',
-      quality: 'standard',
     });
 
-    const tempImageUrl = imageResp.data && imageResp.data[0] ? imageResp.data[0].url : null;
-if (!tempImageUrl) {
-  return res.status(502).json({ error: 'Image generation failed' });
-}
+    // gpt-image-1 returns base64-encoded image data, not a URL
+    const b64Image = imageResp.data && imageResp.data[0] ? imageResp.data[0].b64_json : null;
+    if (!b64Image) {
+      return res.status(502).json({ error: 'Image generation failed' });
+    }
 
-// Upload to Cloudinary for permanent storage
-let imageUrl = tempImageUrl;
-try {
-  const uploadResult = await cloudinary.uploader.upload(tempImageUrl, {
-    folder: 'clayforge',
-    resource_type: 'image',
-  });
-  imageUrl = uploadResult.secure_url;
-} catch (cloudErr) {
-  console.error('Cloudinary upload failed, using temp URL:', cloudErr.message);
-  // Fall back to temp URL if Cloudinary fails — not ideal but won't break generation
-}
-
+    // Upload base64 image to Cloudinary for permanent hosted URL
+    let imageUrl = null;
+    try {
+      const uploadResult = await cloudinary.uploader.upload(
+        `data:image/png;base64,${b64Image}`,
+        { folder: 'clayforge', resource_type: 'image' }
+      );
+      imageUrl = uploadResult.secure_url;
+    } catch (cloudErr) {
+      console.error('Cloudinary upload failed:', cloudErr.message);
+      return res.status(502).json({ 
+        error: 'Image storage failed',
+        message: 'Image was generated but could not be saved. Please try again.'
+      });
+    }
     // ---- Step 3: Save design + increment quota in single transaction ----
     const designTitle = title && title.trim().length > 0 ? title.trim() : designSpec.name || 'Untitled design';
 
@@ -263,8 +266,7 @@ try {
         remaining: limit - user.designsThisPeriod - 1,
         resetsAt: user.quotaResetAt,
       },
-      warning: 'Image URL expires in 1 hour. Save the image locally if needed.',
-    });
+     
   } catch (e) {
     console.error('Design generation error:', e);
 

@@ -247,7 +247,7 @@ User request: ${prompt}`,
             imageUrlExpiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
             generatedAt: new Date().toISOString(),
             modelText: 'claude-sonnet-4-5',
-            modelImage: 'dall-e-3',
+            modelImage: 'gpt-image-1',
           },
         },
       }),
@@ -257,7 +257,7 @@ User request: ${prompt}`,
       }),
     ]);
 
-    res.json({
+   res.json({
       design,
       quota: {
         plan: user.plan,
@@ -266,7 +266,7 @@ User request: ${prompt}`,
         remaining: limit - user.designsThisPeriod - 1,
         resetsAt: user.quotaResetAt,
       },
-     
+    });
   } catch (e) {
     console.error('Design generation error:', e);
 

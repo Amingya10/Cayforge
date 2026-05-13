@@ -72,7 +72,44 @@ async function refreshQuotaIfNeeded(user)
   }
   return user;
 }
+// ---- GET /api/designs/public - public showcase, no auth ----
+router.get('/public', async (req, res) => {
+  try {
+    const designs = await prisma.design.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 12,
+    });
 
+    // Only return safe public fields - never expose userId or full content blob
+    const publicDesigns = designs
+      .filter(d => {
+        const url = d.content && d.content.imageUrl;
+        // Only include designs with permanent Cloudinary URLs
+        return url && url.includes('res.cloudinary.com');
+      })
+      .map(d => ({
+        id: d.id,
+        title: d.title,
+        createdAt: d.createdAt,
+        imageUrl: d.content.imageUrl,
+        prompt: d.content.prompt,
+        spec: {
+          name: d.content.spec?.name,
+          form: d.content.spec?.form,
+          dimensions: d.content.spec?.dimensions,
+          clayBody: d.content.spec?.clayBody,
+          glaze: d.content.spec?.glaze,
+          surfaceTreatment: d.content.spec?.surfaceTreatment,
+          firingMethod: d.content.spec?.firingMethod,
+        },
+      }));
+
+    res.json(publicDesigns);
+  } catch (e) {
+    console.error('Public gallery fetch error:', e);
+    res.status(500).json({ error: 'Failed to load gallery' });
+  }
+});
 // ---- GET /api/designs - list current user's designs ----
 router.get('/', auth, async (req, res) => {
   try {

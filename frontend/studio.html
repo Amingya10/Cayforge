@@ -638,7 +638,7 @@ function loadJsPDF(){
   if(__jspdfLoading) return __jspdfLoading;
   __jspdfLoading = new Promise(function(resolve, reject){
     var script=document.createElement('script');
-    script.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    script.src='https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
     script.onload=function(){resolve();};
     script.onerror=function(){__jspdfLoading=null;reject(new Error('Could not load PDF library'));};
     document.head.appendChild(script);

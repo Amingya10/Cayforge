@@ -126,9 +126,9 @@ select option{background:#2a1f15}
       </div>
 
       <div class="info-card">
-        <span class="ic-icon">📱</span>
-        <div class="ic-label">WhatsApp</div>
-        <div class="ic-value"><a href="https://wa.me/2348000000000" target="_blank">+234 800 000 0000</a><br><span style="font-size:.72rem;color:var(--ash)">For quick questions and support</span></div>
+        <span class="ic-icon">✉️</span>
+        <div class="ic-label">Support</div>
+        <div class="ic-value">Email only<br><span style="font-size:.72rem;color:var(--ash)">We respond within 24 hours</span></div>
       </div>
 
       <div class="info-card">
@@ -141,10 +141,8 @@ select option{background:#2a1f15}
         <span class="ic-icon">🌐</span>
         <div class="ic-label">Follow Us</div>
         <div class="social-links">
-          <a href="#" class="social-link"><span class="sl-icon">📸</span> Instagram — @clayforge.app</a>
-          <a href="#" class="social-link"><span class="sl-icon">💼</span> LinkedIn — Clayforge Studio</a>
-          <a href="#" class="social-link"><span class="sl-icon">🐦</span> Twitter/X — @clayforgeapp</a>
-          <a href="#" class="social-link"><span class="sl-icon">📘</span> Facebook — Clayforge</a>
+          <a href="https://instagram.com/tryclayforge" target="_blank" rel="noopener" class="social-link"><span class="sl-icon">📸</span> Instagram — @tryclayforge</a>
+          <a href="https://www.facebook.com/profile.php?id=61589227828895" target="_blank" rel="noopener" class="social-link"><span class="sl-icon">📘</span> Facebook — Clayforge</a>
         </div>
       </div>
 
@@ -177,23 +175,17 @@ select option{background:#2a1f15}
           </div>
         </div>
 
-        <div class="grid-2">
-          <div class="field-group">
-            <label class="field-label">Phone / WhatsApp</label>
-            <input type="tel" id="ct-phone" placeholder="+234...">
-          </div>
-          <div class="field-group">
-            <label class="field-label">Your Role</label>
-            <select id="ct-role">
-              <option>Hobbyist potter</option>
-              <option>Professional ceramicist</option>
-              <option>Studio owner</option>
-              <option>Student</option>
-              <option>Ceramic teacher</option>
-              <option>Business / retailer</option>
-              <option>Other</option>
-            </select>
-          </div>
+        <div class="field-group">
+          <label class="field-label">Your Role</label>
+          <select id="ct-role">
+            <option>Hobbyist potter</option>
+            <option>Professional ceramicist</option>
+            <option>Studio owner</option>
+            <option>Student</option>
+            <option>Ceramic teacher</option>
+            <option>Business / retailer</option>
+            <option>Other</option>
+          </select>
         </div>
 
         <div class="field-group">
@@ -229,10 +221,9 @@ select option{background:#2a1f15}
             <option>Friend / word of mouth</option>
             <option>Instagram</option>
             <option>Facebook</option>
-            <option>Twitter / X</option>
             <option>Google search</option>
-            <option>WhatsApp group</option>
             <option>Ceramics community</option>
+            <option>Reddit</option>
             <option>Other</option>
           </select>
         </div>
@@ -254,7 +245,7 @@ select option{background:#2a1f15}
         <h3>Quick Answers</h3>
         <div class="mfaq-item">
           <div class="mfq">What's the fastest way to get help?</div>
-          <div class="mfa">WhatsApp is fastest for quick questions. Email is best for detailed technical issues.</div>
+          <div class="mfa">Email us at hello@clayforge.app or use the form above. We respond within 24 hours.</div>
         </div>
         <div class="mfaq-item">
           <div class="mfq">Do you offer custom studio plans?</div>
@@ -307,7 +298,6 @@ function submitInquiry() {
   var inquiry = {
     id: Date.now(),
     name, email,
-    phone: document.getElementById('ct-phone').value,
     role: document.getElementById('ct-role').value,
     type, subject, message,
     source: document.getElementById('ct-source').value,

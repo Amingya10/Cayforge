@@ -6,7 +6,7 @@ const authRoutes = require('./auth');
 const designRoutes = require('./designs');
 const paymentRoutes = require('./payments');
 const webhookRoutes = require('./routes/webhooks');
-
+const contactRoutes = require('./contact');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -34,7 +34,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/designs', designRoutes);
 app.use('/api/payments', paymentRoutes);
-
+app.use('/api/contact', contactRoutes);
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message || 'Server error' });
 });

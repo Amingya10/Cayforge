@@ -7,6 +7,7 @@ const designRoutes = require('./designs');
 const paymentRoutes = require('./payments');
 const webhookRoutes = require('./routes/webhooks');
 const contactRoutes = require('./contact');
+const { rateLimit } = require('./rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -31,6 +32,12 @@ app.use(cors({
   credentials: true
 }));
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+// Rate limit specific auth endpoints BEFORE the general auth router mount.
+// Order matters: express tries middlewares in registration order.
+app.use('/api/auth/register', rateLimit('register'));
+app.use('/api/auth/login', rateLimit('login'));
+app.use('/api/designs', rateLimit('designs'));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/designs', designRoutes);
 app.use('/api/payments', paymentRoutes);

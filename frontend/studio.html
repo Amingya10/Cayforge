@@ -174,6 +174,21 @@ select option{background:#2a1f15}
 .account-stat .stat-val{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--clay-light)}
 .btn-manage{padding:10px 20px;background:none;border:1px solid rgba(196,113,74,.3);border-radius:8px;color:var(--ash);font-family:'DM Mono',monospace;font-size:.76rem;letter-spacing:.07em;cursor:pointer;transition:all .2s;margin-top:14px}
 .btn-manage:hover{border-color:var(--clay);color:var(--clay-light)}
+.verify-banner{display:none;background:linear-gradient(90deg,rgba(232,93,42,.14),rgba(232,93,42,.08));border-bottom:1px solid rgba(232,93,42,.3);padding:11px 20px;position:relative;z-index:99}
+.verify-banner.show{display:block}
+.vb-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.vb-icon{font-size:1.1rem;flex-shrink:0}
+.vb-text{flex:1;min-width:200px;font-size:.76rem;color:var(--cream);line-height:1.55;letter-spacing:.01em}
+.vb-text strong{color:#fdd9b8;font-weight:500}
+.vb-actions{display:flex;gap:6px;flex-shrink:0}
+.vb-btn{padding:6px 13px;background:rgba(232,93,42,.18);border:1px solid rgba(232,93,42,.4);border-radius:7px;color:#fdd9b8;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.vb-btn:hover{background:rgba(232,93,42,.3);color:var(--cream)}
+.vb-btn:disabled{opacity:.5;cursor:not-allowed}
+.vb-close{background:none;border:none;color:rgba(253,217,184,.5);font-size:1rem;cursor:pointer;padding:4px 8px;border-radius:5px;transition:color .2s}
+.vb-close:hover{color:var(--cream)}
+@media(max-width:560px){.vb-text{font-size:.72rem}.vb-btn{font-size:.62rem;padding:5px 10px}}
+.btn-primary.unverified-gated, .btn-action.unverified-gated{opacity:.45;cursor:not-allowed;position:relative}
+.btn-primary.unverified-gated:hover, .btn-action.unverified-gated:hover{transform:none;box-shadow:none;border-color:rgba(196,113,74,.28)}
 .toast{position:fixed;bottom:24px;right:24px;z-index:300;background:var(--clay-dark);color:var(--cream);padding:11px 18px;border-radius:9px;font-size:.78rem;letter-spacing:.04em;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
 .success-wrap{text-align:center;padding:80px 20px}
@@ -189,6 +204,19 @@ select option{background:#2a1f15}
 </style>
 </head>
 <body>
+
+<div class="verify-banner" id="verify-banner">
+  <div class="vb-inner">
+    <span class="vb-icon">📧</span>
+    <div class="vb-text">
+      <strong>Please verify your email</strong> to generate designs and export PDFs. We sent a link to <span id="vb-email">your inbox</span>.
+    </div>
+    <div class="vb-actions">
+      <button class="vb-btn" id="vb-resend-btn" onclick="resendVerification()">Resend email</button>
+      <button class="vb-close" onclick="dismissVerifyBanner()" title="Dismiss">✕</button>
+    </div>
+  </div>
+</div>
 
 <nav>
   <div class="nav-inner">
@@ -504,7 +532,7 @@ var user=null, token=null, authMode='signin', authCurrency='NGN', lastResults={}
 
 window.addEventListener('load', function() {
   var t=localStorage.getItem('cf_token'), u=localStorage.getItem('cf_user');
-  if(t&&u){token=t;user=JSON.parse(u);updateNav();refreshUser();}
+  if(t&&u){token=t;user=JSON.parse(u);updateNav();updateVerificationUI();refreshUser();}
   if(location.search.includes('payment=success')){verifyPaystackIfNeeded();showPage('success');}
 });
 
@@ -549,6 +577,7 @@ async function refreshUser() {
     user=fresh;
     localStorage.setItem('cf_user',JSON.stringify(fresh));
     updateNav();
+    updateVerificationUI();
     // If account page is currently active, refresh its display
     var accountPage=document.getElementById('page-account');
     if(accountPage && accountPage.classList.contains('active')) loadAccount();
@@ -557,7 +586,85 @@ async function refreshUser() {
     console.warn('Could not refresh user:',e.message);
   }
 }
-async function api(path,opts) {
+
+// ── EMAIL VERIFICATION UI ──
+// Show banner + gate generation/PDF buttons when emailVerified === false.
+// Banner dismissal is session-only; it reappears on next page load.
+
+function isUnverified(){
+  return token && user && user.emailVerified === false;
+}
+
+function updateVerificationUI(){
+  var banner=document.getElementById('verify-banner');
+  var emailSpan=document.getElementById('vb-email');
+  if(!banner) return;
+
+  if(isUnverified()){
+    if(emailSpan && user.email) emailSpan.textContent=user.email;
+    // Only show if user hasn't dismissed this session
+    if(!sessionStorage.getItem('cf_verify_dismissed')){
+      banner.classList.add('show');
+    }
+    // Gate generate buttons (the "Fire the kiln" primary buttons)
+    document.querySelectorAll('.btn-primary').forEach(function(b){
+      if(b.textContent.indexOf('kiln')!==-1 || b.textContent.indexOf('Transform')!==-1 || b.textContent.indexOf('Technical Specs')!==-1){
+        b.classList.add('unverified-gated');
+        b.setAttribute('title','Verify your email first');
+      }
+    });
+  } else {
+    banner.classList.remove('show');
+    document.querySelectorAll('.btn-primary.unverified-gated').forEach(function(b){
+      b.classList.remove('unverified-gated');
+      b.removeAttribute('title');
+    });
+    document.querySelectorAll('.btn-action.unverified-gated').forEach(function(b){
+      b.classList.remove('unverified-gated');
+      b.removeAttribute('title');
+    });
+  }
+}
+
+function dismissVerifyBanner(){
+  document.getElementById('verify-banner').classList.remove('show');
+  sessionStorage.setItem('cf_verify_dismissed','1');
+}
+
+async function resendVerification(){
+  var btn=document.getElementById('vb-resend-btn');
+  if(!user || !user.email){
+    toast('Sign in first');
+    return;
+  }
+  btn.disabled=true;
+  var originalText=btn.textContent;
+  btn.textContent='Sending…';
+  try{
+    var res=await fetch(getAPI()+'/api/auth/verification/resend',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:user.email})
+    });
+    if(res.status===429){
+      toast('Too many attempts. Please wait an hour.');
+      btn.disabled=false;
+      btn.textContent=originalText;
+      return;
+    }
+    btn.textContent='Sent ✓';
+    toast('Check '+user.email+' for the verification link.');
+    setTimeout(function(){
+      btn.disabled=false;
+      btn.textContent=originalText;
+    }, 5000);
+  }catch(e){
+    toast('Network error. Email hello@clayforge.app.');
+    btn.disabled=false;
+    btn.textContent=originalText;
+  }
+}
+  async function api(path,opts) {
   opts=opts||{};
   var headers={'Content-Type':'application/json'};
   if(token) headers['Authorization']='Bearer '+token;
@@ -573,6 +680,7 @@ async function generate(mode) {
   var prompt=promptEl.value.trim();
   if(!prompt){toast('Please describe your ceramic piece.');return;}
   if(!token){toast('Sign in to generate designs.');showPage('auth');return;}
+  if(isUnverified()){toast('Please verify your email first.');return;}
 
   var form='',clay='',style='',firing='',use='',transform='';
   if(mode==='invent'){
@@ -698,6 +806,7 @@ function loadImageAsDataURL(url){
 
 async function exportPDF(mode){
   var r=lastResults[mode]; if(!r) return;
+  if(isUnverified()){toast('Please verify your email to export PDF.');return;}
   toast('Preparing PDF…');
   try{
     await loadJsPDF();
@@ -993,7 +1102,7 @@ async function doAuth(){
     var data=await api(path,{method:'POST',body:JSON.stringify(body)});
     token=data.token;user=data.user;
     localStorage.setItem('cf_token',token);localStorage.setItem('cf_user',JSON.stringify(user));
-    updateNav();toast('Welcome, '+(user.name||user.email)+'!');showPage('studio');
+    updateNav();updateVerificationUI();toast('Welcome, '+(user.name||user.email)+'!');showPage('studio');
   }catch(e){document.getElementById('auth-err').textContent=e.message;}
 }
 function signOut(){

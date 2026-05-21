@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
+const { sendVerificationEmail } = require('./verification');
 const router = express.Router();
 const prisma = new PrismaClient();
 
@@ -39,10 +40,16 @@ router.post('/register', async (req, res) => {
         quotaResetAt,
       },
     });
+
+    // Send verification email — fire-and-forget so signup doesn't fail if Resend has a hiccup
+    sendVerificationEmail(user).catch(err => {
+      console.error('[register] Failed to send verification email:', err && err.message);
+    });
+
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({
       token,
-      user: { id: user.id, email: user.email, name: user.name, plan: user.plan },
+      user: { id: user.id, email: user.email, name: user.name, plan: user.plan, emailVerified: user.emailVerified },
     });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -59,7 +66,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({
       token,
-      user: { id: user.id, email: user.email, name: user.name, plan: user.plan },
+      user: { id: user.id, email: user.email, name: user.name, plan: user.plan, emailVerified: user.emailVerified },
     });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -76,6 +83,7 @@ router.get('/me', authenticateToken, async (req, res) => {
         email: true,
         name: true,
         plan: true,
+        emailVerified: true,
         cancelAt: true,
         quotaResetAt: true,
         designsThisPeriod: true,

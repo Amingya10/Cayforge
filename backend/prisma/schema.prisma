@@ -8,18 +8,21 @@ datasource db {
 }
 
 model User {
-  id                  String    @id @default(uuid())
-  email               String    @unique
-  password            String
-  name                String?
-  plan                String    @default("FREE")
-  designsThisPeriod   Int       @default(0)
-  quotaResetAt        DateTime  @default(now())
-  paystackRef         String?
-  cancelAt          DateTime?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  designs             Design[]
+  id                       String    @id @default(uuid())
+  email                    String    @unique
+  password                 String
+  name                     String?
+  plan                     String    @default("FREE")
+  emailVerified            Boolean   @default(false)
+  verificationToken        String?
+  verificationTokenExpiry  DateTime?
+  designsThisPeriod        Int       @default(0)
+  quotaResetAt             DateTime  @default(now())
+  paystackRef              String?
+  cancelAt                 DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  designs                  Design[]
 }
 
 model Design {

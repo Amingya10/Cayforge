@@ -7,6 +7,7 @@ const designRoutes = require('./designs');
 const paymentRoutes = require('./payments');
 const webhookRoutes = require('./routes/webhooks');
 const contactRoutes = require('./contact');
+const { router: verificationRoutes } = require('./verification');
 const { rateLimit } = require('./rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -36,8 +37,13 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 // Order matters: express tries middlewares in registration order.
 app.use('/api/auth/register', rateLimit('register'));
 app.use('/api/auth/login', rateLimit('login'));
+app.use('/api/auth/verification/resend', rateLimit('register'));
 app.use('/api/designs', rateLimit('designs'));
 
+// Mount verification BEFORE the general /api/auth router so its routes win.
+// /api/auth/verification/* hits verificationRoutes; everything else falls
+// through to authRoutes (register, login, me).
+app.use('/api/auth/verification', verificationRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/designs', designRoutes);
 app.use('/api/payments', paymentRoutes);

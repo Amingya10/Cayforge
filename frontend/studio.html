@@ -532,7 +532,7 @@ var user=null, token=null, authMode='signin', authCurrency='NGN', lastResults={}
 
 window.addEventListener('load', function() {
   var t=localStorage.getItem('cf_token'), u=localStorage.getItem('cf_user');
-  if(t&&u){token=t;user=JSON.parse(u);updateNav();updateVerificationUI();refreshUser();}
+  if(t&&u){token=t;user=JSON.parse(u);updateNav();refreshUser();}
   if(location.search.includes('payment=success')){verifyPaystackIfNeeded();showPage('success');}
 });
 
@@ -572,7 +572,11 @@ async function refreshUser() {
     var res=await fetch(getAPI()+'/api/auth/me',{
       headers:{'Authorization':'Bearer '+token}
     });
-    if(!res.ok) return; // 401/403 — token invalid, leave cache alone
+    if(!res.ok){
+      // 401/403 — token invalid; render UI from cache as a fallback
+      updateVerificationUI();
+      return;
+    }
     var fresh=await res.json();
     user=fresh;
     localStorage.setItem('cf_user',JSON.stringify(fresh));
@@ -582,11 +586,11 @@ async function refreshUser() {
     var accountPage=document.getElementById('page-account');
     if(accountPage && accountPage.classList.contains('active')) loadAccount();
   }catch(e){
-    // Network error — keep using cached user, don't break the app
+    // Network error — fall back to cache for UI decisions
     console.warn('Could not refresh user:',e.message);
+    updateVerificationUI();
   }
 }
-
 // ── EMAIL VERIFICATION UI ──
 // Show banner + gate generation/PDF buttons when emailVerified === false.
 // Banner dismissal is session-only; it reappears on next page load.

@@ -485,7 +485,7 @@ select option{background:#2a1f15}
         <li>Shared design library</li>
         <li>API access</li>
       </ul>
-      <button class="btn-plan" onclick="selectPlan('PORCELAIN')">Contact us</button>
+      <button class="btn-plan" onclick="selectPlan('PORCELAIN')">Subscribe to Professional</button>
     </div>
   </div>
   <div class="faq">
@@ -1195,7 +1195,6 @@ async function cancelSubscription(){
 }
   async function selectPlan(plan){
   if(plan==='FREE'){if(!token){showPage('auth');}else{showPage('studio');}return;}
-  if(plan==='PORCELAIN'){toast('Contact us at hello@clayforge.app');return;}
   if(!token){showPage('auth');toast('Sign in first.');return;}
   try{
     var res2=await api('/api/payments/paystack/initialize',{method:'POST',body:JSON.stringify({plan:plan})});

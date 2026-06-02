@@ -201,6 +201,22 @@ select option{background:#2a1f15}
 .footer-links a{color:var(--ash);text-decoration:none;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;transition:color .2s}
 .footer-links a:hover{color:var(--clay-light)}
 @media(max-width:520px){.footer-inner{flex-direction:column;text-align:center}}
+/* ── responsive nav (Fix 3) ── */
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-toggle{display:none;background:none;border:none;color:var(--sand);font-size:1.35rem;cursor:pointer;padding:2px 8px;border-radius:7px;line-height:1}
+.nav-toggle:hover{background:rgba(196,113,74,.1)}
+@media(max-width:760px){
+  .nav-inner{flex-wrap:wrap;height:auto;min-height:56px}
+  .nav-toggle{display:block;margin-left:auto}
+  .nav-links{display:none;flex-direction:column;align-items:stretch;width:100%;gap:2px;padding:6px 0 8px}
+  .nav-links.open{display:flex}
+  .nav-links .nav-btn{text-align:left;width:100%;padding:11px 12px}
+  .nav-links .nav-btn.cta{margin-left:0;margin-top:4px}
+  #nav-auth-area{width:100%}
+  .nav-user{margin-left:0;width:100%;justify-content:flex-start}
+}
+/* ── quota chip (Fix 4/5) ── */
+.quota-chip{display:inline-block;margin:0 0 14px;padding:5px 13px;border:1px solid rgba(196,113,74,.32);border-radius:20px;font-size:.72rem;color:var(--clay-light);letter-spacing:.04em;background:rgba(196,113,74,.06)}
 </style>
 </head>
 <body>
@@ -224,14 +240,17 @@ select option{background:#2a1f15}
       <div class="nav-logo-mark"></div>
       <span>Clayforge</span>
     </div>
-    <button class="nav-btn active" id="nb-studio" onclick="showPage('studio')">Studio</button>
-    <button class="nav-btn" id="nb-library" onclick="showPage('library')">Library</button>
-    <button class="nav-btn" onclick="location.href='/tools.html'">Tools</button>
-    <button class="nav-btn" onclick="location.href='/demo.html'">Guide</button>
-    <button class="nav-btn" onclick="location.href='/contact.html'">Contact</button>
-    <button class="nav-btn" id="nb-pricing" onclick="showPage('pricing')">Pricing</button>
-    <div id="nav-auth-area">
-      <button class="nav-btn cta" onclick="showPage('auth')">Sign In</button>
+    <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()" aria-label="Menu">☰</button>
+    <div class="nav-links" id="nav-links">
+      <button class="nav-btn active" id="nb-studio" onclick="showPage('studio')">Studio</button>
+      <button class="nav-btn" id="nb-library" onclick="showPage('library')">Library</button>
+      <button class="nav-btn" onclick="location.href='/tools.html'">Tools</button>
+      <button class="nav-btn" onclick="location.href='/demo.html'">Guide</button>
+      <button class="nav-btn" onclick="location.href='/contact.html'">Contact</button>
+      <button class="nav-btn" id="nb-pricing" onclick="showPage('pricing')">Pricing</button>
+      <div id="nav-auth-area">
+        <button class="nav-btn cta" onclick="showPage('auth')">Sign In</button>
+      </div>
     </div>
   </div>
 </nav>
@@ -452,7 +471,7 @@ select option{background:#2a1f15}
         <li>Design library</li>
         <li>Priority support</li>
       </ul>
-      <button class="btn-plan" onclick="selectPlan('STONEWARE')">Start 7-day free trial</button>
+      <button class="btn-plan" onclick="selectPlan('STONEWARE')">Subscribe to Maker</button>
     </div>
     <div class="plan">
       <div class="plan-name">Professional</div>
@@ -537,7 +556,13 @@ window.addEventListener('load', function() {
   if(location.search.includes('payment=success')){verifyPaystackIfNeeded();showPage('success');}
 });
 
+function toggleNav() {
+  var nl=document.getElementById('nav-links');
+  if(nl) nl.classList.toggle('open');
+}
+
 function showPage(name) {
+  var __nl=document.getElementById('nav-links'); if(__nl) __nl.classList.remove('open');
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   var pg=document.getElementById('page-'+name); if(pg) pg.classList.add('active');
   ['studio','library','pricing'].forEach(function(n){
@@ -743,9 +768,9 @@ async function generate(mode) {
     ].filter(function(s){return s.b&&s.b.trim();});
 
     lastResults[mode]={sections:sections,imageUrl:imageUrl||null};
-    var html=actionBar(mode)+renderSections(sections);
-    if(imageUrl) html+='<div class="render-card"><h3>✦ Visual Render</h3><img class="render-img" src="'+imageUrl+'" alt="Ceramic render"></div>';
-    if(data.quota) html+='<div class="quota-note">'+data.quota.remaining+' generation'+(data.quota.remaining!==1?'s':'')+' remaining this period</div>';
+    var renderHtml=imageUrl?'<div class="render-card"><h3>✦ Visual Render</h3><img class="render-img" src="'+imageUrl+'" alt="Ceramic render"></div>':'';
+    var quotaHtml=data.quota?'<div class="quota-chip">'+data.quota.remaining+' generation'+(data.quota.remaining!==1?'s':'')+' left this period</div>':'';
+    var html=actionBar(mode)+quotaHtml+renderHtml+renderSections(sections);
 
     if(loading) loading.classList.remove('on');
     if(resultWrap){resultWrap.innerHTML=html;resultWrap.classList.add('on');}

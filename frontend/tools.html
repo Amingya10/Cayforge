@@ -257,7 +257,7 @@ textarea{height:80px;resize:vertical}
           </select>
         </div>
       </div>
-      <button class="btn-primary" onclick="calcGlaze()">Calculate Batch →</button>
+      <button class="btn-primary" onclick="calcClay(true)">Calculate & Save Recipe →</button>
     </div>
 
     <div id="glaze-result" style="display:none">
@@ -802,7 +802,7 @@ function updateClayTotal() {
 
 function updateClayGrams() { calcClay(); }
 
-function calcClay() {
+function calcClay(doSave) {
   var batch = parseFloat(document.getElementById('clay-batch').value) || 10;
   var fire = document.getElementById('clay-fire').value;
   var use = document.getElementById('clay-use').value;
@@ -838,8 +838,8 @@ function calcClay() {
   document.getElementById('clay-result').style.display = 'block';
 
   // Save recipe
-  var name = document.getElementById('clay-name').value.trim();
-  if (name) {
+ var name = document.getElementById('clay-name').value.trim();
+  if (doSave && name) {
     var recipes = load('clayrecipes');
     var existing = recipes.findIndex(r => r.name === name);
     var recipe = { id: Date.now(), name, fire: document.getElementById('clay-fire').value, use, batch, shrink, plastic, texture };
@@ -960,7 +960,7 @@ function renderOrders() {
       <div class="oc-meta">${o.contact || ''} · Due: ${o.due || 'No date'}</div>
       <span class="order-status ${o.status}" onclick="cycleOrderStatus(${o.id})">${o.status.replace('-',' ')}</span>
       <div class="order-items">${o.items || ''}</div>
-      ${o.price ? '<div style="margin-top:8px;font-size:.75rem"><span style="color:var(--ash)">Price: </span><span style="color:var(--clay-light)">₦${o.price.toLocaleString()}</span> · <span style="color:var(--ash)">Deposit: </span><span style="color:var(--green)">₦${o.deposit.toLocaleString()}</span> · <span style="color:var(--ash)">Balance: </span><span style="color:#e8a84c">₦${(o.price - o.deposit).toLocaleString()}</span></div>' : ''}
+     ${o.price ? '<div style="margin-top:8px;font-size:.75rem"><span style="color:var(--ash)">Price: </span><span style="color:var(--clay-light)">₦' + o.price.toLocaleString() + '</span> · <span style="color:var(--ash)">Deposit: </span><span style="color:var(--green)">₦' + o.deposit.toLocaleString() + '</span> · <span style="color:var(--ash)">Balance: </span><span style="color:#e8a84c">₦' + (o.price - o.deposit).toLocaleString() + '</span></div>' : ''}
       ${o.notes ? '<div style="font-size:.72rem;color:var(--ash);margin-top:6px">' + o.notes + '</div>' : ''}
       <button class="oc-del" onclick="deleteOrder(${o.id})">✕</button>
     </div>`).join('');

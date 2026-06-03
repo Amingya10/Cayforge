@@ -39,12 +39,8 @@ const prisma = new PrismaClient();
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Plan limits (designs per 30-day period)
-const PLAN_LIMITS = {
-  FREE: 3,
-  STONEWARE: 25,
-  PORCELAIN: 100,
-};
+// Plan names and quota limits live in one place (./plans.js)
+const { planLimit, DEFAULT_PLAN } = require('./plans');
 
 // ---- Helper: refresh quota window if 30 days have passed ----
 async function refreshQuotaIfNeeded(user) 
@@ -53,13 +49,13 @@ async function refreshQuotaIfNeeded(user)
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        plan: 'FREE',
+        plan: DEFAULT_PLAN,
         cancelAt: null,
         designsThisPeriod: 0,
         quotaResetAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       }
     });
-    user.plan = 'FREE';
+    user.plan = DEFAULT_PLAN;
     user.cancelAt = null;
   }
   const now = new Date();
@@ -145,7 +141,7 @@ router.get('/quota/status', auth, async (req, res) => {
 
     user = await refreshQuotaIfNeeded(user);
 
-    const limit = PLAN_LIMITS[user.plan] || PLAN_LIMITS.FREE;
+    const limit = planLimit(user.plan);
     const remaining = Math.max(0, limit - user.designsThisPeriod);
 
     res.json({
@@ -178,7 +174,7 @@ router.post('/generate', auth, async (req, res) => {
     user = await refreshQuotaIfNeeded(user);
 
     // Hard block at limit
-    const limit = PLAN_LIMITS[user.plan] || PLAN_LIMITS.FREE;
+    const limit = planLimit(user.plan);
     if (user.designsThisPeriod >= limit) {
       return res.status(403).json({
         error: 'Quota exceeded',

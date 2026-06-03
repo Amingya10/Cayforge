@@ -2,14 +2,10 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
+const { DEFAULT_PLAN, PAID_PLANS, normalizePlan, planAmountKobo } = require('./plans');
 const prisma = new PrismaClient();
 
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY;
-
-const PLAN_AMOUNTS = {
-  STONEWARE: 850000,   // ₦8,500 in kobo
-  PORCELAIN: 2200000,  // ₦22,000 in kobo
-};
 
 // Shared auth helper — verifies JWT and returns decoded payload, or null
 function getUserFromAuth(req) {
@@ -29,7 +25,7 @@ function getUserFromAuth(req) {
 router.get('/status', async (req, res) => {
   try {
     const decoded = getUserFromAuth(req);
-    if (!decoded) return res.json({ plan: 'FREE', cancelAt: null });
+    if (!decoded) return res.json({ plan: DEFAULT_PLAN, cancelAt: null });
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
@@ -37,7 +33,7 @@ router.get('/status', async (req, res) => {
     });
 
     res.json({
-      plan: user?.plan || 'FREE',
+      plan: user?.plan || DEFAULT_PLAN,
       cancelAt: user?.cancelAt || null,
     });
   } catch (e) {
@@ -55,12 +51,12 @@ router.post('/paystack/initialize', async (req, res) => {
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const { plan } = req.body;
-    if (!plan || !PLAN_AMOUNTS[plan]) {
+    const plan = normalizePlan(req.body.plan);
+    if (!plan || !PAID_PLANS.includes(plan)) {
       return res.status(400).json({ error: 'Invalid plan' });
     }
 
-    const amount = PLAN_AMOUNTS[plan];
+    const amount = planAmountKobo(plan);
     const reference = `CF-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
     const response = await fetch('https://api.paystack.co/transaction/initialize', {
@@ -120,7 +116,9 @@ router.post('/paystack/verify', async (req, res) => {
       return res.status(400).json({ error: 'Payment not successful' });
     }
 
-    const { userId, plan } = data.data.metadata;
+    const { userId } = data.data.metadata;
+    // normalizePlan converts any in-flight transactions that still carry an old plan name
+    const plan = normalizePlan(data.data.metadata.plan);
     if (!userId || !plan) {
       return res.status(400).json({ error: 'Invalid payment metadata' });
     }
@@ -158,7 +156,9 @@ router.post('/paystack/webhook', express.raw({ type: 'application/json' }), asyn
     const event = req.body;
 
     if (event.event === 'charge.success') {
-      const { userId, plan } = event.data.metadata || {};
+      const meta = event.data.metadata || {};
+      const userId = meta.userId;
+      const plan = normalizePlan(meta.plan);
       if (userId && plan) {
         await prisma.user.update({
           where: { id: userId },
@@ -172,7 +172,7 @@ router.post('/paystack/webhook', express.raw({ type: 'application/json' }), asyn
       if (email) {
         await prisma.user.update({
           where: { email },
-          data: { plan: 'FREE', cancelAt: null },
+          data: { plan: DEFAULT_PLAN, cancelAt: null },
         });
       }
     }
@@ -192,7 +192,7 @@ router.post('/cancel', async (req, res) => {
 
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
     if (!user) return res.status(404).json({ error: 'User not found' });
-    if (user.plan === 'FREE') return res.status(400).json({ error: 'No active subscription to cancel' });
+    if (normalizePlan(user.plan) === DEFAULT_PLAN) return res.status(400).json({ error: 'No active subscription to cancel' });
     if (user.cancelAt) return res.status(400).json({ error: 'Subscription already cancelled' });
 
     const cancelDate = user.quotaResetAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);

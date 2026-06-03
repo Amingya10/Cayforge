@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
 const { sendVerificationEmail } = require('./verification');
+const { DEFAULT_PLAN } = require('./plans');
 const router = express.Router();
 const prisma = new PrismaClient();
 
@@ -36,6 +37,7 @@ router.post('/register', async (req, res) => {
         email,
         password: hashed,
         name,
+        plan: DEFAULT_PLAN,
         designsThisPeriod: 0,
         quotaResetAt,
       },

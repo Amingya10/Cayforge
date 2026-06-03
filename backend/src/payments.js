@@ -77,7 +77,7 @@ router.post('/paystack/initialize', async (req, res) => {
             { display_name: 'Plan', variable_name: 'plan', value: plan },
           ],
         },
-        callback_url: `${process.env.FRONTEND_URL || 'https://cayforge.vercel.app'}?payment=success&reference=${reference}`,
+        callback_url: `${process.env.FRONTEND_URL || 'https://cayforge.vercel.app'}/studio.html?payment=success&reference=${reference}`,
       }),
     });
 

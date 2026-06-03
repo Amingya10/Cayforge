@@ -301,7 +301,8 @@ select option{background:#2a1f15}
           <label class="field-label">Style / Inspiration</label>
           <select id="invent-style">
             <option value="">Any style</option>
-            <option>Traditional African</option><option>Hausa / Sahel</option>
+            <option>Traditional African</option><option>Western</option>
+            <option>Oriental</option><option>Islamic</option>
             <option>Contemporary minimal</option><option>Japanese wabi-sabi</option>
             <option>Brutalist / raw</option><option>Art Deco / geometric</option>
             <option>Organic / biomorphic</option><option>Folk / rustic</option><option>Futuristic</option>
@@ -554,6 +555,15 @@ window.addEventListener('load', function() {
   var t=localStorage.getItem('cf_token'), u=localStorage.getItem('cf_user');
   if(t&&u){token=t;user=JSON.parse(u);updateNav();refreshUser();}
   if(location.search.includes('payment=success')){verifyPaystackIfNeeded();showPage('success');}
+  else {
+    var h=(location.hash||'').replace('#','');
+    if(['studio','library','pricing','auth','account'].indexOf(h)!==-1) showPage(h);
+  }
+});
+
+// Re-check verification when returning to the tab (e.g. after verifying in another tab)
+document.addEventListener('visibilitychange', function(){
+  if(!document.hidden && isUnverified()) refreshUser();
 });
 
 function toggleNav() {
@@ -710,7 +720,11 @@ async function generate(mode) {
   var prompt=promptEl.value.trim();
   if(!prompt){toast('Please describe your ceramic piece.');return;}
   if(!token){toast('Sign in to generate designs.');showPage('auth');return;}
-  if(isUnverified()){toast('Please verify your email first.');return;}
+  if(isUnverified()){
+    // They may have verified in another tab — re-check with the server before blocking
+    await refreshUser();
+    if(isUnverified()){toast('Please verify your email first.');return;}
+  }
 
   var form='',clay='',style='',firing='',use='',transform='';
   if(mode==='invent'){

@@ -147,6 +147,31 @@ textarea{height:80px;resize:vertical}
 
 /* SECTION DIVIDER */
 .divider{border:none;border-top:1px solid rgba(196,113,74,.1);margin:20px 0}
+
+/* NAV — auth chip + responsive menu */
+.nav-btn.cta{background:var(--clay);color:var(--cream);margin-left:6px}
+.nav-btn.cta:hover{background:var(--clay-dark)}
+.nav-user{display:flex;align-items:center;gap:8px;margin-left:8px;padding:5px 11px;border:1px solid rgba(196,113,74,.25);border-radius:20px;cursor:pointer;transition:border-color .2s}
+.nav-user:hover{border-color:var(--clay)}
+.nav-user-name{font-size:.73rem;color:var(--ash)}
+.avatar{width:24px;height:24px;border-radius:50%;background:var(--clay);display:flex;align-items:center;justify-content:center;font-size:.68rem;color:var(--cream);font-weight:600;flex-shrink:0}
+.plan-badge-nav{font-size:.6rem;padding:2px 7px;border-radius:10px;letter-spacing:.08em;text-transform:uppercase}
+.plan-badge-nav.FREE{background:rgba(158,142,126,.15);color:var(--ash)}
+.plan-badge-nav.STONEWARE{background:rgba(196,113,74,.2);color:var(--clay-light)}
+.plan-badge-nav.PORCELAIN{background:rgba(201,168,76,.2);color:#c9a84c}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-toggle{display:none;background:none;border:none;color:var(--sand);font-size:1.35rem;cursor:pointer;padding:2px 8px;border-radius:7px;line-height:1}
+.nav-toggle:hover{background:rgba(196,113,74,.1)}
+@media(max-width:760px){
+  .nav-inner{flex-wrap:wrap;height:auto;min-height:56px}
+  .nav-toggle{display:block;margin-left:auto}
+  .nav-links{display:none;flex-direction:column;align-items:stretch;width:100%;gap:2px;padding:6px 0 8px}
+  .nav-links.open{display:flex}
+  .nav-links .nav-btn{text-align:left;width:100%;padding:11px 12px}
+  .nav-links .nav-btn.cta{margin-left:0;margin-top:4px}
+  #nav-auth-area{width:100%}
+  .nav-user{margin-left:0;width:100%;justify-content:flex-start}
+}
 </style>
 </head>
 <body>
@@ -157,8 +182,18 @@ textarea{height:80px;resize:vertical}
       <div class="nav-logo-mark"></div>
       <span>Clayforge</span>
     </a>
-    <button class="nav-btn" onclick="location.href='/'">Studio</button>
-    <button class="nav-btn active">Tools</button>
+    <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()" aria-label="Menu">☰</button>
+    <div class="nav-links" id="nav-links">
+      <button class="nav-btn" onclick="location.href='/'">Studio</button>
+      <button class="nav-btn" onclick="location.href='/#library'">Library</button>
+      <button class="nav-btn active">Tools</button>
+      <button class="nav-btn" onclick="location.href='/demo.html'">Guide</button>
+      <button class="nav-btn" onclick="location.href='/contact.html'">Contact</button>
+      <button class="nav-btn" onclick="location.href='/#pricing'">Pricing</button>
+      <div id="nav-auth-area">
+        <button class="nav-btn cta" onclick="location.href='/#auth'">Sign In</button>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -635,6 +670,29 @@ function showTool(name) {
   event.currentTarget.classList.add('active');
 }
 
+// ── NAV ──
+function toggleNav() {
+  var nl = document.getElementById('nav-links');
+  if (nl) nl.classList.toggle('open');
+}
+function renderNavAuth() {
+  var area = document.getElementById('nav-auth-area');
+  if (!area) return;
+  var names = { FREE:'Starter', STONEWARE:'Maker', PORCELAIN:'Professional' };
+  try {
+    var t = localStorage.getItem('cf_token');
+    var u = JSON.parse(localStorage.getItem('cf_user'));
+    if (t && u) {
+      var ini = u.name ? u.name.slice(0,2).toUpperCase() : '??';
+      var pk = u.plan || 'FREE';
+      area.innerHTML = '<div class="nav-user" onclick="location.href=\'/#account\'">' +
+        '<div class="avatar">' + ini + '</div>' +
+        '<span class="nav-user-name">' + (u.name || u.email) + '</span>' +
+        '<span class="plan-badge-nav ' + pk + '">' + (names[pk] || 'Starter') + '</span></div>';
+    }
+  } catch (e) {}
+}
+
 // ── STORAGE HELPERS ──
 function load(key) { try { return JSON.parse(localStorage.getItem('cf_' + key)) || []; } catch(e) { return []; } }
 function save(key, val) { localStorage.setItem('cf_' + key, JSON.stringify(val)); }
@@ -691,8 +749,9 @@ function calcGlaze() {
 
   var resultRows = '';
   rows.forEach(r => {
-    var name = r.querySelectorAll('input')[0].value || 'Ingredient';
     var pct = parseFloat(r.querySelectorAll('input')[1].value) || 0;
+    if (pct <= 0) return;
+    var name = r.querySelectorAll('input')[0].value || 'Ingredient';
     var grams = (pct / total * batch).toFixed(1);
     resultRows += '<div class="result-row"><span class="result-label">' + name + ' (' + pct + '%)</span><span class="result-val">' + grams + 'g</span></div>';
   });
@@ -818,8 +877,9 @@ function calcClay(doSave) {
 
   var resultRows = '';
   rows.forEach(r => {
-    var name = r.querySelectorAll('input')[0].value || 'Ingredient';
     var pct = parseFloat(r.querySelectorAll('input')[1].value) || 0;
+    if (pct <= 0) return;
+    var name = r.querySelectorAll('input')[0].value || 'Ingredient';
     var kg = (pct / total * batch).toFixed(2);
     resultRows += '<div class="result-row"><span class="result-label">' + name + ' (' + pct + '%)</span><span class="result-val">' + kg + 'kg</span></div>';
   });
@@ -980,6 +1040,7 @@ function deleteOrder(id) {
 
 // ── INIT ──
 window.onload = function() {
+  renderNavAuth();
   updateGlazeTotal();
   updateClayTotal();
   renderFirings();

@@ -29,6 +29,7 @@
 <title>Clayforge — Ceramic Design Studio</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://js.paystack.co/v1/inline.js"></script>
+<script>window.__PAYSTACK_PK__ = 'pk_live_REPLACE_WITH_YOUR_LIVE_PUBLIC_KEY';</script>
 <script type="module" src="/main.js"></script>
 <style>
 :root{--clay:#c4714a;--clay-dark:#8b4a2f;--clay-light:#e8a882;--earth:#2a1f15;--sand:#f5ede3;--ash:#9e8e7e;--glaze:#4a7c8b;--glaze-light:#7fb3c2;--kiln:#e85d2a;--cream:#faf6f0;--green:#4a8b5a}
@@ -50,9 +51,9 @@ nav{position:sticky;top:0;z-index:100;background:rgba(42,31,21,.96);backdrop-fil
 .nav-user-name{font-size:.73rem;color:var(--ash)}
 .avatar{width:24px;height:24px;border-radius:50%;background:var(--clay);display:flex;align-items:center;justify-content:center;font-size:.68rem;color:var(--cream);font-weight:600;flex-shrink:0}
 .plan-badge-nav{font-size:.6rem;padding:2px 7px;border-radius:10px;letter-spacing:.08em;text-transform:uppercase}
-.plan-badge-nav.FREE{background:rgba(158,142,126,.15);color:var(--ash)}
-.plan-badge-nav.STONEWARE{background:rgba(196,113,74,.2);color:var(--clay-light)}
-.plan-badge-nav.PORCELAIN{background:rgba(201,168,76,.2);color:#c9a84c}
+.plan-badge-nav.Starter{background:rgba(158,142,126,.15);color:var(--ash)}
+.plan-badge-nav.Maker{background:rgba(196,113,74,.2);color:var(--clay-light)}
+.plan-badge-nav.Professional{background:rgba(201,168,76,.2);color:#c9a84c}
 .page{display:none;position:relative;z-index:2}
 .page.active{display:block}
 .container{max-width:960px;margin:0 auto;padding:36px 20px}
@@ -457,7 +458,7 @@ select option{background:#2a1f15}
         <li>PDF export</li>
         <li class="dim">No design library</li>
       </ul>
-      <button class="btn-plan" onclick="selectPlan('FREE')">Get started free</button>
+      <button class="btn-plan" onclick="selectPlan('Starter')">Get started free</button>
     </div>
     <div class="plan featured">
       <div class="plan-badge">Most Popular</div>
@@ -472,7 +473,7 @@ select option{background:#2a1f15}
         <li>Design library</li>
         <li>Priority support</li>
       </ul>
-      <button class="btn-plan" onclick="selectPlan('STONEWARE')">Subscribe to Maker</button>
+      <button class="btn-plan" onclick="selectPlan('Maker')">Subscribe to Maker</button>
     </div>
     <div class="plan">
       <div class="plan-name">Professional</div>
@@ -486,7 +487,7 @@ select option{background:#2a1f15}
         <li>Shared design library</li>
         <li>API access</li>
       </ul>
-      <button class="btn-plan" onclick="selectPlan('PORCELAIN')">Subscribe to Professional</button>
+      <button class="btn-plan" onclick="selectPlan('Professional')">Subscribe to Professional</button>
     </div>
   </div>
   <div class="faq">
@@ -544,10 +545,9 @@ select option{background:#2a1f15}
 <div class="toast" id="toast"></div>
 
 <script>
-var PLAN_NAMES = { FREE:'Starter', STONEWARE:'Maker', PORCELAIN:'Professional' };
 function getAPI() { return window.__API_URL__ || 'https://cayforge-production.up.railway.app'; }
 function getPK()  { return window.__PAYSTACK_PK__ || ''; }
-function planLabel(p) { return PLAN_NAMES[p] || p || 'Starter'; }
+function planLabel(p) { return p || 'Starter'; }
 
 var user=null, token=null, authMode='signin', authCurrency='NGN', lastResults={};
 
@@ -587,7 +587,7 @@ function updateNav() {
   var area=document.getElementById('nav-auth-area');
   if(user){
     var ini=user.name?user.name.slice(0,2).toUpperCase():'??';
-    var planKey=user.plan||'FREE';
+    var planKey=user.plan||'Starter';
     area.innerHTML='<div class="nav-user" onclick="showPage(\'account\')">'+
       '<div class="avatar">'+ini+'</div>'+
       '<span class="nav-user-name">'+(user.name||user.email)+'</span>'+
@@ -1170,7 +1170,7 @@ async function loadAccount(){
     var designs=await api('/api/designs');
     document.getElementById('account-designs').textContent=Array.isArray(designs)?designs.length:0;
     var ps=await api('/api/payments/status');
-    if(ps.plan!=='FREE'){
+    if(ps.plan!=='Starter'){
       if(ps.cancelAt){
         var d=new Date(ps.cancelAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
         notice.style.display='block';
@@ -1208,7 +1208,7 @@ async function cancelSubscription(){
   }catch(e){toast('⚠ '+e.message);}
 }
   async function selectPlan(plan){
-  if(plan==='FREE'){if(!token){showPage('auth');}else{showPage('studio');}return;}
+  if(plan==='Starter'){if(!token){showPage('auth');}else{showPage('studio');}return;}
   if(!token){showPage('auth');toast('Sign in first.');return;}
   try{
     var res2=await api('/api/payments/paystack/initialize',{method:'POST',body:JSON.stringify({plan:plan})});
@@ -1216,7 +1216,7 @@ async function cancelSubscription(){
     if(pk&&typeof PaystackPop!=='undefined'){
       var handler=PaystackPop.setup({
         key:pk,email:user.email,
-        amount:plan==='STONEWARE'?850000:2200000,currency:'NGN',ref:res2.reference,
+        amount:plan==='Maker'?850000:2200000,currency:'NGN',ref:res2.reference,
        callback:async function(resp){
           try{
             await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:resp.reference})});

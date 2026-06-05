@@ -29,7 +29,6 @@
 <title>Clayforge — Ceramic Design Studio</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://js.paystack.co/v1/inline.js"></script>
-<script>window.__PAYSTACK_PK__ = 'pk_live_REPLACE_WITH_YOUR_LIVE_PUBLIC_KEY';</script>
 <script type="module" src="/main.js"></script>
 <style>
 :root{--clay:#c4714a;--clay-dark:#8b4a2f;--clay-light:#e8a882;--earth:#2a1f15;--sand:#f5ede3;--ash:#9e8e7e;--glaze:#4a7c8b;--glaze-light:#7fb3c2;--kiln:#e85d2a;--cream:#faf6f0;--green:#4a8b5a}
@@ -546,7 +545,7 @@ select option{background:#2a1f15}
 
 <script>
 function getAPI() { return window.__API_URL__ || 'https://cayforge-production.up.railway.app'; }
-function getPK()  { return window.__PAYSTACK_PK__ || ''; }
+function getPK()  { return window.__PAYSTACK_PK__ || 'pk_live_REPLACE_WITH_YOUR_LIVE_PUBLIC_KEY'; }
 function planLabel(p) { return p || 'Starter'; }
 
 var user=null, token=null, authMode='signin', authCurrency='NGN', lastResults={};

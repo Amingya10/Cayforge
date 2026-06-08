@@ -1216,12 +1216,14 @@ async function cancelSubscription(){
       var handler=PaystackPop.setup({
         key:pk,email:user.email,
         amount:plan==='Maker'?850000:2200000,currency:'NGN',ref:res2.reference,
-       callback:async function(resp){
-          try{
-            await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:resp.reference})});
-            await refreshUser();
-            showPage('success');
-          }catch(e){toast('⚠ Verification failed: '+e.message);}
+       callback:function(resp){
+          (async function(){
+            try{
+              await api('/api/payments/paystack/verify',{method:'POST',body:JSON.stringify({reference:resp.reference})});
+              await refreshUser();
+              showPage('success');
+            }catch(e){toast('⚠ Verification failed: '+e.message);}
+          })();
         },
         onClose:function(){}
       });
